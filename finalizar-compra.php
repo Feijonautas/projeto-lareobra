@@ -3,6 +3,11 @@
     $nomeEmpresa = "Bolsas em Couro";
     $descricaoPagina = "DESCRIÇÃO MODELO ATUALIZAR...";
     $tituloPagina = "Finalizar compra - $nomeEmpresa";
+
+
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 ?>
 <!DOCTYPE html>
 <html>
@@ -79,7 +84,7 @@
                 text-overflow: ellipsis;
             }
             .main-content .display-carrinho .item-carrinho .price-field{
-                width: calc(55% - 180px);
+                width: calc(50% - 180px);
                 display: flex;
                 height: 40px;
                 margin: 15px 0px 0px 0px;
@@ -206,6 +211,52 @@
             }
             .main-content .display-carrinho .bottom-info .botao-continuar:hover .icon-button{
                 right: 8px;
+            }
+            @media only all and (max-width: 1200px){
+                .main-content .display-carrinho .item-carrinho{
+                    flex-direction: column;
+                }
+                .main-content .display-carrinho .item-carrinho .information{
+                    width: calc(100% - 180px);  
+                    line-height: normal;
+                }
+                .main-content .display-carrinho .item-carrinho .information .titulo{
+                    white-space: normal;
+                    font-size: 1.3vw;
+                }
+                .main-content .display-carrinho .item-carrinho .price-field{
+                    font-size: 1.5vw;
+                    width: calc(100% - 180px);  
+                }
+                @media only all and (max-width: 480px){
+                    .main-content .titulo{
+                        font-size: 18px;
+                    }
+                    .display-formulario .small{
+                        width: 100%;
+                    }
+                    .main-content .display-carrinho .item-carrinho{
+                        padding: 10px;
+                        height: auto;
+                    }
+                    .main-content .display-carrinho .item-carrinho .box-imagem{
+                        width: 100%;
+                    }
+                    .main-content .display-carrinho .item-carrinho .information{
+                        width: 100%;
+                    }
+                    .main-content .display-carrinho .item-carrinho .information .titulo{
+                        font-size: 2vw;
+                    }
+                    .main-content .display-carrinho .item-carrinho .price-field{
+                        font-size: 100%;
+                        width: 100%;
+                    }
+                    .main-content .display-carrinho .item-carrinho .price-field .controller-preco .quantidade-produto{
+                        width: 25px;
+                        height: 25px;
+                    }
+                }
             }
             .botao-salvar{
                 background: #999;
@@ -354,7 +405,7 @@
                                         displayResultadoFrete.html("Ocorreu um erro ao calcular o frete. Recarregue a página e tente novamente.");
                                     },
                                     success: function(resultado){
-                                        
+                                        //console.log(resultado)
                                         var tituloServico = get_titulo_servico(codigo);
                                         
                                         if(resultado != false){
@@ -457,7 +508,7 @@
                                 },
                                 success: function(resposta){
                                     console.log(resposta);
-                                    if(resposta != "false" && resposta != "Unauthorized"){
+                                    if(resposta != "false" && resposta != "Unauthorized" && isJson(resposta)){
                                         resposta = JSON.parse(resposta);
                                         var confirmationCode = resposta.code;
                                         var reference = resposta.reference;
@@ -722,10 +773,11 @@
                     $tabela_imagens_produtos = $pew_custom_db->tabela_imagens_produtos;
                 
                     if(isset($_GET["token_carrinho"]) && $_GET["token_carrinho"] != ""){
-                        $cls_carrinho->rebuild_carrinho($_GET["token_carrinho"]);
+                        $carrinho_finalizar = $cls_carrinho->rebuild_carrinho($_GET["token_carrinho"]);
+                    }else{
+                        $carrinho_finalizar = $cls_carrinho->get_carrinho();
                     }
                 
-                    $carrinho_finalizar = $cls_carrinho->get_carrinho();
                     $carrinho_json = json_encode($carrinho_finalizar);
                     echo "<input type='hidden' value='$carrinho_json' id='carrinhoFinalizar'>";
                 
@@ -880,7 +932,7 @@
                                     $loginConta->montar_minha_conta($idCliente);
                                     $infoCliente = $loginConta->montar_array();
                                     echo "<span class='dados-compra'>";
-                                        echo "<input type='hidden' id='tokenCarrinho' value='{$_SESSION["carrinho"]["token"]}'>";
+                                        echo "<input type='hidden' id='tokenCarrinho' value='{$carrinho_finalizar["token"]}'>";
                                         echo "<input type='hidden' id='idCliente' value='{$infoCliente["id"]}'>";
                                         echo "<input type='hidden' id='nomeCliente' value='{$infoCliente["usuario"]}'>";
                                         echo "<input type='hidden' id='cpfCliente' value='{$infoCliente["cpf"]}'>";

@@ -169,8 +169,8 @@
                 
                 if($is_compre_junto){
                     $infoPrecoRelacionado = $this->classe_produtos->get_preco_relacionado($idProduto);
-                    $carrinho["itens"][$ctrlInterno]["preco"] = $this->pew_functions->custom_number_format($infoPrecoRelacionado["valor"]);
-                    $carrinho["itens"][$ctrlInterno]["desconto"] = $infoPrecoRelacionado["desconto"];
+                    $carrinho["itens"][$ctrl]["preco"] = $this->pew_functions->custom_number_format($infoPrecoRelacionado["valor"]);
+                    $carrinho["itens"][$ctrl]["desconto"] = $infoPrecoRelacionado["desconto"];
                 }
                     
                 $ctrl++;
@@ -208,8 +208,9 @@
             
             $total = $this->pew_functions->contar_resultados($tabela_carrinhos, "token_carrinho = '$token'");
             if($total > 0){
-                $_SESSION["carrinho"]["token"] = $token;
-                $_SESSION["carrinho"]["itens"] = array();
+                $carrinho = array();
+                $carrinho["token"] = $this->rand_token();
+                $carrinho["itens"] = array();
                 $ctrlProdutos = 0;
                 
                 $is_orcamento = $this->pew_functions->contar_resultados($tabela_orcamentos, "token_carrinho = '$token'") > 0 ? true : false;
@@ -223,21 +224,21 @@
                     if($cls_produtos->montar_produto($array["id_produto"])){
                         $infoProduto = $cls_produtos->montar_array();
                         
-                        $_SESSION["carrinho"]["itens"][$ctrlProdutos] = array();
-                        $_SESSION["carrinho"]["itens"][$ctrlProdutos]["id"] = $array["id_produto"];
-                        $_SESSION["carrinho"]["itens"][$ctrlProdutos]["nome"] = $array["nome_produto"];
-                        $_SESSION["carrinho"]["itens"][$ctrlProdutos]["preco"] = $array["preco_produto"];
-                        $_SESSION["carrinho"]["itens"][$ctrlProdutos]["estoque"] = $infoProduto["estoque"];
-                        $_SESSION["carrinho"]["itens"][$ctrlProdutos]["quantidade"] = $array["quantidade_produto"];
-                        $_SESSION["carrinho"]["itens"][$ctrlProdutos]["comprimento"] = $infoProduto["comprimento"];
-                        $_SESSION["carrinho"]["itens"][$ctrlProdutos]["largura"] = $infoProduto["largura"];
-                        $_SESSION["carrinho"]["itens"][$ctrlProdutos]["altura"] = $infoProduto["altura"];
-                        $_SESSION["carrinho"]["itens"][$ctrlProdutos]["peso"] = $infoProduto["peso"];
+                        $carrinho["itens"][$ctrlProdutos] = array();
+                        $carrinho["itens"][$ctrlProdutos]["id"] = $array["id_produto"];
+                        $carrinho["itens"][$ctrlProdutos]["nome"] = $array["nome_produto"];
+                        $carrinho["itens"][$ctrlProdutos]["preco"] = $array["preco_produto"];
+                        $carrinho["itens"][$ctrlProdutos]["estoque"] = $infoProduto["estoque"];
+                        $carrinho["itens"][$ctrlProdutos]["quantidade"] = $array["quantidade_produto"];
+                        $carrinho["itens"][$ctrlProdutos]["comprimento"] = $infoProduto["comprimento"];
+                        $carrinho["itens"][$ctrlProdutos]["largura"] = $infoProduto["largura"];
+                        $carrinho["itens"][$ctrlProdutos]["altura"] = $infoProduto["altura"];
+                        $carrinho["itens"][$ctrlProdutos]["peso"] = $infoProduto["peso"];
                         $ctrlProdutos++;
                     }
                 }
                 
-                return true;
+                return $carrinho;
                 
             }else{
                 return false;
@@ -276,7 +277,7 @@
             }
         }else if($acao == "get_header_carrinho"){
             require_once "@classe-system-functions.php";
-            echo "<h4 class='cart-title'>Sua Bolsa</h4>";
+            echo "<h4 class='cart-title'>Seu carrinho</h4>";
                 echo "<div class='display-itens'>";
                 $cls_carrinho = new Carrinho();
                 $carrinho = $cls_carrinho->get_carrinho();
@@ -299,7 +300,7 @@
                         echo "</div>";
                     }
                 }else{
-                    echo "<div align=center>Bolsa vazia</div>";
+                    echo "<div align=center>Carrinho vazio</div>";
                 }
                 echo "</div>";
                 echo "<div class='cart-bottom'>";

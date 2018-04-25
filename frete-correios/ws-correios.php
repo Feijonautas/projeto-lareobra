@@ -39,8 +39,6 @@ if($calcular){
     $data['sCdAvisoRecebimento'] = 'n';
     $data['StrRetorno'] = 'xml';
     $data['nCdServico'] = $codigoServico;
-    $data = http_build_query($data);
-
 
     $curl = curl_init($url . '?' . $data);
     
@@ -65,6 +63,8 @@ if($calcular){
     $xml = curl_exec($curl);
     
     curl_close($curl);
+    
+    //echo $xml; exit;
     
     $xml = simplexml_load_string($xml);
     
