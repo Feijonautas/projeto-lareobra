@@ -1,7 +1,7 @@
 <?php
     require_once "@include-global-vars.php";
 
-    $diretorioAPI = isset($_POST["diretorio"]) ? str_replace(" ", "", $_POST["diretorio"]) : "../";
+    $pewDiretorioAPI = isset($_POST["diretorio"]) ? str_replace(" ", "", $_POST["diretorio"]) : "../";
 
     class Pedidos{
         private $id = 0;
@@ -68,8 +68,8 @@
                 $_POST["console"] = false;
                 $_POST["codigo_referencia"] = $info["referencia"];
                 
-                global $diretorioAPI;
-                require "{$diretorioAPI}pagseguro/ws-pagseguro-consulta-referencia.php"; // Retorna o $statusPagseguro
+                global $pewDiretorioAPI;
+                require "{$pewDiretorioAPI}pagseguro/ws-pagseguro-consulta-referencia.php"; // Retorna o $statusPagseguro
                 
                 if(isset($statusPagseguro) && $statusPagseguro != $info["status"]){
                     mysqli_query($conexao, "update $tabela_pedidos set status = '$statusPagseguro' where id = '{$info["id"]}'");

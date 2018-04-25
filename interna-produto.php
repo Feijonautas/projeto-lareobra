@@ -1,6 +1,6 @@
 <?php
     session_start();
-    $nomeEmpresa = "Bolsas em Couro";
+    $nomeEmpresa = "Lar e Obra";
     
     require_once "@classe-system-functions.php";
     require_once "@classe-produtos.php";

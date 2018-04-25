@@ -1,7 +1,7 @@
 <?php
 
     session_start();
-    $nomeEmpresa = "Rei das Fechaduras";
+    $nomeEmpresa = "Lar e Obra";
 
     $buscarDepartamento = isset($_GET["departamento"]) ? true : false;
     $buscarCategoria = isset($_GET["categoria"]) ? true : false;

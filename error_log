@@ -1,4 +1,0 @@
-[25-Apr-2018 11:02:57 America/Sao_Paulo] PHP Fatal error:  Call to undefined method Produtos::buscar() in /home/efectus/public_html/bolsas/loja.php on line 321
-[25-Apr-2018 11:06:40 America/Sao_Paulo] PHP Fatal error:  Call to undefined method Produtos::buscar() in /home/efectus/public_html/bolsas/loja.php on line 321
-[25-Apr-2018 11:14:45 America/Sao_Paulo] PHP Fatal error:  Call to undefined method Produtos::buscar() in /home/efectus/public_html/bolsas/loja.php on line 321
-[25-Apr-2018 11:15:07 America/Sao_Paulo] PHP Fatal error:  Call to undefined method Produtos::buscar() in /home/efectus/public_html/bolsas/loja.php on line 325

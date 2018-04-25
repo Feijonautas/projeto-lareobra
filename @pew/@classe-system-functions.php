@@ -156,10 +156,10 @@
             }
             
             function enviar_email($assunto, $body, $destinatarios, $senderEmail = null, $senderPass = null, $anexos = null, $altBody = null){
-                $nomeLoja = "Rei das fechaduras";
+                $nomeLoja = "Lar e Obra";
                 
-                $senderEmail = $senderEmail == null ? "dev@efectusdigital.com.br" : $senderEmail;
-                $senderPass = $senderPass == null ? "3f3ctu5d1g1t4l" : $senderPass;
+                $senderEmail = $senderEmail == null ? "financeiro@lareobra.com.br" : $senderEmail;
+                $senderPass = $senderPass == null ? "Oreyeloco@123" : $senderPass;
                 $altBody = $altBody == null ? "E-mail enviado por $nomeLoja" : $altBody;
                 
                 
@@ -168,7 +168,7 @@
                     //Server settings
                     $mail->SMTPDebug = 2;
                     /*$mail->isSMTP();*/
-                    $mail->Host = 'mail.efectusdigital.com.br';  // Specify main and backup SMTP servers
+                    $mail->Host = 'smtp.lareobra.com.br';  // Specify main and backup SMTP servers
                     $mail->SMTPAuth = true;
                     $mail->Username = $senderEmail;
                     $mail->Password = $senderPass;

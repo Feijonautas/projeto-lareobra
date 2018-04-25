@@ -315,7 +315,7 @@
         width: 100%;
         margin-top: 60px;
         height: 100px;
-        border-bottom: 1px solid #333;
+        border-bottom: 1px solid #dedede;
         display: -webkit-box;
         display: -ms-flexbox;
         display: flex;
@@ -339,7 +339,6 @@
         -webkit-transition: .3s;
         -o-transition: .3s;
         transition: .3s;
-        background-color: #333;
     }
     .header-principal .nav-header .top-nav .search-field .form-focused{
         width: 100%;
@@ -349,9 +348,10 @@
         max-width: 100%;
         height: 30px;
         padding: 5px 40px 5px 5px;
-        border: 1px solid #333;
+        border: 1px solid #ccc;
         outline: none;
         -webkit-transition: .3s;
+        border-radius: 40px;
         -o-transition: .3s;
         transition: .3s;
     }
@@ -367,9 +367,11 @@
         -webkit-transition: .2s;
         -o-transition: .2s;
         transition: .2s;
+        border-radius: 40px;
+        color: #666;
     }
     .header-principal .nav-header .top-nav .search-field .search-submit:hover{
-        background-color: #111;
+        background-color: #6abd45;
         color: #fff;
     }
     .header-principal .nav-header .top-nav .logo-header{
@@ -386,7 +388,7 @@
         text-align: center;
     }
     .header-principal .nav-header .top-nav .logo-header img{
-        width: 45%;
+        width: 85%;
         -webkit-transition: .2s;
         -o-transition: .2s;
         transition: .2s;
@@ -446,7 +448,6 @@
         height: 100%;
         top: 0;
         left: 0;
-        background-color: #000;
         visibility: hidden;
         opacity: 0;
         -webkit-transition: .4s ease;
@@ -562,8 +563,12 @@
         -o-transition: .2s linear;
         transition: .2s linear;
         text-decoration: none;
-        color: #333;
+        color: #6abd45;
         font-weight: bold;
+    }
+    .header-principal .nav-header .display-links .link-especial{
+        background-color: #f6d53e;
+        color: #fff;
     }
     .header-principal .nav-header .display-links .sub-menu{
         background-color: #f6f6f6;
@@ -584,6 +589,9 @@
     .header-principal .nav-header .display-links .first-li:hover .link-principal{
         background-color: #f6f6f6;
     }
+    .header-principal .nav-header .display-links .first-li:hover .link-especial{
+        background-color: #6abd45;
+    }   
     .header-principal .nav-header .display-links .first-li:hover .sub-menu{
         opacity: 1;
         visibility: visible;
@@ -869,7 +877,7 @@
 </style>
 <header class="header-principal">
     <?php
-        $dirLogoPrincipal = "imagens/identidadeVisual/logo-bolsa-em-couro.png";
+        $dirLogoPrincipal = "imagens/identidadeVisual/logo-lareobra.png";
     ?>
     <nav class="nav-header">
         <div class="top-bar">
@@ -909,9 +917,9 @@
             ?>
             <div class="header-cart">
                 <div class="view-quantidade-carrinho"></div>
-                <div class="cart-button"><i class="fas fa-shopping-bag"></i></div>
+                <div class="cart-button"><i class="fas fa-shopping-cart"></i></div>
                 <div class="cart-display">
-                    <h4 class="cart-title">Sua Bolsa</h4>
+                    <h4 class="cart-title">Seu carrinho</h4>
                     <div class="display-itens">
                         <?php
                             require_once "@classe-carrinho-compras.php";
@@ -955,7 +963,7 @@
                     <button type="submit" class="search-submit"><i class="fas fa-search"></i></button>
                 </form>
             </div>
-            <div class="logo-header"><a href="index.php"><img src="<?php echo $dirLogoPrincipal;?>" alt="Logo - Bolsas em Couro by Maidi Grey" title="Página Inicial - Bolsas em Couro"></a></div>
+            <div class="logo-header"><a href="index.php"><img src="<?php echo $dirLogoPrincipal;?>" alt="Logo - Lar e Obra" title="Página Inicial - Lar e Obra"></a></div>
             <div class="social-media-field">
                 <a href="#" class="facebook"><i class="fab fa-facebook-f"></i></a>
                 <a href="#" class="instagram"><i class="fab fa-instagram"></i></a>
@@ -971,14 +979,16 @@
             private $sublinks;
             private $qtd_sub_sublinks;
             private $sub_sublinks;
+            private $classe;
 
-            function __construct($tituloLink, $urlLink){
+            function __construct($tituloLink, $urlLink, $classe = ""){
                 $this->titulo_link = $tituloLink;
                 $this->url_link = $urlLink;
                 $this->qtd_sublinks = 0;
                 $this->sublinks = array();
                 $this->qtd_sub_sublinks = 0;
                 $this->sub_sublinks = array();
+                $this->classe = $classe;
             }
 
             public function add_sublink($id, $titulo, $url){
@@ -1013,9 +1023,10 @@
                 $tituloPrincipal = $this->titulo_link;
                 $urlPrincipal = $this->url_link;
                 $subLinks = $this->sublinks;
+                $classe = $this->classe;
                 echo "<li class='first-li'>";
                 echo "<span>";
-                    echo "<a href='$urlPrincipal' class='link-principal'>$tituloPrincipal</a>";
+                    echo "<a href='$urlPrincipal' class='link-principal $classe'>$tituloPrincipal</a>";
                     if($this->qtd_sublinks > 0){
                         echo "<ul class='sub-menu'>";
                         foreach($subLinks as $subLink){
@@ -1182,10 +1193,11 @@
         }
         
         /*END LINKS ALTERAVEIS*/
-        
         $link_nav[$countLinks] = new NavLinks("DICAS", "dicas.php");
         $countLinks++;
         $link_nav[$countLinks] = new NavLinks("CONTATO", "contato.php");
+        $countLinks++;
+        $link_nav[$countLinks] = new NavLinks("<i class='far fa-star'></i> CLUBE DE DESCONTOS", "clube-de-descontos.php", "link-especial");
         $countLinks++;
         
         /*END LINKS*/
@@ -1197,7 +1209,7 @@
             echo "<div class='botao-nav-mobile'><i class='fas fa-bars'></i></div>";
             echo "<div class='nav-background'></div>";
             echo "<ul class='display-links'>";
-            echo "<li class='logo-menu-mobile'><img src='$dirLogoPrincipal'><div class='btn-voltar-menu' alt='Logo - Bolsas em Couro by Maidi Grey'><i class='fas fa-angle-double-left'></i></div></li>";
+            echo "<li class='logo-menu-mobile'><img src='$dirLogoPrincipal'><div class='btn-voltar-menu' alt='Logo - Lar e Obra'><i class='fas fa-angle-double-left'></i></div></li>";
                 foreach($link_nav as $link){
                     $link->listar_link();
                 }

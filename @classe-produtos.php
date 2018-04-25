@@ -151,6 +151,60 @@
             return $selectedProdutos;
         }
         
+        function buscar($condicao){
+            $tabela_produtos = $this->global_vars["tabela_produtos"];
+            
+            global $selectedFinal, $countFinal;
+            $selectedFinal = array();
+            $countFinal = 0;
+            
+            $condicao = str_replace("where", "", $condicao);
+            $condicao = addslashes($condicao);
+            
+            $selectedDepartamentos = $this->search_departamentos_produtos("departamento like '%$condicao%' or ref like '%$condicao%'");
+            $selectedCategorias = $this->search_categorias_produtos("categoria like '%$condicao%' or ref like '%$condicao%'");
+            $selectedSubcategorias = $this->search_subcategorias_produtos("subcategoria like '%$condicao%' or ref like '%$condicao%'");
+            
+            if(!function_exists("add")){
+                function add($idProduto){
+                    global $selectedFinal, $countFinal;
+
+                    $cls_produto = new Produtos();
+
+                    $is_ativo = $cls_produto->query_produto("id = '$idProduto' and status = 1") != false ? true : false;
+
+                    if(in_array($idProduto, $selectedFinal) != true && $is_ativo == true){
+                        $selectedFinal[$countFinal] = $idProduto;
+                        $countFinal++;
+                    }
+                }
+            }
+            
+            if(!function_exists("ler_array")){
+                function ler_array($array){
+                    if(is_array($array) && count($array) > 0){
+                        foreach($array as $index => $idProduto){
+                            add($idProduto);
+                        }
+                    }
+                }
+            }
+            
+            
+            // MAIN BUSCA
+            $strBusca = "id = '$condicao' or sku like '%$condicao%' or nome like '%$condicao%' or marca like '%$condicao%' and status = 1";
+            $query = mysqli_query($this->conexao(), "select id from $tabela_produtos where $strBusca");
+            while($info = mysqli_fetch_array($query)){
+                add($info["id"]);
+            }
+            
+            ler_array($selectedDepartamentos);
+            ler_array($selectedCategorias);
+            ler_array($selectedSubcategorias);
+            
+            return $selectedFinal;
+        }
+        
         public function montar_produto($idProduto){
             $tabela_produtos = $this->global_vars["tabela_produtos"];
             $tabela_imagens_produtos = $this->global_vars["tabela_imagens_produtos"];

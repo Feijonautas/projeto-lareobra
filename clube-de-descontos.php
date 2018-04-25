@@ -2,7 +2,7 @@
     session_start();
     $nomeEmpresa = "Lar e Obra";
     $descricaoPagina = "DESCRIÇÃO MODELO ATUALIZAR...";
-    $tituloPagina = "Frete grátis - $nomeEmpresa";
+    $tituloPagina = "Clube de Descontos - $nomeEmpresa";
 ?>
 <!DOCTYPE html>
 <html>
@@ -48,12 +48,8 @@
         ?>
         <!--THIS PAGE CONTENT-->
         <div class="main-content">
-            <h1 align=center>FRETE GRÁTIS</h1>
+            <h1 align=center>CLUBE DE DESCONTOS</h1>
             <article>Ao contrário do que se acredita, Lorem Ipsum não é simplesmente um texto randômico. Com mais de 2000 anos, suas raízes podem ser encontradas em uma obra de literatura latina. Lorem Ipsum não é simplesmente um texto randômico. Com mais de 2000 anos, suas raízes podem ser encontradas em uma obra de literatura latina.</article>
-            <br><br>
-            <h4>Acesse:</h4>
-            <a href="quem-somos.php" class="link-padrao">Quem somos</a>
-            <a href="garantia-de-qualidade.php" class="link-padrao">Garantia de qualidade</a>
         </div>
         <!--END THIS PAGE CONTENT-->
         <?php
