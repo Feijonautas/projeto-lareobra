@@ -158,19 +158,20 @@
             function enviar_email($assunto, $body, $destinatarios, $senderEmail = null, $senderPass = null, $anexos = null, $altBody = null){
                 $nomeLoja = "Lar e Obra";
                 
-                $senderEmail = $senderEmail == null ? "financeiro@lareobra.com.br" : $senderEmail;
-                $senderPass = $senderPass == null ? "Oreyeloco@123" : $senderPass;
+                $senderEmail = $senderEmail == null ? "contato@lareobra.com.br" : $senderEmail;
+                $senderPass = $senderPass == null ? "admlareobra@123" : $senderPass;
                 $altBody = $altBody == null ? "E-mail enviado por $nomeLoja" : $altBody;
                 
                 
                 $mail = new PHPMailer(true);                              // Passing `true` enables exceptions
                 try {
                     //Server settings
-                    $mail->SMTPDebug = 2;
-                    /*$mail->isSMTP();*/
-                    $mail->Host = 'smtp.lareobra.com.br';  // Specify main and backup SMTP servers
+                    /*$mail->SMTPDebug = 2;*/
+                    $mail->isSMTP();
+                    $mail->Host = 'smtps.f1.ultramail.com.br';  // Specify main and backup SMTP servers
                     $mail->SMTPAuth = true;
-                    $mail->Username = $senderEmail;
+                      
+                    $mail->Username = "contato=lareobra.com.br";
                     $mail->Password = $senderPass;
                     $mail->SMTPSecure = 'tls';                            // Enable TLS encryption, `ssl` also accepted
                     $mail->Port = 587;
@@ -207,7 +208,7 @@
                     return true;
                                       
                 } catch (Exception $e) {
-                    //$mail->ErrorInfo;
+                    echo $mail->ErrorInfo;
                     return false;
                 }
                 

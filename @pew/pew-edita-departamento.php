@@ -52,7 +52,7 @@
                     echo "<input type='text' class='label-input' placeholder='Título do departamento' name='titulo' id='tituloDepartamento' value='$titulo' maxlength='35'>";
                 echo "</div>";
             ?>
-            <div class="medium" style="margin-left: 10px;">
+            <div class="half" style="margin-left: 10px;">
                 <div class="select-categorias">
                     <h3 class="titulo">Categorias do menu</h3>
                     <ul class="list-categorias">
@@ -60,7 +60,7 @@
                             $condicaoCategorias = "status  = 1";
                             $totalCategorias = $pew_functions->contar_resultados($tabela_categorias, $condicaoCategorias);
                             if($totalCategorias > 0){
-                                $queryCategorias = mysqli_query($conexao, "select categoria, id from $tabela_categorias where $condicaoCategorias");
+                                $queryCategorias = mysqli_query($conexao, "select categoria, id from $tabela_categorias where $condicaoCategorias order by categoria asc");
                                 while($categorias = mysqli_fetch_array($queryCategorias)){
                                     $idCategoria = $categorias["id"];
                                     $categoria = $categorias["categoria"];
@@ -76,7 +76,7 @@
                 </div>
             </div>
             <?php
-                echo "<div class='large'>";
+                echo "<div class='half'>";
                     echo "<h3 class='label-title'>Descrição (opcional)</h3>";
                     echo "<textarea class='label-textarea' placeholder='Descrição do departamento' name='descricao' id='descricaoDepartamento' rows=5>$descricao</textarea>";
                 echo "</div>";

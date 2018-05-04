@@ -49,21 +49,20 @@
             $ext = pathinfo($imagem, PATHINFO_EXTENSION);
             $imagem = $nomeImagem."-dica-ref$refImg.".$ext;
             move_uploaded_file($_FILES["imagem"]["tmp_name"], $dirImagens.$imagem);
+            mysqli_query($conexao, "update $tabela_dica set imagem = '$imagem' where id = '$id'");
         }
         if($thumb != ""){
             $refImg = substr(md5(uniqid()), 0, 4);
             $ext = pathinfo($thumb, PATHINFO_EXTENSION);
             $thumb = $nomeImagem."-dicathumb-ref$refImg.".$ext;
             move_uploaded_file($_FILES["thumbnail"]["tmp_name"], $dirImagens.$thumb);
+            mysqli_query($conexao, "update $tabela_dica set thumb = '$thumb' where id = '$id'");
         }
 
-        mysqli_query($conexao, "update $tabela_dica set id = '$id', titulo = '$titulo', subtitulo = '$subtitulo', ref = '$refDicas', descricao_curta = '$descricaoCurta', descricao_longa = '$descricaoLonga', imagem = '$imagem', thumb = '$thumb', video = '$video', data_controle = '$data', status = '$status' where id = '$id'");
+        mysqli_query($conexao, "update $tabela_dica set id = '$id', titulo = '$titulo', subtitulo = '$subtitulo', ref = '$refDicas', descricao_curta = '$descricaoCurta', descricao_longa = '$descricaoLonga', video = '$video', data_controle = '$data', status = '$status' where id = '$id'");
         
-        header("location: pew-dicas.php");
-        echo "true";
+        echo "<script>window.location.href = 'pew-dicas.php?msg=Dica atualizada com sucesso!&msgType=success'</script>";
     }else{
-        echo "false";
-        echo "Contate um administrador";
-        print_r($invalid_fields);
+        echo "<script>window.location.href = 'pew-dicas.php?msg=Erro ao atualizar a dica'</script>";
     }
 ?>

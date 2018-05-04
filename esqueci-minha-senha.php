@@ -32,6 +32,30 @@
                 text-align: justify;
                 margin: 40px 0px 0px 0px;
             }
+            .display-center{
+                width: 90%;
+                padding: 10px;
+                margin: 0 auto;
+                text-align: center;
+            }
+            .display-center form{
+                max-width: 320px; 
+                margin: 0 auto;
+            }
+            .display-center article{
+                margin-bottom: 15px;
+            }
+            .display-center .botao-enviar{
+                margin-top: 15px;
+                background-color: #333;
+                color: #fff;
+                padding: 6px 15px 6px 15px;
+                border: none;
+                cursor: pointer;
+            }
+            .display-center .botao-enviar:hover{
+                background-color: #111;   
+            }
         </style>
         <!--END PAGE CSS-->
         <!--PAGE JS-->
@@ -53,7 +77,31 @@
         <!--THIS PAGE CONTENT-->
         <div class="main-content">
             <h1 align=center>ESQUECI MINHA SENHA</h1>
-            <article>Ao contrário do que se acredita, Lorem Ipsum não é simplesmente um texto randômico. Com mais de 2000 anos, suas raízes podem ser encontradas em uma obra de literatura latina clássica datada de 45 AC. Richard McClintock, um professor de latim do Hampden-Sydney College na Virginia, pesquisou uma das mais obscuras palavras em latim, consectetur, oriunda de uma passagem de Lorem Ipsum, e, procurando por entre citações da palavra na literatura clássica, descobriu a sua indubitável origem. Lorem Ipsum vem das seções 1.10.32 e 1.10.33 do "de Finibus Bonorum et Malorum" (Os Extremos do Bem e do Mal), de Cícero, escrito em 45 AC. Este livro é um tratado de teoria da ética muito popular na época da Renascença. A primeira linha de Lorem Ipsum, "Lorem Ipsum dolor sit amet..." vem de uma linha na seção 1.10.32.</article>
+            <div class='display-center'>
+                <?php
+                    require_once "@pew/pew-system-config.php";
+                    $tabela_minha_conta = $pew_custom_db->tabela_minha_conta;
+                
+                    $getEmail = isset($_POST["remember_email"]) ? addslashes($_POST["remember_email"]) : null;
+                
+                    $totalEmail = $pew_functions->contar_resultados($tabela_minha_conta, "email = '$getEmail'");
+
+                    if($getEmail != null){
+                        if($totalEmail > 0){
+                            echo "Enviando e-mail para: <b>$getEmail</b> com o link para redefinir sua senha.";
+                        }else{
+                            echo "Não foi encontrado nenhum cadastro com este e-mail.";
+                            echo "<br><br><a href='esqueci-minha-senha.php' class='link-padrao'>Tentar outro e-mail</a>";
+                        }
+                    }else{
+                        echo "<form method='post' action=''>
+                            <article>Insira seu e-mail abaixo para redefinir sua senha.</article>
+                            <input type='text' name='remember_email' id='rememberEmail' placeholder='E-mail' class='input-standard'>
+                            <input type='submit' value='Enviar' class='botao-enviar'>
+                        </form>";
+                    }
+                ?>
+            </div>
         </div>
         <!--END THIS PAGE CONTENT-->
         <?php

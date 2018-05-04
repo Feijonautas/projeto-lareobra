@@ -126,8 +126,7 @@
 				cursor: pointer;
 			}
 			.display-form .form .btn-contato:hover{
-				background-color: #fff;
-				color: #FFB800;
+				background-color: #d89c00;
 			}
 			.display-form .form .titulo-input{
 				margin: 15px 0px 5px 0px;

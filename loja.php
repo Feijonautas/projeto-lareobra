@@ -1,5 +1,9 @@
 <?php
 
+    ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
     session_start();
     $nomeEmpresa = "Lar e Obra";
 
@@ -81,9 +85,13 @@
         <style>
             .background-loja{
                 width: 100%;
+                min-height: 300px;
+                background-color: #eee;
             }
             .background-loja img{
                 width: 100%;
+                display: block;
+                margin: 0px;
             }
             .main-content{
                 position: relative;

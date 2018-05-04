@@ -39,7 +39,7 @@
             <form action="pew-contatos.php" method="get" class="label half clear">
                 <label class="group">
                     <div class="group">
-                        <h3 class="label-title">Busca de produtos</h3>
+                        <h3 class="label-title">Busca de contatos</h3>
                     </div>
                     <div class="group">
                         <div class="xlarge" style="margin-left: -5px; margin-right: 0px;">

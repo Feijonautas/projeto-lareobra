@@ -45,11 +45,21 @@
                 color: inherit;
                 text-decoration: none;
             }
+            .main-content .box .breadcrumb a:hover{
+                text-decoration: underline;
+            }
             .main-content .display{
                 width: 75vw;
                 margin: 10vh auto;
                 color: #aaa;
-                text-align: center;
+            }
+            .main-content article{
+                color: #333;   
+            }
+            @media screen and (max-width: 840px){
+                .main-content .box .breadcrumb{
+                    font-size: 2vh;
+                }
             }
         </style>
         <!--END PAGE CSS-->
@@ -112,6 +122,7 @@
                                 echo $video;
                             }
                             echo "<article>$descricaoLonga</article>";
+                            echo "<center><a href='dicas.php' class='link-padrao'>Voltar para Dicas</a></center>";
                         echo "</div>";
                     }
 				}

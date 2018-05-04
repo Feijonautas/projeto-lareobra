@@ -571,7 +571,7 @@
         color: #fff;
     }
     .header-principal .nav-header .display-links .sub-menu{
-        background-color: #f6f6f6;
+        background-color: #fefefe;
         padding: 0px;
         position: absolute;
         top: 60px;
@@ -607,7 +607,7 @@
     .header-principal .nav-header .display-links .sub-menu .sub-link{
         display: block;
         text-decoration: none;
-        color: #333;
+        color: #666;
         width: 85%;
         padding: 10px;
         padding-left: 5%;
@@ -958,8 +958,8 @@
         </div>
         <div class="top-nav">
             <div class="search-field">
-                <form name="busca" method="get" action="busca-produtos.php">
-                    <input type="search" class="search-bar" placeholder="O QUE VOCÊ PROCURA?">
+                <form name="busca" method="get" action="loja.php">
+                    <input type="search" class="search-bar" placeholder="O QUE VOCÊ PROCURA?" name="busca">
                     <button type="submit" class="search-submit"><i class="fas fa-search"></i></button>
                 </form>
             </div>
@@ -1197,7 +1197,7 @@
         $countLinks++;
         $link_nav[$countLinks] = new NavLinks("CONTATO", "contato.php");
         $countLinks++;
-        $link_nav[$countLinks] = new NavLinks("<i class='far fa-star'></i> CLUBE DE DESCONTOS", "clube-de-descontos.php", "link-especial");
+        $link_nav[$countLinks] = new NavLinks("<i class='fas fa-star'></i> CLUBE DE DESCONTOS", "clube-de-descontos.php", "link-especial");
         $countLinks++;
         
         /*END LINKS*/
@@ -1286,7 +1286,10 @@
             var whiteSpace = 10;
             var alturaDisplayLinks = parseFloat(scrollDisplayLinks) - parseFloat(whiteSpace);
             var tamanhoDisplayLinks = displayLinks.height();
-            if(scrollAtual >= alturaDisplayLinks){
+            
+            var is_over_menu = $(".display-links:hover").length > 0 ? true : false;
+            
+            if(scrollAtual >= alturaDisplayLinks && is_over_menu == false){
                 if(!botaoNavMobile.hasClass("active-botao")){
                     botaoNavMobile.addClass("active-botao");
                 }

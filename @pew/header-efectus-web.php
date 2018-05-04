@@ -307,7 +307,7 @@
                 $linksPrincipais[5]["sub_link"][2]["url_sub_link"] = "pew-config-orcamentos.php";
                 /*Sexto Link*/
                 $linksPrincipais[6]["titulo_link"] = "Mensagens";
-                $linksPrincipais[6]["url_link"] = "pew-newsletter.php";
+                $linksPrincipais[6]["url_link"] = "pew-contatos.php";
                 $linksPrincipais[6]["sub_link"][0]["titulo_sub_link"] = "<i class='far fa-comment'></i> Contatos";
                 $linksPrincipais[6]["sub_link"][0]["url_sub_link"] = "pew-contatos.php";
                 $linksPrincipais[6]["sub_link"][1]["titulo_sub_link"] = "<i class='far fa-envelope'></i> E-mails newsletter";

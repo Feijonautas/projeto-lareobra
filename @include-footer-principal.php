@@ -4,7 +4,7 @@
         display: flex;
         justify-content: center;
         align-content: center;
-        background-color: #e2e2e2;
+        background-color: #f9f9f9;
         font-size: 16px;
         flex-flow: row wrap;
         overflow: hidden;
@@ -303,8 +303,6 @@
         $countLinks = 0;
 
         $link_footer = null;
-        $link_footer[$countLinks] = new FooterLinks("PÁGINA INICIAL", "index.php");
-        $countLinks++;
         
         /*SET TABLES*/
         require_once "@pew/pew-system-config.php";
@@ -338,7 +336,7 @@
                 $departamentoLinks[$ctrlDepartamentoLinks]["url"] = $urlDepartamento;
                 $qtdSub = $pew_functions->contar_resultados($tabela_links_menu, "id_departamento = '$idDepartamento'");
                 if($qtdSub > 0){
-                    $querySub = mysqli_query($conexao, "select * from $tabela_links_menu where id_departamento = '$idDepartamento'");
+                    $querySub = mysqli_query($conexao, "select * from $tabela_links_menu where id_departamento = '$idDepartamento' limit 5");
                     $ctrlSub = 0;
                     $departamentoLinks[$ctrlDepartamentoLinks]["sublinks"] = array();
                     while($infoSub = mysqli_fetch_array($querySub)){
@@ -391,6 +389,9 @@
         
         $link_footer[$countLinks] = new FooterLinks("DICAS", "dicas.php");
         $countLinks++;
+        
+        $link_footer[$countLinks] = new FooterLinks("PÁGINA INICIAL", "index.php");
+        $countLinks++;
 
         $quantidadeLinks = count($link_footer);
         if($quantidadeLinks > 0){
@@ -436,5 +437,9 @@
             <li class='first-li'><span><a href="formas-de-pagamento.php" class="link-principal">FORMAS DE PAGAMENTO</a></span></li>
             <li class='first-li'><span><a href="seguranca.php" class="link-principal">SEGURANÇA</a></span></li>
         </ul>
+        <center>
+            <h5 style='font-weight: normal;'>CNPJ: 20.445.155/0001-49 / I.E:9066700469</h5>
+            <h4 style='font-weight: normal;'>Copyright © Lar & Obra 2017 | Todos os direitos reservados.</h4>
+        </center>
     </div>
 </footer>

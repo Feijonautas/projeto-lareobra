@@ -68,7 +68,7 @@
 				-webkit-box-shadow: 0px 0px 6px 1px rgba(0, 0, 0, .1);
 				-moz-box-shadow: 0px 0px 6px 1px rgba(0, 0, 0, .1);
 				box-shadow: 0px 0px 6px 1px rgba(0, 0, 0, .1);
-				height: 168px;
+                padding-bottom: 10px;
 			}
 			.main-content .display-cont .box-cont .item-int-desc{
 				width: 90%;
