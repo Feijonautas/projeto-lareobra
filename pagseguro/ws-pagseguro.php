@@ -120,7 +120,7 @@ if($enviarDados){
         
         $confirmationCode = $xml->code;
 
-        echo '{"reference": "'.$data['reference'].'", "code": "'.$confirmationCode.'"}'; // RETORNO EM JSON
+        echo '{"reference": "'.$data['reference'].'", "code": "'.$confirmationCode.'", "vlr_frete": "'.$valorFrete.'"}'; // RETORNO EM JSON
         
     }else{
         echo "false";
