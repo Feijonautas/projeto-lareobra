@@ -1,6 +1,6 @@
 <?php
     session_start();
-    $nomeEmpresa = "Lar e Obra";
+    $nomeEmpresa = "Bolsas em Couro";
     
     require_once "@classe-system-functions.php";
     require_once "@classe-produtos.php";
@@ -626,7 +626,7 @@
                             echo "<div class='box-miniaturas'><img src='$dirImagensProduto/produto-padrao.png' alt='$nomeEmpresa - $nomeProduto - Imagem $ctrlImagens' class='miniatura'></div>";
                         }
                 
-                        if($urlVideo != null && $urlVideo != false){
+                        if($urlVideo != null){
                             echo "<div class='box-play'><i class='fas fa-play-circle icon-play'></i>Veja o vídeo</div>";
                             echo "<div class='display-video'>$urlVideo <button class='botao-voltar'><i class='fas fa-times'></i> VOLTAR</button></div>";
                         }

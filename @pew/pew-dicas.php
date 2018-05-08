@@ -79,7 +79,7 @@
                 if($totalDicas > 0){
                     echo "<thead>";
                         echo "<td>Titulo</td>";
-                        echo "<td>Subtitulo</td>";
+                        echo "<td>Sub-titulo</td>";
                         echo "<td>Descricao curta</td>";
                         echo "<td>Data Controle</td>";
                         echo "<td>Status</td>";
@@ -96,10 +96,16 @@
                         $status = $dica["status"];
                         switch($status){
                             case 1:
-                                $status = "Ativo";
+                                $status = "Manter contato";
+                                break;
+                            case 2:
+                                $status = "Finalizado";
+                                break;
+                            case 3:
+                                $status = "Cancelado";
                                 break;
                             default:
-                                $status = "Inativo";
+                                $status = "Fazer primeiro contato";
                         }
                         echo "<tr><td>$titulo</td>";
                         echo "<td>$subtitulo</td>";
@@ -110,7 +116,7 @@
                     }
                     echo "</tbody></table>";
                 }else{
-                    $msg = $strBusca != "" ? "Nenhum resultado encontrado. <a href='pew-dicas.php' class='link-padrao'><b>Voltar<b></a>" : "Nenhuma dica foi cadastrada.";
+                    $msg = $strBusca != "" ? "Nenhum resultado encontrado. <a href='pew-dicas.php' class='link-padrao'><b>Voltar<b></a>" : "Nenhum pedido foi enviado ainda.";
                     echo "<br><br><br><br><br><h3 align='center'>$msg</h3></td>";
                 }
             ?>

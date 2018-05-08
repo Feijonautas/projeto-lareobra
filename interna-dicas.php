@@ -1,6 +1,6 @@
 <?php
     session_start();
-    $nomeEmpresa = "Lar e Obra";
+    $nomeEmpresa = "Bolsas em Couro";
     $descricaoPagina = "DESCRIÇÃO MODELO ATUALIZAR...";
     $tituloPagina = "Titulo da dica - $nomeEmpresa";
 ?>
@@ -45,21 +45,11 @@
                 color: inherit;
                 text-decoration: none;
             }
-            .main-content .box .breadcrumb a:hover{
-                text-decoration: underline;
-            }
             .main-content .display{
                 width: 75vw;
                 margin: 10vh auto;
                 color: #aaa;
-            }
-            .main-content article{
-                color: #333;   
-            }
-            @media screen and (max-width: 840px){
-                .main-content .box .breadcrumb{
-                    font-size: 2vh;
-                }
+                text-align: center;
             }
         </style>
         <!--END PAGE CSS-->
@@ -122,7 +112,6 @@
                                 echo $video;
                             }
                             echo "<article>$descricaoLonga</article>";
-                            echo "<center><a href='dicas.php' class='link-padrao'>Voltar para Dicas</a></center>";
                         echo "</div>";
                     }
 				}

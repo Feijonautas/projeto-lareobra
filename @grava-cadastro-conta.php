@@ -55,7 +55,7 @@
             $destinatarios[0] = array();
             $destinatarios[0]["nome"] = $nome;
             $destinatarios[0]["email"] = $email;
-            
+
             $pew_functions->enviar_email("Confirme sua conta - Lar e Obra", $bodyEmail, $destinatarios);
             echo "true";
         }else{

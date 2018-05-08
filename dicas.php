@@ -1,6 +1,6 @@
 <?php
     session_start();
-    $nomeEmpresa = "Lar e Obra";
+    $nomeEmpresa = "Bolsas em Couro";
     $descricaoPagina = "DESCRIÇÃO MODELO ATUALIZAR...";
     $tituloPagina = "Dicas - $nomeEmpresa";
 ?>
@@ -68,7 +68,7 @@
 				-webkit-box-shadow: 0px 0px 6px 1px rgba(0, 0, 0, .1);
 				-moz-box-shadow: 0px 0px 6px 1px rgba(0, 0, 0, .1);
 				box-shadow: 0px 0px 6px 1px rgba(0, 0, 0, .1);
-                padding-bottom: 10px;
+				height: 168px;
 			}
 			.main-content .display-cont .box-cont .item-int-desc{
 				width: 90%;

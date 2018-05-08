@@ -73,7 +73,6 @@
         formCadastra.off().on("submit", function(){
             event.preventDefault();
             if(cadastrar){
-                cadastrar = false;
                 var formulario = new FormData($(this)[0]);
                 var objInfoCategoria = $("#infoCategoria");
                 var infoCategoria = objInfoCategoria.val();

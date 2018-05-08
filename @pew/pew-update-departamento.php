@@ -34,7 +34,7 @@
                 $queryID = mysqli_query($conexao, "select id from $tabela_departamentos where ref = '$str'");
                 $infoID = mysqli_fetch_array($queryID);
                 $getID = $infoID["id"];
-                $return = $getID == $idDepartamento ? true : false;
+                $return = $getID == $idCategoria ? true : false;
             }
             return $return;
         }

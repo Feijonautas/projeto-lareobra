@@ -123,9 +123,9 @@
         }
         
         function montar_email($nome, $produtos, $desconto, $tokenCarrinho){
-            $baseSite = "https://www.lareobra.com.br/dev";
+            $baseSite = "https://efectusdigital.com.br/bolsas";
             $dirImagens = "imagens/identidadeVisual/";
-            $logo = "logo-lareobra.png";
+            $logo = "logo-bolsa-em-couro.png";
             
             $body = "";
             

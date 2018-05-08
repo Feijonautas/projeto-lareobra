@@ -1,6 +1,6 @@
 <?php
     session_start();
-    $nomeEmpresa = "Lar e Obra";
+    $nomeEmpresa = "Bolsas em Couro";
     $descricaoPagina = "DESCRIÇÃO MODELO ATUALIZAR...";
     $tituloPagina = "Página Inicial - $nomeEmpresa";
 

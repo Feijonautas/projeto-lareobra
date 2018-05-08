@@ -9,7 +9,7 @@
 
 ?>
 
-<script async>
+<script>
     $(document).ready(function(){
         
         // PAGINA INTERNA DO PRODUTO

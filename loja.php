@@ -1,11 +1,7 @@
 <?php
 
-    ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
     session_start();
-    $nomeEmpresa = "Lar e Obra";
+    $nomeEmpresa = "Bolsas em couro";
 
     $buscarDepartamento = isset($_GET["departamento"]) ? true : false;
     $buscarCategoria = isset($_GET["categoria"]) ? true : false;
@@ -90,8 +86,6 @@ error_reporting(E_ALL);
             }
             .background-loja img{
                 width: 100%;
-                display: block;
-                margin: 0px;
             }
             .main-content{
                 position: relative;
