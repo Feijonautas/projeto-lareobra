@@ -52,6 +52,7 @@
         <meta name="description" content="<?php echo $cls_paginas->descricao;?>">
         <meta name="author" content="Efectus Web">
         <title><?php echo $cls_paginas->titulo;?></title>
+        <link type="image/png" rel="icon" href="imagens/identidadeVisual/logo-icon.png">
         <!--DEFAULT LINKS-->
         <?php
             require_once "@link-standard-styles.php";
@@ -627,7 +628,7 @@
                             echo "<div class='box-miniaturas'><img src='$dirImagensProduto/produto-padrao.png' alt='{$cls_paginas->empresa} - $nomeProduto - Imagem $ctrlImagens' class='miniatura'></div>";
                         }
                 
-                        if($urlVideo != null){
+                        if($urlVideo != null && $urlVideo != 0){
                             echo "<div class='box-play'><i class='fas fa-play-circle icon-play'></i>Veja o vídeo</div>";
                             echo "<div class='display-video'>$urlVideo <button class='botao-voltar'><i class='fas fa-times'></i> VOLTAR</button></div>";
                         }

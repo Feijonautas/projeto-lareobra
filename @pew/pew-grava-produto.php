@@ -1,6 +1,10 @@
 <?php
 
-    $post_fields = array("sku", "codigo_barras", "nome", "marca", "id_cor", "preco", "preco_promocao", "promocao_ativa", "desconto_relacionado", "estoque", "estoque_baixo", "tempo_fabricacao", "descricao_curta", "descricao_longa", "url_video", "peso", "comprimento", "largura", "altura", "status");
+    ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+    $post_fields = array("sku", "nome", "marca", "id_cor", "preco", "preco_promocao", "promocao_ativa", "desconto_relacionado", "estoque", "estoque_baixo", "tempo_fabricacao", "descricao_curta", "descricao_longa", "url_video", "peso", "comprimento", "largura", "altura", "status");
     $file_fields = array();
     $invalid_fields = array();
     $gravar = true;
@@ -28,7 +32,6 @@
         $dataAtual = date("Y-m-d h:i:s");
         /*POST DATA*/
         $skuProduto = addslashes($_POST["sku"]);
-        $codigoBarrasProduto = addslashes($_POST["codigo_barras"]);
         $nomeProduto = addslashes($_POST["nome"]);
         $marcaProduto = addslashes($_POST["marca"]);
         $idCor = (int)$_POST["id_cor"];
@@ -89,7 +92,7 @@
             $idCor = $pew_functions->contar_resultados($tabela_cores, $condicaoCor) > 0 ? $idCor : null;
             
             /*INSERE DADOS PRODUTO*/
-            mysqli_query($conexao, "insert into $tabela_produtos (sku, codigo_barras, nome, marca, id_cor, preco, preco_promocao, promocao_ativa, desconto_relacionado, estoque, estoque_baixo, tempo_fabricacao, descricao_curta, descricao_longa, url_video, peso, comprimento, largura, altura, data, status) values ('$skuProduto', '$codigoBarrasProduto', '$nomeProduto', '$marcaProduto', '$idCor', '$precoProduto','$precoPromocaoProduto', '$promocaoAtiva', '$descontoRelacionado', '$estoqueProduto', '$estoqueBaixoProduto', '$tempoFabricacaoProduto', '$descricaoCurtaProduto', '$descricaoLongaProduto', '$urlVideoProduto', '$pesoProduto', '$comprimentoProduto', '$larguraProduto', '$alturaProduto', '$dataAtual', '$statusProduto')");
+            mysqli_query($conexao, "insert into $tabela_produtos (sku, nome, marca, id_cor, preco, preco_promocao, promocao_ativa, desconto_relacionado, estoque, estoque_baixo, tempo_fabricacao, descricao_curta, descricao_longa, url_video, peso, comprimento, largura, altura, data, status) values ('$skuProduto', '$nomeProduto', '$marcaProduto', '$idCor', '$precoProduto','$precoPromocaoProduto', '$promocaoAtiva', '$descontoRelacionado', '$estoqueProduto', '$estoqueBaixoProduto', '$tempoFabricacaoProduto', '$descricaoCurtaProduto', '$descricaoLongaProduto', '$urlVideoProduto', '$pesoProduto', '$comprimentoProduto', '$larguraProduto', '$alturaProduto', '$dataAtual', '$statusProduto')");
 
             /*PEGA ID PRODUTO INSERIDO*/
             $queryID = mysqli_query($conexao, "select last_insert_id()");
@@ -139,14 +142,12 @@
             /*INSERE CORES DE PRODUTOS RELACIONADOS*/
             if($coresRelacionadas != ""){
                 foreach($coresRelacionadas as $idProdutoRelacionado){
-                    mysqli_query($conexao, "insert into $tabela_cores_relacionadas (id_produto, id_relacionado, data_controle, status) values ('$idProduto', '$idProdutoRelacionado', '$dataAtual', 1");
-                    mysqli_query($conexao, "insert into $tabela_cores_relacionadas (id_produto, id_relacionado, data_controle, status) values ('$idProdutoRelacionado', '$idProduto', '$dataAtual', 1");
+                    mysqli_query($conexao, "insert into $tabela_cores_relacionadas (id_produto, id_relacao, data_controle, status) values ('$idProduto', '$idProdutoRelacionado', '$dataAtual', 1)");
+                    mysqli_query($conexao, "insert into $tabela_cores_relacionadas (id_produto, id_relacao, data_controle, status) values ('$idProdutoRelacionado', '$idProduto', '$dataAtual', 1)");
                 }
             }
             
             /*INSERE IMAGENS*/
-            $selectedImagens = array();
-            $ctrlImagens = 0;
             $maxImagens = isset($_POST["maximo_imagens"]) && (int)$_POST["maximo_imagens"] ? (int)$_POST["maximo_imagens"] : 4;
             for($i = 1; $i <= $maxImagens; $i++){
                 $posicaoAnterior = $i - 1;                
@@ -170,14 +171,10 @@
                         move_uploaded_file($_FILES["imagem$i"]["tmp_name"], $dirImagensProdutos.$nomeFinalImagem);
                         
                         mysqli_query($conexao, "insert into $tabela_imagens (id_produto, imagem, posicao, status) values ('$idProduto', '$nomeFinalImagem', '$posicao', 1)");
-                        
-                        $selectedImagens[$ctrlImagens] = $nomeFinalImagem;
-                        $ctrlImagens++;
                     }
                 }
             }
-            
-            echo "<script>window.location.href='pew-produtos.php?msg=Produto cadastrado com sucesso&msgType=success';</script>";
+            //echo "<script>window.location.href='pew-produtos.php?msg=Produto cadastrado com sucesso&msgType=success';</script>";
         }else{
             //Erro de validação = Nome do produto vazio
             echo "<script>window.location.href='pew-produtos.php?erro=validação_do_produto&msg=Ocorreu um erro ao cadastrar o produto&msgType=error';</script>";

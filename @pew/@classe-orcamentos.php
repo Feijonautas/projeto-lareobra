@@ -123,9 +123,11 @@
         }
         
         function montar_email($nome, $produtos, $desconto, $tokenCarrinho){
-            $baseSite = "https://efectusdigital.com.br/bolsas";
+            $baseSite = "https://www.lareobra.com.br/dev";
             $dirImagens = "imagens/identidadeVisual/";
-            $logo = "logo-bolsa-em-couro.png";
+            $logo = "logo-lareobra.png";
+            
+            $nomeEmpresa = "Lar e Obra";
             
             $body = "";
             
@@ -139,7 +141,7 @@
                     $body .= "<h1 style='margin: 0px 0px 0px 180px; font-size: 18px; width: 200px; white-space: nowrap; text-align: right;'>Pedido de orçamento</h1>";
                 $body .= "</div>";
                 $body .= "<div class='body'>";
-                    $body .= "<article>Olá {$nome}{$strDesconto}. Veja abaixo os itens de que foram orçados e clique no botão de finalizar compra para acessar seu carrinho no site. Rei das Fechaduras agradece!</article>";
+                    $body .= "<article>Olá {$nome}{$strDesconto}. Veja abaixo os itens de que foram orçados e clique no botão de finalizar compra para acessar seu carrinho no site. $nomeEmpresa agradece!</article>";
                     $body .= "<table style='margin: 30px 0px 20px 0px;'>";
                     $totalOrcamento = 0;
                     foreach($produtos as $infoProduto){

@@ -20,6 +20,7 @@
         <meta name="description" content="<?php echo $cls_paginas->descricao;?>">
         <meta name="author" content="Efectus Web">
         <title><?php echo $cls_paginas->titulo;?></title>
+        <link type="image/png" rel="icon" href="imagens/identidadeVisual/logo-icon.png">
         <!--DEFAULT LINKS-->
         <?php
             require_once "@link-standard-styles.php";
@@ -355,7 +356,7 @@
                             mensagemAlerta("Ocorreu um erro ao finalizar seu pedido. Recarregue a página e tente novamente.");
                         },
                         success: function(resposta){
-                            //console.log(resposta);
+                            console.log(resposta);
                         }
                     });
                 }
@@ -509,7 +510,7 @@
                                     });
                                 },
                                 success: function(resposta){
-                                    console.log(resposta);
+                                    //console.log(resposta);
                                     if(resposta != "false" && resposta != "Unauthorized" && isJson(resposta)){
                                         resposta = JSON.parse(resposta);
                                         var confirmationCode = resposta.code;

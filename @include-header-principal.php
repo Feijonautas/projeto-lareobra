@@ -448,6 +448,7 @@
         height: 100%;
         top: 0;
         left: 0;
+        background-color: #000;
         visibility: hidden;
         opacity: 0;
         -webkit-transition: .4s ease;
@@ -535,8 +536,7 @@
         display: none;
     }
     .header-principal .nav-header .display-links .logo-menu-mobile img{
-        width: 120px;
-        height: 50px;
+        width: 200px;
         margin-left: 5%;
     }
     .header-principal .nav-header .display-links .logo-menu-mobile .btn-voltar-menu{
@@ -586,10 +586,10 @@
     .header-principal .nav-header .display-links .sub-menu ul{
         list-style: none;
     }
-    .header-principal .nav-header .display-links .first-li:hover .link-principal{
+    .header-principal .nav-header .display-links .first-li .link-principal:hover{
         background-color: #f6f6f6;
     }
-    .header-principal .nav-header .display-links .first-li:hover .link-especial{
+    .header-principal .nav-header .display-links .first-li .link-especial:hover{
         background-color: #6abd45;
     }   
     .header-principal .nav-header .display-links .first-li:hover .sub-menu{
@@ -965,8 +965,8 @@
             </div>
             <div class="logo-header"><a href="index.php"><img src="<?php echo $dirLogoPrincipal;?>" alt="Logo - Lar e Obra" title="Página Inicial - Lar e Obra"></a></div>
             <div class="social-media-field">
-                <a href="#" class="facebook"><i class="fab fa-facebook-f"></i></a>
-                <a href="#" class="instagram"><i class="fab fa-instagram"></i></a>
+                <a href="https://www.facebook.com/lareobrajardim/" class="facebook" target='_blank'><i class="fab fa-facebook-f"></i></a>
+                <a href="https://www.instagram.com/lareobra/" class="instagram" target='_blank'><i class="fab fa-instagram"></i></a>
             </div>
         </div>
         <?php

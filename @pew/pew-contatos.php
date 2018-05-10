@@ -97,12 +97,12 @@
                             default:
                                 $status = "Fazer primeiro contato";
                         }
-                        echo "<td>$nome</td>";
+                        echo "<tr><td>$nome</td>";
                         echo "<td>$email</td>";
                         echo "<td>$telefone</td>";
                         echo "<td>$assunto</td>";
                         echo "<td>$status</td>";
-                        echo "<td><a href='pew-edita-contato.php?id_contato=$id' class='btn-editar'><i class='fa fa-eye' aria-hidden='true'></i></a></td>";
+                        echo "<td align=center><a href='pew-edita-contato.php?id_contato=$id' class='btn-editar'><i class='fa fa-eye' aria-hidden='true'></i></a></td></tr>";
                     }
                     echo "</tbody></table>";
                 }else{

@@ -58,13 +58,14 @@
         $statusProduto = intval($_POST["status"]) == 1 ? 1 : 0;
         $urlVideoProduto = addslashes($_POST["url_video"]);
         
-        
         $http = substr($urlVideoProduto, 0, 5);
         if($http != "http:" && $http != "https" && $urlVideoProduto != ""){
             $urlVideoProduto = "http://".$urlVideoProduto;
         }
+        
         /*END POST DATA*/
         
+
         /*DIR VARS*/
         $dirImagensProdutos = "../imagens/produtos/";
         /*END DIR VARS*/
@@ -82,12 +83,9 @@
         $tabela_produtos_relacionados = $pew_custom_db->tabela_produtos_relacionados;
         $tabela_cores_relacionadas = $pew_custom_db->tabela_cores_relacionadas;
         $tabela_especificacoes_produtos = $pew_custom_db->tabela_especificacoes_produtos;
+        
         /*END SET TABLES*/
 
-        $querySku = mysqli_query($conexao, "select sku from $tabela_produtos where id = '$idProduto'");
-        $infoSku = mysqli_fetch_array($querySku);
-        $skuAntigo = $infoSku["sku"];
-        
         if($nomeProduto != ""){
             echo "<h3 align=center>Gravando dados...</h3>";
             
@@ -160,8 +158,6 @@
             /*FIM ATUALIZA SUBCATEGORIAS DO PRODUTO*/
 
             /*ATUALIZA IMAGENS DO PRODUTO*/
-            $selectedImagens = array();
-            $ctrlImagens = 0;
             $maxImagens = isset($_POST["maximo_imagens"]) && (int)$_POST["maximo_imagens"] ? (int)$_POST["maximo_imagens"] : 4;
             for($i = 1; $i <= $maxImagens; $i++){
                 $posicao = $i;
@@ -188,9 +184,6 @@
                             }
                             
                             mysqli_query($conexao, "update $tabela_imagens set imagem = '$nomeFinalImagem', status = 1 where id_produto = '$idProduto' and posicao = '$posicao'");
-                            
-                            $selectedImagens[$ctrlImagens] = $nomeFinalImagem;
-                            $ctrlImagens++;
                         }else{
                             mysqli_query($conexao, "insert into $tabela_imagens (id_produto, imagem, posicao, status) values ('$idProduto', '$nomeFinalImagem', '$posicao', 1)");
                         }
@@ -261,7 +254,8 @@
                     
                     mysqli_query($conexao, "insert into $tabela_cores_relacionadas (id_produto, id_relacao, data_controle, status) values ('$idProdutoRelacionado', '$idProduto', '$dataAtual', 1)");
                 }
-            }
+            }   
+            
             /*END ATUALIZA CORES DE PRODUTOS RELACIONADOS*/
             
             echo "<script>window.location.href='pew-edita-produto.php?msg=Produto atualizado com sucesso&msgType=success&id_produto=$idProduto';</script>";

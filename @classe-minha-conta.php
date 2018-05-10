@@ -187,7 +187,7 @@
             $codigo = md5(md5($email));
             
             $baseSite = "https://www.lareobra.com.br/dev";
-            $dirImagens = "imagens/identidadeVisual/";
+            $dirImagens = "imagens/identidadeVisual";
             $logo = "logo-lareobra.png";
             $nomeLoja = "Lar e Obra";
             
