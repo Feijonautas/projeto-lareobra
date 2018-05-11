@@ -810,9 +810,10 @@
                             $largura = $item_carrinho["largura"];
                             $altura = $item_carrinho["altura"];
                             $peso = $item_carrinho["peso"];
+                            $porcentDesconto = ($item_carrinho["desconto"] * 100) / 100;
                             echo "<div class='item-carrinho'>";
                                 if(isset($item_carrinho["desconto"]) && $item_carrinho["desconto"] > 0){
-                                    echo "<div class='promo-tag'>-{$item_carrinho["desconto"]}%</div>";
+                                    echo "<div class='promo-tag'>-$porcentDesconto%</div>";
                                 }
                                 echo "<div class='box-imagem'><img class='imagem' src='$dirImagens/$imagem'></div>";
                                 echo "<div class='information'>";

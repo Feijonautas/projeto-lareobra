@@ -284,7 +284,8 @@
                     $qtdParcelas = 6;
                     $txtParcelas = $qtdParcelas."x";
                     
-                    $intPorcentoDesconto = 5;
+                    $infoCompreJunto = $produto->get_preco_relacionado($idProduto);
+                    $intPorcentoDesconto = ($infoCompreJunto["desconto"] * 100) / 100;
                     $multiplicador = $intPorcentoDesconto * 0.01;
                     $preco = $infoProduto["preco"];
                     $precoPromocao = $infoProduto["preco_promocao"];
