@@ -94,15 +94,15 @@ if($listar){
                                 $subtotal = $preco * $quantidade;
                                 $subtotal = $pew_functions->custom_number_format($subtotal);
                                 echo "<tr>";
-                                    echo "<td>$quantidade x</td>";
+                                    echo "<td style='white-space: nowrap; padding: 5px;'>$quantidade x</td>";
                                     echo "<td>$nome</td>";
-                                    echo "<td align=right>R$ $subtotal</td>";
+                                    echo "<td style='white-space: nowrap; padding: 5px;' align=right>R$ $subtotal</td>";
                                 echo "</tr>";
                             }
                             echo "<tr>";
-                                echo "<td>1 x</td>";
+                                echo "<td style='white-space: nowrap; padding: 5px;'>1 x</td>";
                                 echo "<td>" . $cls_pedidos->get_transporte_string() . "</td>";
-                                echo "<td align=right>R$ " . $cls_pedidos->valor_frete . "</td>";
+                                echo "<td style='white-space: nowrap; padding: 5px;' align=right>R$ " . $cls_pedidos->valor_frete . "</td>";
                             echo "</tr>";
                         }
                         echo "</table>";

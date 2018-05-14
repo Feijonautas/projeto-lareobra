@@ -1,9 +1,5 @@
 <?php
     session_start();
-
-    ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
     
     require_once "@classe-system-functions.php";
     require_once "@classe-produtos.php";
@@ -369,14 +365,15 @@ error_reporting(E_ALL);
                         justify-content: flex-start;
                     }
                     .section-produto .display-info-produto .display-comprar{
-                        width: 50%;
-                        float: left;
+                        width: 100%;
+                        float: none;
+                        justify-content: flex-start;
                     }
                     .section-produto .display-info-produto .calculo-frete{
                         position: relative;
-                        width: 50%;
+                        width: 100%;
                         margin: 0px;
-                        margin-left: auto;
+                        margin: 40px 0px 10px 0px;
                         top: -10px;
                     }
                     .section-produto .display-info-produto .calculo-frete .input-frete{
@@ -596,7 +593,7 @@ error_reporting(E_ALL);
 
             $viewDisponibilidadadeField = $estoqueProduto == 0 ? "<div class='view-disponibilidade indisponivel'><span class='icone-disponibilidade'><i class='fas fa-times'></i></span> SEM ESTOQUE</div>" : "<div class='view-disponibilidade disponivel'><span class='icone-disponibilidade'><i class='fas fa-check'></i></span> EM ESTOQUE</div>";
 
-            $viewBotaoComprar = $estoqueProduto == 0 ? "<button class='botao-comprar sem-estoque'>COMPRAR</button>" : "<input type='number' class='quantidade-produto' value=1 placeholder='Qtd'><button  class='botao-comprar' id='addProdutoCarrinho' carrinho-id-produto='$idInternaProduto'>COMPRAR</button>";
+            $viewBotaoComprar = $estoqueProduto == 0 ? "<button class='botao-comprar sem-estoque'>COMPRAR</button>" : "<input type='text' class='quantidade-produto' value=1 placeholder='Qtd'><button  class='botao-comprar' id='addProdutoCarrinho' carrinho-id-produto='$idInternaProduto'>COMPRAR</button>";
             /*END HTML VIEW*/
                 
             $iconArrow = "<i class='fas fa-angle-right icon'></i>";

@@ -231,6 +231,13 @@
                     width: calc(100% - 180px);  
                 }
                 @media only all and (max-width: 480px){
+                    .main-content{
+                        margin: 0px auto 0px auto;
+                        width: 90%;
+                    }
+                    .main-content article{
+                        margin: 15px;  
+                    }
                     .main-content .titulo{
                         font-size: 18px;
                     }
@@ -240,23 +247,62 @@
                     .main-content .display-carrinho .item-carrinho{
                         padding: 10px;
                         height: auto;
+                        flex-direction: row;
                     }
                     .main-content .display-carrinho .item-carrinho .box-imagem{
+                        width: 25%;
+                        height: auto;
+                    }
+                    .main-content .display-carrinho .item-carrinho .box-imagem .imagem{
                         width: 100%;
+                        height: auto;
                     }
                     .main-content .display-carrinho .item-carrinho .information{
-                        width: 100%;
+                        width: calc(75% - 20px);
+                        padding: 10px;
+                        height: auto;
                     }
                     .main-content .display-carrinho .item-carrinho .information .titulo{
-                        font-size: 2vw;
+                        font-size: 16px;
+                        margin: 0px;
+                        padding: 0px;
                     }
                     .main-content .display-carrinho .item-carrinho .price-field{
                         font-size: 100%;
                         width: 100%;
+                        margin: 0px;
+                        justify-content: center;
                     }
                     .main-content .display-carrinho .item-carrinho .price-field .controller-preco .quantidade-produto{
                         width: 25px;
                         height: 25px;
+                    }
+                    .main-content .display-carrinho .item-carrinho .price-field .botao-remover{
+                        position: relative;
+                        top: -22px;
+                    }
+                    .main-content .display-carrinho .display-resultados-frete{
+                        width: 100%;
+                        padding: 0px;
+                    }
+                    .main-content .display-carrinho .display-resultados-frete .titulo{
+                        margin: 0px;   
+                    }
+                    .main-content .display-carrinho .display-resultados-frete .label-edita-endereco{
+                        margin: 0px;   
+                    }
+                    .main-content .display-carrinho .display-resultados-frete .span-frete{
+                        margin: 0px;   
+                    }
+                    .main-content .display-carrinho .display-resultados-frete .msg-endereco{
+                        margin: 10px 0px 10px 0px;   
+                    }
+                    .main-content .display-carrinho .bottom-info{
+                        width: 100%;
+                        padding: 0px 0px 40px 0px;
+                    }
+                    .main-content .display-carrinho .bottom-info .botao-continuar{
+                        font-weight: normal;
                     }
                 }
             }
@@ -822,7 +868,7 @@
                                 echo "<div class='price-field'>";
                                     echo "<div class='controller-preco'>";
                                         echo "<h5 class='price'>R$ $preco</h5>";
-                                        echo "<input type='number' class='quantidade-produto' placeholder='Qtd' value='$quantidade' carrinho-id-produto='$idProduto'>";
+                                        echo "<input type='text' class='quantidade-produto' placeholder='Qtd' value='$quantidade' carrinho-id-produto='$idProduto'>";
                                     echo "</div>";
                                     echo "<div class='view-subtotal-produto'>";
                                         echo "<h4 class='subtotal'>R$ <span class='view-price'>$subtotal</span></h4>";

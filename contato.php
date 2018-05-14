@@ -40,6 +40,7 @@
 				display: flex;
 				justify-content: center;
 				margin: 100px 0 100px 0;
+                flex-flow: row wrap;
 			}
 			.box-loja .item-contato{
 				width: calc(50% - 40px);
@@ -137,6 +138,22 @@
 			.display-form .formulario-contato{
                 padding-top: 5px;   
             }
+            @media screen and (max-width: 720px){
+                .display-lojas{
+                    width: 90%; 
+                }
+                .box-loja{
+                    margin: 25px 0px 80px 0px;  
+                }
+                .box-loja .item-contato{
+                    width: 100%;
+                    height: auto;
+                }
+                .box-loja .item-mapa{
+                    width: 100%;
+                    margin-top: 15px;
+                }
+            }
         </style>
         <!--END PAGE CSS-->
         <!--PAGE JS-->
@@ -223,7 +240,7 @@
 					<div class="item-contato">
 						<h1>LOJA FÍSICA 1</h1>
 						<div class="border"></div>
-						<p>Endereço : Av. Nossa Sra. de Lourdes, 63 - Jd. das Américas | Loja 48 e 49B 1° Piso | 81530-020</p>
+						<p>Endereço : Av. Nossa Sra. de Lourdes, 63 - Jd. das Américas | Loja 48 e 49B 1° Piso | <font style='white-space: nowrap;'>81530-020</font></p>
 						<p>Curitiba, PR</p>
 						<p>Fone : (41) 3085-1500</p>
 						<h2>Horário</h2>
@@ -241,7 +258,7 @@
 					<div class="item-contato">
 						<h1>LOJA FÍSICA 2</h1>
 						<div class="border"></div>
-						<p>Endereço : R. João Doetzer, 415 - Jd. das Américas | 81540-190</p>
+						<p>Endereço : R. João Doetzer, 415 - Jd. das Américas | <font style='white-space: nowrap;'>81540-190</font></p>
 						<p>Curitiba, PR</p>
 						<p>Fone : (41) 3365-9357</p>
 						<h2>Horário</h2>

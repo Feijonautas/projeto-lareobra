@@ -291,6 +291,82 @@
     .box-pedido .display-info-pedido .bottom-info .btn-voltar{
         cursor: pointer;
     }
+    @media screen and (max-width: 720px){
+        .section-minha-conta .descricao{
+            width: 90%; 
+        }
+        .section-minha-conta .xsmall{
+            width: calc((100%/2) - 30px);
+            margin: 5px 15px 5px 15px;
+            float: left;
+        }
+        .section-minha-conta .small{
+            width: calc((100%) - 30px);
+            margin: 5px 15px 5px 15px;
+            float: left;
+        }
+        .section-minha-conta .medium{
+            width: calc((100%) - 30px);
+            margin: 5px 15px 5px 15px;
+            float: left;
+        }
+        .section-minha-conta .half{
+            width: calc((100%) - 30px);
+            margin: 5px 15px 5px 15px;
+            float: left;
+        }
+        .section-minha-conta .large{
+            width: calc((100%) - 30px);
+            margin: 5px 15px 5px 15px;
+            float: left;
+        }
+        .section-minha-conta .xlarge{
+            width: calc((100%) - 30px);
+            margin: 5px 15px 5px 15px;
+            float: left;
+        }
+        .section-minha-conta .full{
+            width: calc(100% - 30px);
+            margin: 5px 15px 5px 15px;
+        }
+        .section-minha-conta .display-paineis{
+            width: 90%;
+            height: auto;
+        }
+        .section-minha-conta .display-paineis .top-buttons{
+            height: auto;
+            font-size: 10px;
+        }
+        .section-minha-conta .display-paineis .painel{
+            width: calc(100% - 40px);
+            padding: 20px;
+            height: auto;
+        }
+        .box-pedido{
+            width: 100%;
+            padding: 0px;
+            margin-bottom: 10px;   
+        }
+        .box-pedido .right{
+            width: 100%;
+        }
+        .box-pedido .middle{
+            width: 100%;
+        }
+        .box-pedido .left{
+            width: 100%;
+        }
+        .box-pedido .display-info-pedido .lista-produtos{
+            width: calc(100% - 20px);
+            margin: 0px 10px 0px 10px;
+            border: none;
+            font-size: 12px;
+        }
+        .box-pedido .display-info-pedido .info-frete{
+            width: calc(100% - 21px);
+            margin: 30px 10px 0px 10px;
+        }
+    }
 </style>
 
 <?php

@@ -1028,7 +1028,7 @@
                     $precoProduto = null;
                     $precoProduto = null;
                     $precoPromocaoProduto = null;
-                    $descontoRelacionado = null;
+                    $descontoRelacionado = 5;
                     $promocaoAtiva = null;
                     $marcaProduto = null;
                     $estoqueProduto = 1;
