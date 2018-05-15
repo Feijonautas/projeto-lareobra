@@ -1400,7 +1400,7 @@
                     <h2 class='label-title'>% Desconto</h2>
                     <input type="number" step="any" name="desconto_relacionado" id="descontoRelacionado" placeholder="0" class="label-input" value="<?php echo $descontoRelacionado;?>">
                 </div>
-                <script type="text/javascript" src="js/include-cores-relacionadas.js"></script>
+                <script type="text/javascript" src="js/include-cores-relacionadas.js?v=2"></script>
                 <div class="small" align=left>
                     <!--PRODUTOS RELACIONADOS-->
                     <h3 class="label-title">Produtos com Cores Relacionadas</h3>

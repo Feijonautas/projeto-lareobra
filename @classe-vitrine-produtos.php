@@ -110,18 +110,15 @@
             /*DISPLAY TODOS PRODUTO DA VITRINE*/
             echo "<section class='vitrine-standard'>";
                 $tituloVitrine = $this->titulo_vitrine;
-                $substrTitulo = substr($tituloVitrine, 0, 3);
+                $substrTitulo = substr($tituloVitrine, 0, 2);
                 $updatedTitulo = null;
                 switch($substrTitulo){
-                    case "<h1":
-                        $updatedTitulo = "<h1 class='titulo-vitrine'>".$this->titulo_vitrine."</h1>";
-                        break;
-                    case "<h3":
-                        $updatedTitulo = "<h3 class='titulo-vitrine'>".$this->titulo_vitrine."</h3>";
+                    case "<h": // Verifica se é H2, H3. H4 etc
+                        $updatedTitulo = true;
                         break;
                 }
                 if($updatedTitulo != null){
-                    echo $updatedTitulo;
+                    echo $tituloVitrine;
                 }else{
                     echo "<h2 class='titulo-vitrine'>".$this->titulo_vitrine."</h2>";
                 }

@@ -332,7 +332,7 @@
             
             echo "<div class='navigation-tree'>" . $navigationTree . "</div>";
             
-            $vitrineProdutos[0] = new VitrineProdutos("standard", 20, "<h1>$tituloVitrine</h1>", $descricaoVitrine);
+            $vitrineProdutos[0] = new VitrineProdutos("standard", 20, "<h1 class='titulo-vitrine'>$tituloVitrine</h1>", $descricaoVitrine);
             $vitrineProdutos[0]->montar_vitrine($selectedProdutos);
         ?>
         </div>

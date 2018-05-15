@@ -10,14 +10,26 @@
         overflow: hidden;
     }
     .footer-principal .newsletter{
-        width: 100%;
+        width: calc(100% - 40px);
         display: block;
-        padding: 50px 0px 50px 0px;
+        padding: 50px 20px 50px 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #00be36;
+        flex-flow: row wrap;
     }
     .footer-principal .newsletter .titulo{
-        margin: 0px 0px 5px 0px;
-        font-size: 16px;
-        text-align: center;
+        width: 240px;
+        margin: 0px 20px 0px 20px;
+        font-size: 28px;
+        text-align: left;
+        color: #fff;
+        font-weight: normal;
+    }
+    .footer-principal .newsletter .titulo .destaque{
+        font-weight: bold;
+        white-space: nowrap;
     }
     .footer-principal .newsletter .subtitulo{
         margin: 0px 0px 10px 0px;
@@ -26,20 +38,40 @@
     }
     .footer-principal .newsletter .form-newsletter{
         width: 330px;
-        margin: 0 auto;
-        text-align: center;
+        padding: 25px 0px 0px 0px;
+        text-align: right;
     }
     .footer-principal .newsletter .form-newsletter input{
-        width: 100%;
+        width: calc(100% - 20px);
+        padding: 4px 10px 4px 10px;
         margin-bottom: 10px;
         height: 20px;
-        border: none;
-        border-bottom: 1px solid #333;
+        border-radius: 20px;
+        border: 1px solid #fff;
         outline: none;
         font-size: 14px;
         background-color: transparent;
         outline: none;
-        color: #333;
+        color: #fff;
+    }
+    .footer-principal .newsletter .form-newsletter input::-webkit-input-placeholder {
+       color: #fff;
+        font-style: italic;
+    }
+
+    .footer-principal .newsletter .form-newsletter input:-moz-placeholder { /* Firefox 18- */
+       color: #fff;
+        font-style: italic;
+    }
+
+    .footer-principal .newsletter .form-newsletter input::-moz-placeholder {  /* Firefox 19+ */
+       color: #fff;
+        font-style: italic;
+    }
+
+    .footer-principal .newsletter .form-newsletter input:-ms-input-placeholder {  
+       color: #fff;
+        font-style: italic;
     }
     .footer-principal .newsletter .form-newsletter .btn-submit{
         width: 80px;
@@ -52,8 +84,44 @@
         background-color: #111;
         cursor: pointer;
     }
+    .footer-principal .informacoes-loja{
+        width: 80%;
+        margin: 40px 0px 40px 0px;
+        display: flex;
+        flex-flow: row wrap;
+    }
+    .footer-principal .informacoes-loja .logo-footer{
+        width: 300px;
+        margin: 0px 20px 0px 0px;
+    }
+    .footer-principal .informacoes-loja .logo-footer img{
+        width: 100%;
+    }
+    .footer-principal .informacoes-loja .display-enderecos{
+        width: calc(100% - 360px);
+        margin: 0px 20px 0px 20px;
+        display: flex;
+        flex-flow: row wrap;
+    }
+    .footer-principal .informacoes-loja .display-enderecos .box-endereco{
+        width: calc(50% - 40px);
+        margin: 0px 20px 0px 20px;
+    }
+    .footer-principal .informacoes-loja .display-enderecos .box-endereco .titulo{
+        font-size: 18px;   
+        margin: 0px;
+    }
+    .footer-principal .informacoes-loja .display-enderecos .box-endereco .endereco{
+        font-size: 12px;
+        margin: 5px 0px 5px 0px;
+    }
+    .footer-principal .informacoes-loja .display-enderecos .box-endereco .telefone{
+        font-size: 16px;   
+        margin: 0px;
+    }
     .footer-principal .display-links{
         width: 80%;
+        margin-top: 40px;
     }
     .footer-principal .display-links .footer-links{
         width: 100%;
@@ -134,6 +202,19 @@
         color: #fff;
     }
     @media screen and (max-width: 1100px){
+        .footer-principal .informacoes-loja{
+            margin: 20px 0px 20px 0px;
+        }
+        .footer-principal .informacoes-loja .display-enderecos{
+            width: 100%;
+            margin: 0px;
+            display: flex;
+            flex-flow: row wrap;
+        }
+        .footer-principal .informacoes-loja .display-enderecos .box-endereco{
+            width: 100%;
+            margin: 30px 0px 0px 0px;
+        }
         .footer-principal .display-links .footer-links{
             width: 100%;
             flex-wrap: wrap;
@@ -145,13 +226,13 @@
         }
         @media screen and (max-width: 720px){
             .footer-principal .newsletter .titulo{
-                font-size: 14px;
+                font-size: 22px;
             }
             .footer-principal .newsletter .subtitulo{
                 font-size: 12px;
             }
             .footer-principal .newsletter .form-newsletter{
-                width: 290px;
+                width: 80%;
             }
             .footer-principal .display-links{
                 width: 95%;
@@ -222,13 +303,29 @@
 </script>
 <footer class="footer-principal">
     <div class="newsletter">
-        <h3 class="titulo">RECEBA AS NOVIDADES DA LAR E OBRA</h3>
-        <h4 class="subtitulo">Lançamentos e promoções em primeira mão</h4>
+        <h3 class="titulo">RECEBA AS NOVIDADES DA <br><span class="destaque">LAR & OBRA</span></h3>
         <form class="form-newsletter">
             <input type="text" placeholder="Digite seu nome" name="nome" class="input-nome">
             <input type="text" placeholder="Digite seu email" name="email" class="input-email">
             <input type="submit" value="ENVIAR" class="btn-submit">
         </form>
+    </div>
+    <div class="informacoes-loja">
+        <div class="logo-footer">
+            <a href="index.php"><img src="imagens/identidadeVisual/logo-lareobra.png" alt="Logo - Lar e Obra" title="Página Inicial - Lar e Obra"></a>
+        </div>
+        <div class="display-enderecos">
+            <div class="box-endereco">
+                <h3 class="titulo">LOJA 1</h3>
+                <article class="endereco">Av. Nossa Sra. de Lourdes, 63 - Jd. das Américas | Loja 48 e 49B 1° Piso | <span style="white-space: nowrap;">81530-020</span></article>
+                <h3 class="telefone">(41) 3085-1500</h3>
+            </div>
+            <div class="box-endereco">
+                <h3 class="titulo">LOJA 2</h3>
+                <article class="endereco">R. João Doetzer, 415 - Jd. das Américas | <span style="white-space: nowrap;">81540-190</span></article>
+                <h3 class="telefone">(41) 3365-9357</h3>
+            </div>
+        </div>
     </div>
     <div class="display-links">
         <?php
@@ -411,6 +508,8 @@
                         <li><a href='quem-somos.php' class='sub-link'>Quem Somos</a></li>
                         <li><a href='garantia-de-qualidade.php' class='sub-link'>Garantia de qualidade</a></li>
                         <li><a href='frete-gratis.php' class='sub-link'>Frete Grátis</a></li>
+                        <li><a href='seja-fornecedor.php' class='sub-link'>Seja fornecedor</a></li>
+                        <li><a href='trabalhe-conosco.php' class='sub-link'>Trabalhe conosco</a></li>
                     </ul>
                 </span>
             </li>

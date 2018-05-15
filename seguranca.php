@@ -51,7 +51,7 @@
         ?>
         <!--THIS PAGE CONTENT-->
         <div class="main-content">
-            <h1 align=center>SEGURANÇA</h1>
+            <h1 align=center class="titulo-principal">SEGURANÇA</h1>
             <article>Ao contrário do que se acredita, Lorem Ipsum não é simplesmente um texto randômico. Com mais de 2000 anos, suas raízes podem ser encontradas em uma obra de literatura latina. Lorem Ipsum não é simplesmente um texto randômico. Com mais de 2000 anos, suas raízes podem ser encontradas em uma obra de literatura latina.</article>
         </div>
         <!--END THIS PAGE CONTENT-->

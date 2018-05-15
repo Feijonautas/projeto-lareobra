@@ -19,6 +19,10 @@ body{
 .link-padrao:hover{
     border-bottom: 1px solid #5583fe;
 }
+.titulo-principal{
+    color: #00be36;
+    font-size: 32px;
+}
 .navigation-tree{
     width: 80%;
     margin: 0 auto;

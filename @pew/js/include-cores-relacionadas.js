@@ -1,5 +1,4 @@
 $(document).ready(function(){
-    alert();
     /*PRODUTOS RELACIONADOS*/
     var botaoCoresRelacionadas = $("#btn-cores-relacionadas");
     var displayCoresRelacionadas = $("#display-cores-relacionadas");
