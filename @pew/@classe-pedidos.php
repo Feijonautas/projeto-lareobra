@@ -283,6 +283,12 @@
         
         function get_transporte_string(){
             switch($this->codigo_transporte){
+                case "7777":
+                    $str = "Retirada na Loja";
+                    break;
+                case "8888":
+                    $str = "Motoboy";
+                    break;
                 case "40010":
                     $str = "Correios - SEDEX";
                     break;

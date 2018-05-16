@@ -310,8 +310,10 @@
                 $linksPrincipais[6]["url_link"] = "pew-contatos.php";
                 $linksPrincipais[6]["sub_link"][0]["titulo_sub_link"] = "<i class='far fa-comment'></i> Contatos";
                 $linksPrincipais[6]["sub_link"][0]["url_sub_link"] = "pew-contatos.php";
-                $linksPrincipais[6]["sub_link"][1]["titulo_sub_link"] = "<i class='far fa-envelope'></i> E-mails newsletter";
-                $linksPrincipais[6]["sub_link"][1]["url_sub_link"] = "pew-newsletter.php";
+				$linksPrincipais[6]["sub_link"][1]["titulo_sub_link"] = "<i class='fas fa-briefcase'></i> Contatos Serviços";
+                $linksPrincipais[6]["sub_link"][1]["url_sub_link"] = "pew-contatos-servicos.php";
+                $linksPrincipais[6]["sub_link"][2]["titulo_sub_link"] = "<i class='far fa-envelope'></i> E-mails newsletter";
+                $linksPrincipais[6]["sub_link"][2]["url_sub_link"] = "pew-newsletter.php";
                 /*Setimo Link*/
                 $linksPrincipais[7]["titulo_link"] = "Categorias";
                 $linksPrincipais[7]["url_link"] = "pew-categorias.php";

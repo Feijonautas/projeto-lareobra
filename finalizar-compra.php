@@ -953,7 +953,9 @@
                                     <?php
                                     echo "</div>";
                                     echo "<h5 class='msg-endereco'>Enviando para: <b>$rua, $numero $complemento</b></h5>";
-                                    echo "<div class='span-frete'></div>";
+                                    echo "<div class='span-frete'>";
+                                        echo "<label class='label-frete'><input type='checkbox' name='metodo_envio[]' class='opcao-frete' value='7777' price-frete='15.00'>Retirada na Loja: <b>R$ 15.00</b> em até <b>2 dias</b></label>";
+                                    echo "</div>";
                                     echo "<input type='hidden' id='cepDestino' value='$cepConta'>";
                                     echo "<input type='hidden' id='ruaDestino' value='$rua'>";
                                     echo "<input type='hidden' id='numeroDestino' value='$numero'>";

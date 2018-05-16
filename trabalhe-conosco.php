@@ -30,7 +30,7 @@
             .main-content{
 				display: flex;
                 width: 80%;
-                margin: 0 auto;
+                margin: 50px auto;
                 min-height: 300px;
             }
 			.flex{
@@ -42,7 +42,7 @@
 				margin: 0 5% 0 0;
 			}
 			.display-info .box-title .titulo-principal{
-				margin: 40px 0 0 0;
+				margin: 0px 0px 15px 0px;
 				padding: 0;
 				font-size: 65px;
 				color: #00BE36;
@@ -67,42 +67,32 @@
 				font-size: 20px;
 				margin: 0 0 20px 0;
 			}
-			.display-form{
-				flex: 1 1 45%;
-				margin: 50px 0 0 0;
-			}
-			.display-form .box-input input{
-				border-radius: 15px;
-				padding: 0 10px 0 10px;
-				margin: 10px 0 10px 0;
-			}
-			.display-form .box-input .input{
-				width: 45%;
-			}
-			.display-form .box-input .box-title{
-				color: #888;
-				margin: 50px 0 0 20px;
-			}
-			.display-form .box-input textarea{
-				border-radius: 15px;
-				padding: 10px;
-				resize: none;
-				margin: 10px 0 10px 0;
-				width: 99%;
-				height: 200px;
-				outline: none;
-			}
-			.display-form .btn-enviar{
-				display: flex;
-				justify-content: flex-end;
-			}
-			.display-form .btn-enviar .btn{
+			.display-form .btn{
 				width: 100px;
 				height: 30px;
 				border: none;
-				border-radius: 15px;
+				margin: 0 0 50px 0;
 				background-color: #00BE36;
+				cursor: pointer;
 				color: #fff;
+			}
+			.display-form .btn:hover{
+				background-color: #009e2c;	
+			}
+			@media screen and (max-width: 1440px){
+				.display-info .box-title .titulo-principal{
+					font-size: 50px;
+				}
+			}
+			@media screen and (max-width: 1366px){
+				.display-info .box-title .titulo-principal{
+					font-size: 45px;
+				}
+			}
+			@media screen and (max-width: 640px){
+				.main-content{
+					flex-direction: column;
+				}
 			}
         </style>
         <!--END PAGE CSS-->
@@ -110,7 +100,56 @@
         <script>
             $(document).ready(function(){
                 console.log("Página carregada");
+				
+				var formulario = $("#tcFormulario");
+				var objNome = $("#tcNome");
+				var objEmail = $("#tcEmail");
+				var objTelefone = $("#tcTelefone");
+				var objMensagem = $("#tcMensagem");
+				
+				phone_mask(objTelefone);
+				
+				var enviandoFormulario = false;
+				
+				formulario.off().on("submit", function(){
+					event.preventDefault();
+					if(!enviandoFormulario){
+						enviandoFormulario = true;
+						
+						var nome = objNome.val();
+						var email = objEmail.val();
+						var telefone = objTelefone.val();
+						var mensagem = objMensagem.val();
+						
+						function validar(){
+							if(nome.length < 3){
+								mensagemAlerta("O campo NOME deve conter no mínimo 4 caracteres", objNome);
+								return false;
+							}
+							if(validarEmail(email) == false){
+								mensagemAlerta("O campo E-MAIL deve ser preenchido corretamente", objEmail);
+								return false;
+							}
+							if(telefone.length < 14){
+								mensagemAlerta("O campo TELEFONE deve conter 14 caracteres", objNome);
+								return false;
+							}
+							if(mensagem.length < 10){
+								mensagemAlerta("O campo MENSAGEM deve conter no mínimo 10 caracteres", objMensagem);
+								return false;
+							}
+							return true;
+						}
+						
+						if(validar() == true){
+							formulario.submit();
+						}else{
+							enviandoFormulario = false;
+						}
+					}
+				});
             });
+			
         </script>
         <!--END PAGE JS-->
     </head>
@@ -133,31 +172,27 @@
             		<p>Se você é fabricante ou possui algum produto com preço justo, qualidade, e comercializa respeitando as leis de nosso país e o meio ambiente entre em contato através do nosso email comercial abaixo:</p>
             		<span class="contato-email">comercial@lareobra.com.br</span>
             	</div>
-				<a href="garantia-de-qualidade.php" class="link-padrao">Garantia de qualidade</a>
-				<a href="frete-gratis.php" class="link-padrao">Frete Grátis</a>
+				<a href="seja-fornecedor.php" class="link-padrao">Seja Fornecedor</a>
             </div>
-            <form class="display-form" method="post">
-            	<div class="box-input">
+            <form class="display-form" method="post" action="@grava-contato-servicos.php" id="tcFormulario">
+				<input type="hidden" name="tipo" value="Trabalhe Conosco">
+            	<div class="full">
             		<span class="box-title">Nome</span>
-            		<input class="full input-standard" type="text" name="nome">
+            		<input class="input-standard" type="text" name="nome" id="tcNome">
+            	</div>
+            	<div class="half">
             		<span class="box-title">E-mail</span>
-            		<input class="full input-standard" type="text" name="nome">
+            		<input class="input-standard" type="text" name="email" id="tcEmail">
             	</div>
-            	<div class="box-input flex">
-            		<div class="input">
-						<span class="box-title">Fone</span>
-						<input class="half input-standard" type="text" name="nome">
-            		</div>
-            		<div class="input">
-						<span class="box-title">Celular</span>
-						<input class="half input-standard" type="text" name="nome">
-            		</div>
+            	<div class="half">
+					<span class="box-title">Telefone</span>
+					<input class="input-standard" type="text" name="telefone" id="tcTelefone">
             	</div>
-            	<div class="box-input">
+            	<div class="full">
 					<span class="box-title">Mensagem</span>
-					<textarea class="full"></textarea>
+					<textarea class="input-standard" name="mensagem" id="tcMensagem" style="resize: none; height: 150px;"></textarea>
             	</div>
-            	<div class="btn-enviar">
+            	<div class="full" align="right">
            			<input class="btn" type="submit" value="Enviar">
            		</div>
             </form>
