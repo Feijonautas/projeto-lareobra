@@ -57,7 +57,7 @@
         
         $infoFrete = frete($produtos, $codigoCorreios, $cepDestino, $declararValor, $url_correios_api);
         if($infoFrete != false && $produtos != false){
-            echo $infoFrete; // RETORNO EM JSON
+            //echo $infoFrete; // RETORNO EM JSON
         }else{
             echo "false";
         }

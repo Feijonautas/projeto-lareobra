@@ -402,7 +402,7 @@
                             mensagemAlerta("Ocorreu um erro ao finalizar seu pedido. Recarregue a página e tente novamente.");
                         },
                         success: function(resposta){
-                            console.log(resposta);
+                            //console.log(resposta);
                         }
                     });
                 }
@@ -410,9 +410,9 @@
                 function calcular_frete(){
                     if(!calculandoFrete){
                         set_view_preco(totalCarrinho, "0.00");
-                        var urlFrete = "frete-correios/@trigger-calculo.php";
+                        var urlFrete = "@calcular-transporte.php";
                         var cepDestino = typeof $("#cepDestino").val() != "undefined" ? $("#cepDestino").val() : 0;
-                        var codigosServico = ["41106", "40010", "40215", "40290"];
+                        var codigosServico = ["7777", "8888", "41106", "40010", "40215", "40290"];
                         displayResultadoFrete.html(iconLoading + " Calculando frete");
                         
                         cepDestino = cepDestino.length == 9 ? cepDestino.replace("-", "") : cepDestino;
@@ -425,6 +425,12 @@
                             
                             function get_titulo_servico(cod){
                                 switch(cod){
+                                    case "7777":
+                                        var titulo = "Retirada na Loja";
+                                        break;
+                                    case "8888":
+                                        var titulo = "Motoboy";
+                                        break;
                                     case "40010":
                                         var titulo = "SEDEX";
                                         break;
@@ -442,7 +448,7 @@
                             codigosServico.forEach(function(codigo){
                                 var dados = {
                                     cep_destino: cepDestino,
-                                    codigo_correios: codigo,
+                                    codigo_transporte: codigo,
                                     produtos: jsonProduto,
                                 }
                                 $.ajax({
@@ -462,7 +468,11 @@
                                                 var jsonData = JSON.parse(resultado);
                                                 var valor = jsonData.valor.toFixed(2);
                                                 var prazo = jsonData.prazo;
-                                                var msgPadrao = "<label class='label-frete'><input type='checkbox' name='metodo_envio[]' class='opcao-frete' value='" + codigo + "' price-frete='" + valor + "'>" + tituloServico + ": <b>R$" + valor + "</b> em até <b>" + prazo + "</b></label>";
+                                                var strValor = valor > 0 ? "R$ " + valor : "Grátis";
+                                                valor = strValor == "Grátis" ? "0.01" : valor;
+                                                var strPrazo = prazo != 0 ? " em até <b>"+ prazo +"</b>" : "";
+                                                
+                                                var msgPadrao = "<label class='label-frete'><input type='checkbox' name='metodo_envio[]' class='opcao-frete' value='" + codigo + "' price-frete='" + valor + "'>" + tituloServico + ": <b>" + strValor + "</b>" + strPrazo + "</label>";
                                                 mensagemFinal[ctrlExec] = "<br>" + msgPadrao + "<br>";
                                             }else{
                                                 mensagemFinal[ctrlExec] = "<br>" + tituloServico + ": Localidade insdisponível<br>";
@@ -540,7 +550,7 @@
                                 estado_destino: $("#estadoDestino").val(),
                                 cidade_destino: $("#cepDestino").val(),
                                 produtos: carrinho,
-                                codigo_correios: transportCode,
+                                codigo_transporte: transportCode,
                             }
 
                             $.ajax({
@@ -556,7 +566,7 @@
                                     });
                                 },
                                 success: function(resposta){
-                                    //console.log(resposta);
+                                    console.log(resposta);
                                     if(resposta != "false" && resposta != "Unauthorized" && isJson(resposta)){
                                         resposta = JSON.parse(resposta);
                                         var confirmationCode = resposta.code;
@@ -953,9 +963,7 @@
                                     <?php
                                     echo "</div>";
                                     echo "<h5 class='msg-endereco'>Enviando para: <b>$rua, $numero $complemento</b></h5>";
-                                    echo "<div class='span-frete'>";
-                                        echo "<label class='label-frete'><input type='checkbox' name='metodo_envio[]' class='opcao-frete' value='7777' price-frete='15.00'>Retirada na Loja: <b>R$ 15.00</b> em até <b>2 dias</b></label>";
-                                    echo "</div>";
+                                    echo "<div class='span-frete'></div>";
                                     echo "<input type='hidden' id='cepDestino' value='$cepConta'>";
                                     echo "<input type='hidden' id='ruaDestino' value='$rua'>";
                                     echo "<input type='hidden' id='numeroDestino' value='$numero'>";

@@ -447,9 +447,9 @@
                 
                 botaoCalculoFrete.off().on("click", function(){
                     if(!calculandoFrete){
-                        var urlFrete = "frete-correios/@trigger-calculo.php";
+                        var urlFrete = "@calcular-transporte.php";
                         var cepDestino = inputFrete.val();
-                        var codigosServico = ["41106", "40010", "40215", "40290"];
+                        var codigosServico = ["7777", "8888", "41106", "40010", "40215", "40290"];
                         if(cepDestino.length == 9){
                             
                             botaoCalculoFrete.html(iconLoading);
@@ -459,6 +459,12 @@
                             
                             function get_titulo_servico(cod){
                                 switch(cod){
+                                    case "7777":
+                                        var titulo = "Retirada na Loja";
+                                        break;
+                                    case "8888":
+                                        var titulo = "Motoboy";
+                                        break;
                                     case "40010":
                                         var titulo = "SEDEX";
                                         break;
@@ -476,7 +482,7 @@
                             codigosServico.forEach(function(codigo){
                                 var dados = {
                                     cep_destino: cepDestino,
-                                    codigo_correios: codigo,
+                                    codigo_transporte: codigo,
                                     produtos: jsonProduto,
                                 }
                                 $.ajax({
@@ -497,7 +503,11 @@
                                                 var jsonData = JSON.parse(resultado);
                                                 var valor = jsonData.valor.toFixed(2);
                                                 var prazo = jsonData.prazo;
-                                                var msgPadrao = tituloServico + ": <b>R$" + valor + "</b> em até <b>" + prazo + "</b>";
+                                                var strValor = valor > 0 ? "R$ " + valor : "Grátis";
+                                                valor = strValor == "Grátis" ? "0.01" : valor;
+                                                var strPrazo = prazo != 0 ? " em até <b>"+ prazo +"</b>" : "";
+                                                
+                                                var msgPadrao = tituloServico + ": <b>" + strValor + "</b>" + strPrazo + "</b>";
                                                 mensagemFinal[ctrlExec] = "<br>" + msgPadrao + "<br>";
                                             }else{
                                                 mensagemFinal[ctrlExec] = "<br>" + tituloServico + ": Localidade insdisponível<br>";
