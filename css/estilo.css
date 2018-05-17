@@ -21,7 +21,13 @@ body{
 }
 .titulo-principal{
     color: #00be36;
-    font-size: 32px;
+    font-size: 36px;
+}
+@media screen and (max-width: 720px){
+    .titulo-principal{
+        font-size: 24px;
+    }
+
 }
 .navigation-tree{
     width: 80%;

@@ -1198,6 +1198,9 @@
         $link_nav[$countLinks] = new NavLinks("CONTATO", "contato.php");
         $countLinks++;
         $link_nav[$countLinks] = new NavLinks("<i class='fas fa-star'></i> CLUBE DE DESCONTOS", "clube-de-descontos.php", "link-especial");
+        $link_nav[$countLinks]->add_sublink($countLinks, "Ofertas", "clube-de-descontos.php");
+        $link_nav[$countLinks]->add_sublink($countLinks, "Cupons", "clube-de-descontos.php");
+        $link_nav[$countLinks]->add_sublink($countLinks, "Como funciona", "clube-de-descontos.php");
         $countLinks++;
         
         /*END LINKS*/
