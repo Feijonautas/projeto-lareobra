@@ -289,6 +289,8 @@
                 $linksPrincipais[3]["url_link"] = "pew-dicas.php";
                 $linksPrincipais[3]["sub_link"][0]["titulo_sub_link"] = "<i class='fas fa-newspaper'></i> Listar Dicas";
                 $linksPrincipais[3]["sub_link"][0]["url_sub_link"] = "pew-dicas.php";
+                $linksPrincipais[3]["sub_link"][1]["titulo_sub_link"] = "<i class='fas fa-plus'></i> Cadastrar nova";
+                $linksPrincipais[3]["sub_link"][1]["url_sub_link"] = "pew-cadastra-dica.php";
                 /*Quarto Link*/
                 $linksPrincipais[4]["titulo_link"] = "Vitrine";
                 $linksPrincipais[4]["url_link"] = "pew-categorias-vitrine.php";

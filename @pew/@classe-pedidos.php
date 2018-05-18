@@ -221,10 +221,10 @@
                     $str = "Em disputa";
                     break;
                 case 6:
-                    $str = "Devolvida";
+                    $str = "Devolvido";
                     break;
                 case 7:
-                    $str = "Cancelada";
+                    $str = "Cancelado";
                     break;
                 default:
                     $str = "Validando";

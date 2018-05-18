@@ -959,6 +959,10 @@
                     $nomeProduto = $infoProduto["nome"];
                     $precoProduto = $infoProduto["preco"];
                     $precoProduto = $pew_functions->custom_number_format($precoProduto);
+                    $precoCustoProduto = $infoProduto["preco_custo"];
+                    $precoCustoProduto = $pew_functions->custom_number_format($precoCustoProduto);
+                    $precoSugeridoProduto = $infoProduto["preco_sugerido"];
+                    $precoSugeridoProduto = $pew_functions->custom_number_format($precoSugeridoProduto);
                     $precoPromocaoProduto = $infoProduto["preco_promocao"];
                     $precoPromocaoProduto = $pew_functions->custom_number_format($precoPromocaoProduto);
                     $descontoRelacionado = $infoProduto["desconto_relacionado"];
@@ -1026,7 +1030,8 @@
                     $skuProduto = null;
                     $nomeProduto = null;
                     $precoProduto = null;
-                    $precoProduto = null;
+                    $precoCustoProduto = null;
+                    $precoSugeridoProduto = null;
                     $precoPromocaoProduto = null;
                     $descontoRelacionado = 5;
                     $promocaoAtiva = null;
@@ -1131,29 +1136,6 @@
                     <input type="text" name="codigo_barras" id="codigoBarras" value="<?php echo $codigoBarrasProduto;?>" placeholder="Código de barras" class="label-input">
                 </div>
                 <div class="label xsmall">
-                    <div class="half">
-                        <h2 class='label-title'>Preço</h2>
-                        <input type="number" step="any" name="preco" id="preco" placeholder="0.00" class="label-input" style="margin-top: 10px;" value="<?php echo $precoProduto;?>">
-                    </div>
-                    <div class="half">
-                        <h2 class='label-title'>Promoção</h2>
-                        <input type="number" step="any" name="preco_promocao" id="precoPromocao" placeholder="0.00" class="label-input" style="margin-top: 10px;" value="<?php echo $precoPromocaoProduto;?>">
-                    </div>
-                </div>
-                <div class="label xsmall">
-                    <h2 class='label-title'>Status Promoção</h2>
-                    <select name="promocao_ativa" class="label-input">
-                        <?php
-                            $possibleStatus = array(0, 1);
-                            foreach($possibleStatus as $selectStatusPromocao){
-                                $nameStatus = $selectStatusPromocao == 1 ? "Ativa" : "Inativa";
-                                $selected = $selectStatusPromocao == $promocaoAtiva ? "selected" : "";
-                                echo "<option value='$selectStatusPromocao' $selected>$nameStatus</option>";
-                            }
-                        ?>
-                    </select>
-                </div>
-                <div class="label xsmall">
                     <h2 class='label-title'>SKU</h2>
                     <input type="text" name="sku" id="sku" placeholder="SKU" class="label-input" value="<?php echo $skuProduto;?>">
                 </div>
@@ -1179,6 +1161,35 @@
                             echo "<h5 style='margin: 0px; margin-top: -6px;'>Nenhum cor cadastrada</h5>";
                         }
                     ?>
+                </div>
+                <div class="label xsmall">
+                    <h2 class='label-title'>Preço Custo</h2>
+                    <input type="number" step="any" name="preco_custo" id="precoCusto" placeholder="0.00" class="label-input" style="margin-top: 10px;" value="<?php echo $precoCustoProduto;?>">
+                </div>
+                <div class="label xsmall">
+                    <h2 class='label-title'>Preço Bruto</h2>
+                    <input type="number" step="any" name="preco" id="preco" placeholder="0.00" class="label-input" style="margin-top: 10px;" value="<?php echo $precoProduto;?>">
+                </div>
+                <div class="label xsmall">
+                    <h2 class='label-title'>Preço Sugerido</h2>
+                    <input type="number" step="any" name="preco_sugerido" id="precoSugerido" placeholder="0.00" class="label-input" style="margin-top: 10px;" value="<?php echo $precoSugeridoProduto;?>">
+                </div>
+                <div class="label xsmall">
+                    <h2 class='label-title'>Preço Promoção</h2>
+                    <input type="number" step="any" name="preco_promocao" id="precoPromocao" placeholder="0.00" class="label-input" style="margin-top: 10px;" value="<?php echo $precoPromocaoProduto;?>">
+                </div>
+                <div class="label xsmall">
+                    <h2 class='label-title'>Status Promoção</h2>
+                    <select name="promocao_ativa" class="label-input">
+                        <?php
+                            $possibleStatus = array(0, 1);
+                            foreach($possibleStatus as $selectStatusPromocao){
+                                $nameStatus = $selectStatusPromocao == 1 ? "Ativa" : "Inativa";
+                                $selected = $selectStatusPromocao == $promocaoAtiva ? "selected" : "";
+                                echo "<option value='$selectStatusPromocao' $selected>$nameStatus</option>";
+                            }
+                        ?>
+                    </select>
                 </div>
                 <!--END LINHA 3-->
                 <br class="clear">

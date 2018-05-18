@@ -7,6 +7,8 @@
         private $codigo_barras;
         private $nome;
         private $preco;
+        private $preco_custo;
+        private $preco_sugerido;
         private $preco_promocao;
         private $promocao_ativa;
         private $desconto_relacionado;
@@ -218,6 +220,8 @@
                 $this->codigo_barras = $info["codigo_barras"];
                 $this->nome = $info["nome"];
                 $this->preco = $this->pew_functions->custom_number_format($info["preco"]);
+                $this->preco_custo = $this->pew_functions->custom_number_format($info["preco_custo"]);
+                $this->preco_sugerido = $this->pew_functions->custom_number_format($info["preco_sugerido"]);
                 $this->preco_promocao = $this->pew_functions->custom_number_format($info["preco_promocao"]);
                 $this->promocao_ativa = $this->pew_functions->custom_number_format($info["promocao_ativa"]);
                 $this->desconto_relacionado = $this->pew_functions->custom_number_format($info["desconto_relacionado"]);
@@ -268,6 +272,12 @@
         }
         public function get_preco_produto(){
             return $this->preco;
+        }
+        public function get_preco_custo_produto(){
+            return $this->preco_custo;
+        }
+        public function get_preco_sugerido_produto(){
+            return $this->preco_sugerido;
         }
         public function get_preco_promocao_produto(){
             return $this->preco_promocao;
@@ -516,6 +526,8 @@
                 $infoProduto["codigo_barras"] = $this->get_codigo_barras_produto();
                 $infoProduto["nome"] = $this->get_nome_produto();
                 $infoProduto["preco"] = $this->get_preco_produto();
+                $infoProduto["preco_custo"] = $this->get_preco_custo_produto();
+                $infoProduto["preco_sugerido"] = $this->get_preco_sugerido_produto();
                 $infoProduto["preco_promocao"] = $this->get_preco_promocao_produto();
                 $infoProduto["promocao_ativa"] = $this->get_promocao_ativa();
                 $infoProduto["desconto_relacionado"] = $this->get_desconto_relacionado();
