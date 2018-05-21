@@ -1,5 +1,6 @@
 <?php
     require_once "@include-global-vars.php";
+    require_once "@classe-paginas.php";
     require_once "@classe-produtos.php";
     require_once "@classe-enderecos.php";
 
@@ -184,12 +185,15 @@
         }
         
         function montar_email_confirmacao($email, $nome){
-            $codigo = md5(md5($email));
+            $cls_paginas = new Paginas();
             
-            $baseSite = "https://www.lareobra.com.br/dev";
+            $baseSite = $cls_paginas->base_path;
+            $logo = $cls_paginas->logo;
+            $nomeLoja = $cls_paginas->empresa;
+            
             $dirImagens = "imagens/identidadeVisual";
-            $logo = "logo-lareobra.png";
-            $nomeLoja = "Lar e Obra";
+            
+            $codigo = md5(md5($email));
             
             $body = "";
             

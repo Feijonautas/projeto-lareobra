@@ -5,6 +5,7 @@
     require_once 'PHPMailer/PHPMailer/src/SMTP.php';
 
 
+    require_once "@classe-paginas.php";
     require_once "pew-system-config.php";
 
     use PHPMailer\PHPMailer\PHPMailer;
@@ -156,25 +157,25 @@
             }
             
             function enviar_email($assunto, $body, $destinatarios, $senderEmail = null, $senderPass = null, $anexos = null, $altBody = null){
-                $nomeLoja = "Lar e Obra";
+                $cls_paginas = new Paginas();
+                $nomeLoja = $cls_paginas->empresa;
                 
-                $senderEmail = $senderEmail == null ? "contato@lareobra.com.br" : $senderEmail;
-                $senderPass = $senderPass == null ? "admlareobra@123" : $senderPass;
+                $senderEmail = $senderEmail == null ? $cls_paginas->get_email_user() : $senderEmail;
+                $senderPass = $senderPass == null ? $cls_paginas->get_smtp_pass() : $senderPass;
                 $altBody = $altBody == null ? "E-mail enviado por $nomeLoja" : $altBody;
-                
                 
                 $mail = new PHPMailer(true);                              // Passing `true` enables exceptions
                 try {
                     //Server settings
                     /*$mail->SMTPDebug = 2;*/
                     $mail->isSMTP();
-                    $mail->Host = 'smtps.f1.ultramail.com.br';  // Specify main and backup SMTP servers
+                    $mail->Host = $cls_paginas->get_smtp_host();  // Specify main and backup SMTP servers
                     $mail->SMTPAuth = true;
                       
-                    $mail->Username = "contato=lareobra.com.br";
+                    $mail->Username = $senderEmail;
                     $mail->Password = $senderPass;
                     $mail->SMTPSecure = 'tls';                            // Enable TLS encryption, `ssl` also accepted
-                    $mail->Port = 587;
+                    $mail->Port = $cls_paginas->get_smtp_port();
 
                     //Informações para envio
                     $mail->setFrom($senderEmail, $nomeLoja);

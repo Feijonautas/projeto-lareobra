@@ -877,7 +877,7 @@
 </style>
 <header class="header-principal">
     <?php
-        $dirLogoPrincipal = "imagens/identidadeVisual/logo-lareobra.png";
+        $dirLogoPrincipal = "imagens/identidadeVisual/" . $cls_paginas->logo;
     ?>
     <nav class="nav-header">
         <div class="top-bar">

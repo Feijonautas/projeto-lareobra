@@ -7,6 +7,7 @@
         private $codigo_barras;
         private $nome;
         private $preco;
+        private $preco_ativo;
         private $preco_custo;
         private $preco_sugerido;
         private $preco_promocao;
@@ -270,6 +271,9 @@
         public function get_nome_produto(){
             return $this->nome;
         }
+        public function get_preco_ativo(){
+            return $this->preco_ativo;
+        }
         public function get_preco_produto(){
             return $this->preco;
         }
@@ -525,6 +529,7 @@
                 $infoProduto["sku"] = $this->get_sku_produto();
                 $infoProduto["codigo_barras"] = $this->get_codigo_barras_produto();
                 $infoProduto["nome"] = $this->get_nome_produto();
+                $infoProduto["preco_ativo"] = $this->get_preco_ativo();
                 $infoProduto["preco"] = $this->get_preco_produto();
                 $infoProduto["preco_custo"] = $this->get_preco_custo_produto();
                 $infoProduto["preco_sugerido"] = $this->get_preco_sugerido_produto();

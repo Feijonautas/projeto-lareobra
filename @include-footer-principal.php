@@ -22,10 +22,11 @@
     .footer-principal .newsletter .titulo{
         width: 240px;
         margin: 0px 20px 0px 20px;
-        font-size: 28px;
+        font-size: 34px;
         text-align: left;
         color: #fff;
         font-weight: normal;
+        font-variant-caps: all-petite-caps;
     }
     .footer-principal .newsletter .titulo .destaque{
         font-weight: bold;
@@ -303,7 +304,7 @@
 </script>
 <footer class="footer-principal">
     <div class="newsletter">
-        <h3 class="titulo">RECEBA AS NOVIDADES DA <br><span class="destaque">LAR & OBRA</span></h3>
+        <h3 class="titulo">RECEBA AS NOVIDADES DA <br><span class="destaque"><?php echo $cls_paginas->empresa; ?></span></h3>
         <form class="form-newsletter">
             <input type="text" placeholder="Digite seu nome" name="nome" class="input-nome">
             <input type="text" placeholder="Digite seu email" name="email" class="input-email">
@@ -546,7 +547,7 @@
         </ul>
         <center>
             <h5 style='font-weight: normal;'>CNPJ: 20.445.155/0001-49 / I.E:9066700469</h5>
-            <h4 style='font-weight: normal;'>Copyright © Lar & Obra 2018 | Todos os direitos reservados.</h4>
+            <h4 style='font-weight: normal;'>Copyright © <?php echo $cls_paginas->empresa; echo "&nbsp;" . date("Y"); ?> | Todos os direitos reservados.</h4>
         </center>
     </div>
 </footer>
