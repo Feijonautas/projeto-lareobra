@@ -317,6 +317,19 @@
             .botao-salvar:hover{
                 background-color: #777;   
             }
+            .before-checkout-area{
+                transition: .4s linear;
+            }
+            .finish-checkout-box{
+                width: 100%;
+                margin: 20px 0px 20px 0px;
+                display: none;
+                opacity: 0;
+            }
+            .finish-checkout-display{
+                display: block;
+                opacity: 1;
+            }
         </style>
         <!--END PAGE CSS-->
         <!--PAGE JS-->
@@ -406,7 +419,9 @@
                         }
                     });
                 }
-                                
+                
+                var metodosEnvio = [];
+                var ctrlMetodosEnvio = 0;
                 function calcular_frete(){
                     if(!calculandoFrete){
                         set_view_preco(totalCarrinho, "0.00");
@@ -469,13 +484,17 @@
                                                 var valor = jsonData.valor.toFixed(2);
                                                 var prazo = jsonData.prazo;
                                                 var strValor = valor > 0 ? "R$ " + valor : "Grátis";
-                                                valor = strValor == "Grátis" ? "0.01" : valor;
+                                                valor = strValor == "Grátis" ? "0.00" : valor;
                                                 var strPrazo = prazo != 0 ? " em até <b>"+ prazo +"</b>" : "";
                                                 
                                                 var msgPadrao = "<label class='label-frete'><input type='checkbox' name='metodo_envio[]' class='opcao-frete' value='" + codigo + "' price-frete='" + valor + "'>" + tituloServico + ": <b>" + strValor + "</b>" + strPrazo + "</label>";
                                                 mensagemFinal[ctrlExec] = "<br>" + msgPadrao + "<br>";
+                                                metodosEnvio[ctrlMetodosEnvio] = new Object();
+                                                metodosEnvio[ctrlMetodosEnvio]["codigo"] = codigo;
+                                                metodosEnvio[ctrlMetodosEnvio]["valor"] = valor;
+                                                ctrlMetodosEnvio++;
                                             }else{
-                                                mensagemFinal[ctrlExec] = "<br>" + tituloServico + ": Localidade insdisponível<br>";
+                                                //mensagemFinal[ctrlExec] = "<br>" + tituloServico + ": Localidade insdisponível<br>";
                                             }
                                         }else{
                                             notificacaoPadrao("Ocorreu um erro ao calcular o frete. Recarregue a página e tente novamente.");
@@ -486,7 +505,7 @@
                                             calculandoFrete = false;
                                             var mensagem = "";
                                             mensagemFinal.forEach(function(msg){
-                                                if(msg == "") msg = "<br>" + get_titulo_servico(codigo) + ": Localidade indisponível<br>";
+                                                //if(msg == "") msg = "<br>" + get_titulo_servico(codigo) + ": Localidade indisponível<br>";
                                                 mensagem += msg;
                                             });
                                             displayResultadoFrete.html(mensagem);
@@ -552,8 +571,35 @@
                                 produtos: carrinho,
                                 codigo_transporte: transportCode,
                             }
+                            
+                            function changeCheckout(){
+                                
+                                $(".before-checkout-area").css({
+                                    opacity: "0",
+                                });
+                                setTimeout(function(){
+                                    $(".before-checkout-area").css({
+                                        display: "none",
+                                    });
+                                    $(".finish-checkout-box").addClass("finish-checkout-display");
+                                }, 400);
 
-                            $.ajax({
+                            }
+                            
+                            $(".finish-checkout-box").load(
+                                "checkout/@controller-checkout.php", 
+
+                                {valor_final: totalCarrinho, metodos_envio: metodosEnvio, codigo_transporte: transportCode, acao: "get_view_checkout"}, 
+
+                                function(){
+                                    changeCheckout();
+                                }
+                            );
+                            
+                            
+                            
+
+                            /*$.ajax({
                                 type: "POST",
                                 url: "@valida-finaliza-compra.php",
                                 data: JSON.stringify(dados),
@@ -598,7 +644,7 @@
                                         });
                                     }
                                 }
-                            });
+                            });*/
                         }else{
                             finalizandoCompra = false;
                             mensagemAlerta("Selecione uma opção de frete");
@@ -897,116 +943,128 @@
                                 echo "</span>";
                             echo "</div>";
                         }
-                        echo "<div class='display-resultados-frete'>";
-                            echo "<h5 class='titulo'>Método de envio</h5>";
-                            $totalItens = $pew_functions->custom_number_format($totalItens);
-                            if(isset($_SESSION["minha_conta"])){
-                                $sessaoConta = $_SESSION["minha_conta"];
-                                $emailConta = isset($sessaoConta["email"]) ? $sessaoConta["email"] : null;
-                                $senhaConta = isset($sessaoConta["senha"]) ? $sessaoConta["senha"] : null;
-                                if($loginConta->auth($emailConta, $senhaConta) == true){
-                                    $idConta = $loginConta->query_minha_conta("md5(email) = '$emailConta' and senha = '$senhaConta'");
-                                    $loginConta->montar_minha_conta($idConta);
-                                    $infoConta = $loginConta->montar_array();
-                                    $enderecos = $infoConta["enderecos"];
-                                    $idEndereco = $enderecos["id"];
-                                    $cepConta = $enderecos["cep"];
-                                    $rua = $enderecos["rua"];
-                                    $numero = $enderecos["numero"];
-                                    $complemento = $enderecos["complemento"] != "" ? $enderecos["complemento"] : "";
-                                    $bairro = $enderecos["bairro"];
-                                    $cidade = $enderecos["cidade"];
-                                    $estado = $enderecos["estado"];
-                                    echo "<label class='label-edita-endereco'>";
-                                        echo "<input type='checkbox' name='endereco_diferente' id='enderecoDiferente'> Enviar para outro endereço";
-                                    echo "</label>";
-                                    echo "<div class='endereco-alternativo'>";
-                                    ?>
-                                        <div class='label medium'>
-                                            <h4 class='input-title'>CEP</h4>
-                                            <input type='text' placeholder='00000-000' name='cep' id='newCep' tabindex='1' class='mascara-cep-finaliza input-standard'>
-                                            <h6 class='msg-input'></h6>
-                                        </div>
-                                        <div class='label large'>
-                                            <h4 class='input-title'>Rua</h4>
-                                            <input type='text' placeholder='Rua' name='rua' id='newRua' class='input-nochange input-standard' readonly>
-                                            <h6 class='msg-input'></h6>
-                                        </div>
-                                        <br style='clear: both'>
-                                        <div class='label medium'>
-                                            <h4 class='input-title'>Número</h4>
-                                            <input type='text' placeholder='Numero' name='numero' id='newNumero' tabindex='2' class='input-standard'>
-                                            <h6 class='msg-input'></h6>
-                                        </div>
-                                        <div class='label medium'>
-                                            <h4 class='input-title'>Complemento</h4>
-                                            <input type='text' placeholder='Complemento' name='complemento' id='newComplemento' tabindex='3' class='input-standard'>
-                                            <h6 class='msg-input'></h6>
-                                        </div>
-                                        <div class='label medium'>
-                                            <h4 class='input-title'>Bairro</h4>
-                                            <input type='text' placeholder='Bairro' name='bairro' id='newBairro' class='input-nochange input-standard' readonly>
-                                        </div>
-                                        <div class='group'>
+                            echo "<div class='display-resultados-frete before-checkout-area'>";
+                                echo "<h5 class='titulo'>Método de envio</h5>";
+                                $totalItens = $pew_functions->custom_number_format($totalItens);
+                                if(isset($_SESSION["minha_conta"])){
+                                    $sessaoConta = $_SESSION["minha_conta"];
+                                    $emailConta = isset($sessaoConta["email"]) ? $sessaoConta["email"] : null;
+                                    $senhaConta = isset($sessaoConta["senha"]) ? $sessaoConta["senha"] : null;
+                                    if($loginConta->auth($emailConta, $senhaConta) == true){
+                                        $idConta = $loginConta->query_minha_conta("md5(email) = '$emailConta' and senha = '$senhaConta'");
+                                        $loginConta->montar_minha_conta($idConta);
+                                        $infoConta = $loginConta->montar_array();
+                                        $enderecos = $infoConta["enderecos"];
+                                        $idEndereco = $enderecos["id"];
+                                        $cepConta = $enderecos["cep"];
+                                        $rua = $enderecos["rua"];
+                                        $numero = $enderecos["numero"];
+                                        $complemento = $enderecos["complemento"] != "" ? $enderecos["complemento"] : "";
+                                        $bairro = $enderecos["bairro"];
+                                        $cidade = $enderecos["cidade"];
+                                        $estado = $enderecos["estado"];
+                                        echo "<label class='label-edita-endereco'>";
+                                            echo "<input type='checkbox' name='endereco_diferente' id='enderecoDiferente'> Enviar para outro endereço";
+                                        echo "</label>";
+                                        echo "<div class='endereco-alternativo'>";
+                                        ?>
                                             <div class='label medium'>
-                                                <h4 class='input-title'>Estado</h4>
-                                                <input type='text' placeholder='Estado' name='estado' id='newEstado' class='input-nochange input-standard' readonly>
+                                                <h4 class='input-title'>CEP</h4>
+                                                <input type='text' placeholder='00000-000' name='cep' id='newCep' tabindex='1' class='mascara-cep-finaliza input-standard'>
+                                                <h6 class='msg-input'></h6>
+                                            </div>
+                                            <div class='label large'>
+                                                <h4 class='input-title'>Rua</h4>
+                                                <input type='text' placeholder='Rua' name='rua' id='newRua' class='input-nochange input-standard' readonly>
+                                                <h6 class='msg-input'></h6>
+                                            </div>
+                                            <br style='clear: both'>
+                                            <div class='label medium'>
+                                                <h4 class='input-title'>Número</h4>
+                                                <input type='text' placeholder='Numero' name='numero' id='newNumero' tabindex='2' class='input-standard'>
+                                                <h6 class='msg-input'></h6>
                                             </div>
                                             <div class='label medium'>
-                                                <h4 class='input-title'>Cidade</h4>
-                                                <input type='text' placeholder='Cidade' name='cidade' id='newCidade' class='input-nochange input-standard' readonly>
+                                                <h4 class='input-title'>Complemento</h4>
+                                                <input type='text' placeholder='Complemento' name='complemento' id='newComplemento' tabindex='3' class='input-standard'>
+                                                <h6 class='msg-input'></h6>
                                             </div>
-                                        </div>
-                                        <div class='label full clear'>
-                                            <button class='botao-salvar salvar-new-endereco' type='button'>SALVAR</button>
-                                        </div>
-                                    <?php
-                                    echo "</div>";
-                                    echo "<h5 class='msg-endereco'>Enviando para: <b>$rua, $numero $complemento</b></h5>";
-                                    echo "<div class='span-frete'></div>";
-                                    echo "<input type='hidden' id='cepDestino' value='$cepConta'>";
-                                    echo "<input type='hidden' id='ruaDestino' value='$rua'>";
-                                    echo "<input type='hidden' id='numeroDestino' value='$numero'>";
-                                    echo "<input type='hidden' id='complementoDestino' value='$complemento'>";
-                                    echo "<input type='hidden' id='bairroDestino' value='$bairro'>";
-                                    echo "<input type='hidden' id='estadoDestino' value='$estado'>";
-                                    echo "<input type='hidden' id='cidadeDestino' value='$cidade'>";
+                                            <div class='label medium'>
+                                                <h4 class='input-title'>Bairro</h4>
+                                                <input type='text' placeholder='Bairro' name='bairro' id='newBairro' class='input-nochange input-standard' readonly>
+                                            </div>
+                                            <div class='group'>
+                                                <div class='label medium'>
+                                                    <h4 class='input-title'>Estado</h4>
+                                                    <input type='text' placeholder='Estado' name='estado' id='newEstado' class='input-nochange input-standard' readonly>
+                                                </div>
+                                                <div class='label medium'>
+                                                    <h4 class='input-title'>Cidade</h4>
+                                                    <input type='text' placeholder='Cidade' name='cidade' id='newCidade' class='input-nochange input-standard' readonly>
+                                                </div>
+                                            </div>
+                                            <div class='label full clear'>
+                                                <button class='botao-salvar salvar-new-endereco' type='button'>SALVAR</button>
+                                            </div>
+                                        <?php
+                                        echo "</div>";
+                                        echo "<h5 class='msg-endereco'>Enviando para: <b>$rua, $numero $complemento</b></h5>";
+                                        echo "<div class='span-frete'></div>";
+                                        echo "<input type='hidden' id='cepDestino' value='$cepConta'>";
+                                        echo "<input type='hidden' id='ruaDestino' value='$rua'>";
+                                        echo "<input type='hidden' id='numeroDestino' value='$numero'>";
+                                        echo "<input type='hidden' id='complementoDestino' value='$complemento'>";
+                                        echo "<input type='hidden' id='bairroDestino' value='$bairro'>";
+                                        echo "<input type='hidden' id='estadoDestino' value='$estado'>";
+                                        echo "<input type='hidden' id='cidadeDestino' value='$cidade'>";
+                                    }else{
+                                        echo "<h6 style='margin: 0px 0px 0px 15px; font-weight: normal;'>Entre com sua conta para calcular</h6>";
+                                    }
                                 }else{
                                     echo "<h6 style='margin: 0px 0px 0px 15px; font-weight: normal;'>Entre com sua conta para calcular</h6>";
                                 }
-                            }else{
-                                echo "<h6 style='margin: 0px 0px 0px 15px; font-weight: normal;'>Entre com sua conta para calcular</h6>";
-                            }
-                        echo "</div>";
-                        echo "<div class='bottom-info'>";
-                            echo "<input type='hidden' id='totalCarrinho' value='$totalItens'>";
-                            echo "<div class='display-prices'>";
-                                echo "<h5 class='info'><span class='title'>Subtotal</span><span class='value view-subtotal'>R$ $totalItens</span></h5>";
-                                echo "<h5 class='info'><span class='title title-bold'>Frete</span><span class='value view-frete'>R$ 0.00</span></h5>";
                             echo "</div>";
-                            echo "<div class='display-total'>";
-                                echo "<h4 class='view-total'><span class='title title-bold'>Total</span> R$ <span class='final-value view-total'>$totalItens</span></h4>";
-                            echo "</div>";
-                            if(isset($_SESSION["minha_conta"])){
-                                if($loginConta->auth($emailConta, $senhaConta) == true){
-                                    $idCliente = $loginConta->query_minha_conta("md5(email) = '$emailConta' and senha = '$senhaConta'");
-                                    $loginConta->montar_minha_conta($idCliente);
-                                    $infoCliente = $loginConta->montar_array();
-                                    echo "<span class='dados-compra'>";
-                                        echo "<input type='hidden' id='tokenCarrinho' value='{$carrinho_finalizar["token"]}'>";
-                                        echo "<input type='hidden' id='idCliente' value='{$infoCliente["id"]}'>";
-                                        echo "<input type='hidden' id='nomeCliente' value='{$infoCliente["usuario"]}'>";
-                                        echo "<input type='hidden' id='cpfCliente' value='{$infoCliente["cpf"]}'>";
-                                        echo "<input type='hidden' id='emailCliente' value='{$infoCliente["email"]}'>";
-                                    echo "</span>";
-                                    echo "<button type='button' class='botao-continuar botao-finalizar-compra' id='botaoFinalizarCompra'>Finalizar <i class='fas fa-check icon-button'></i></button>";
+                            echo "<div class='bottom-info before-checkout-area'>";
+                                echo "<input type='hidden' id='totalCarrinho' value='$totalItens'>";
+                                echo "<div class='display-prices'>";
+                                    echo "<h5 class='info'><span class='title'>Subtotal</span><span class='value view-subtotal'>R$ $totalItens</span></h5>";
+                                    echo "<h5 class='info'><span class='title title-bold'>Frete</span><span class='value view-frete'>R$ 0.00</span></h5>";
+                                echo "</div>";
+                                echo "<div class='display-total'>";
+                                    echo "<h4 class='view-total'><span class='title title-bold'>Total</span> R$ <span class='final-value view-total'>$totalItens</span></h4>";
+                                echo "</div>";
+                                if(isset($_SESSION["minha_conta"])){
+                                    if($loginConta->auth($emailConta, $senhaConta) == true){
+                                        $idCliente = $loginConta->query_minha_conta("md5(email) = '$emailConta' and senha = '$senhaConta'");
+                                        $loginConta->montar_minha_conta($idCliente);
+                                        $infoCliente = $loginConta->montar_array();
+                                        echo "<span class='dados-compra'>";
+                                            echo "<input type='hidden' id='tokenCarrinho' value='{$carrinho_finalizar["token"]}'>";
+                                            echo "<input type='hidden' id='idCliente' value='{$infoCliente["id"]}'>";
+                                            echo "<input type='hidden' id='nomeCliente' value='{$infoCliente["usuario"]}'>";
+                                            echo "<input type='hidden' id='cpfCliente' value='{$infoCliente["cpf"]}'>";
+                                            echo "<input type='hidden' id='emailCliente' value='{$infoCliente["email"]}'>";
+                                        echo "</span>";
+                                        echo "<button type='button' class='botao-continuar botao-finalizar-compra' id='botaoFinalizarCompra'>Continuar <i class='fas fa-angle-double-right icon-button'></i></button>";
+                                    }else{
+                                        echo "<button type='button' class='botao-continuar botao-login-compra' id='botaoLoginCompra'><i class='fas fa-lock icon-button'></i> Faça login para continuar</button>";
+                                    }
                                 }else{
                                     echo "<button type='button' class='botao-continuar botao-login-compra' id='botaoLoginCompra'><i class='fas fa-lock icon-button'></i> Faça login para continuar</button>";
                                 }
-                            }else{
-                                echo "<button type='button' class='botao-continuar botao-login-compra' id='botaoLoginCompra'><i class='fas fa-lock icon-button'></i> Faça login para continuar</button>";
-                            }
+
+                            echo "</div>";
+                        
+                        // CHECKOUT TRANSPARENTE
+                            
+                        $checkoutFolder = "checkout";
+                        echo "<link type='text/css' rel='stylesheet' href='$checkoutFolder/css/checkout-style.css?v=" . uniqid() . "'>";
+                        echo "<script type='text/javascript' src='$checkoutFolder/js/checkout-functions.js?v=" . uniqid() . "'></script>";
+                        echo "<div class='finish-checkout-box'>";
+                        //require_once "$checkoutFolder/@controller-checkout.php";
                         echo "</div>";
+                            
+                        // END CHECKOUT TRANSPARENTE
                     }else{
                         echo "<h5 align=center style='width: 100%;'><br>Seu carrinho está vazio</h5>";
                         echo "<h5 align=center style='width: 100%;'><br><a href='index.php' class='link-padrao'>Voltar as compras</a></h5>";

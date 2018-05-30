@@ -1,4 +1,5 @@
 <?php
+
     function erroLogin(){
         echo "<script>window.location.href = 'index.php?msg=Usuário ou Senha incorretos'; </script>";
     }
@@ -13,7 +14,6 @@
         $max_nivel = 3;
         $selected_usuario = addslashes($_POST["usuario"]);
         $selected_senha = $_POST["senha"] != "" ? md5($_POST["senha"]) : "";
-        
         
         if($selected_usuario != "" && $selected_senha != ""){
             $condicao = "usuario = '$selected_usuario' and senha = '$selected_senha'";
@@ -43,7 +43,6 @@
         }else{
             erroLogin();
         }
-        mysqli_close($conexao);
     }else{
         erroLogin();
     }

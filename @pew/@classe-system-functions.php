@@ -5,7 +5,7 @@
     require_once 'PHPMailer/PHPMailer/src/SMTP.php';
 
 
-    require_once "@classe-paginas.php";
+    require_once __DIR__ . "/../@classe-paginas.php";
     require_once "pew-system-config.php";
 
     use PHPMailer\PHPMailer\PHPMailer;
