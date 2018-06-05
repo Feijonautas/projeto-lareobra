@@ -1,11 +1,11 @@
 <?php
+
     $jsonData = json_decode(file_get_contents('php://input'), true);
     if($jsonData != null){
         $codigoCorreios = isset($jsonData["codigo_correios"]) ? $jsonData["codigo_correios"] : null;
         $cepDestino = isset($jsonData["cep_destino"]) ? $jsonData["cep_destino"] : null;
         $produtos = isset($jsonData["produtos"]) ? $jsonData["produtos"] : null;
         $declararValor = isset($jsonData["declarar_valor"]) ? $jsonData["declarar_valor"] : null;
-        
         
         if($cepDestino != null && $produtos != null){
             $_POST["cep_destino"] = $cepDestino;
@@ -39,7 +39,6 @@
                 return (json_last_error() == JSON_ERROR_NONE);
             }
         }
-        
         
         $cls_paginas = new Paginas();
         

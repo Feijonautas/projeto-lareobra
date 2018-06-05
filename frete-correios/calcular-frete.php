@@ -65,7 +65,7 @@ function frete($produtos = null, $codigo_correios = "41106", $cep_destino = null
                 curl_setopt($ch, CURLOPT_POST, true);
                 curl_setopt($ch, CURLOPT_POSTFIELDS, $dadosFrete);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
+                
                 $response = curl_exec($ch);
                 
                 if($response != "false" && is_json($response)){
@@ -75,8 +75,8 @@ function frete($produtos = null, $codigo_correios = "41106", $cep_destino = null
                     $split_response = explode(",", $response);
                     $frete_caixas[$ctrlFrete] = array();
                     
-                    $frete_caixas[$ctrlFrete]["Valor"] = $json_response->Valor;
-                    $frete_caixas[$ctrlFrete]["PrazoEntrega"] = $json_response->PrazoEntrega;
+                    $frete_caixas[$ctrlFrete]["Valor"] = $json_response->valor;
+                    $frete_caixas[$ctrlFrete]["PrazoEntrega"] = $json_response->prazo;
 
                     $ctrlFrete++;
                 }else{

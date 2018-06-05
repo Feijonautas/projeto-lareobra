@@ -1,8 +1,4 @@
 <?php
-
-    ini_set('display_errors', 1);
-    ini_set('display_startup_errors', 1);
-    error_reporting(E_ALL);
     
     session_start();
 
@@ -68,7 +64,7 @@
         $pagseguro['email'] = $pagseguro_config->get_email();
         
         // Standard
-        $tokenCarrinho = "TOKEN_TESTE_" . uniqid();
+        $tokenCarrinho = isset($_SESSION["carrinho"]["token"]) ? $_SESSION["carrinho"]["token"] : "CTK" . substr(md5(time()), 0, 10);
         $pagseguro["senderHash"] = $sendDataForm["senderHash"];
         $pagseguro['reference'] = "RF".substr(md5(uniqid(time())), 0, 8); // REFERENCIA UNICA CRIADA PARA O PEDIDO
         $pagseguro['shippingType'] = 1;
@@ -225,7 +221,7 @@
                     
                     $paymentLink = isset($xml->paymentLink) ? $xml->paymentLink : null;
                     
-                    mysqli_query($conexao, "insert into $tabela_pedidos (codigo_confirmacao, codigo_transacao, codigo_transporte, vlr_frete, codigo_pagamento, codigo_rastreamento, referencia, token_carrinho, id_cliente, nome_cliente, cpf_cliente, email_cliente, cep, rua, numero, complemento, bairro, cidade, estado, data_controle, status) values ('$codigoTransacao', '$codigoTransacao', '{$sendDataForm["shippingCode"]}', '{$pagseguro["shippingCost"]}', $codigoPagamento, 0, '$referencia', '$tokenCarrinho', '$idConta', '{$pagseguro["senderName"]}', '{$pagseguro["senderCPF"]}', '{$pagseguro["senderEmail"]}', '{$pagseguro["billingAddressPostalCode"]}', '{$pagseguro["billingAddressStreet"]}', '{$pagseguro["billingAddressNumber"]}', '{$pagseguro["billingAddressComplement"]}', '{$pagseguro["billingAddressDistrict"]}', '{$pagseguro["billingAddressCity"]}', '{$pagseguro["billingAddressState"]}', '$dataAtual', '$statusPagamento')");
+                    mysqli_query($conexao, "insert into $tabela_pedidos (codigo_confirmacao, codigo_transacao, codigo_transporte, vlr_frete, codigo_pagamento, codigo_rastreamento, payment_link, referencia, token_carrinho, id_cliente, nome_cliente, cpf_cliente, email_cliente, cep, rua, numero, complemento, bairro, cidade, estado, data_controle, status) values ('$codigoTransacao', '$codigoTransacao', '{$sendDataForm["shippingCode"]}', '{$pagseguro["shippingCost"]}', '$codigoPagamento', 0, '$paymentLink', '$referencia', '$tokenCarrinho', '$idConta', '{$pagseguro["senderName"]}', '{$pagseguro["senderCPF"]}', '{$pagseguro["senderEmail"]}', '{$pagseguro["billingAddressPostalCode"]}', '{$pagseguro["billingAddressStreet"]}', '{$pagseguro["billingAddressNumber"]}', '{$pagseguro["billingAddressComplement"]}', '{$pagseguro["billingAddressDistrict"]}', '{$pagseguro["billingAddressCity"]}', '{$pagseguro["billingAddressState"]}', '$dataAtual', '$statusPagamento')");
                     
                     switch($statusPagamento){
                         case 3:

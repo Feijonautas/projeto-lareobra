@@ -1,25 +1,23 @@
 $(document).ready(function(){
     var refreshRate = 500;
-
-    var totalPrice = null;
+    // HTML OBJ
     var mainDiv = null;
     var mainOptions = null;
     var buttons = null;
     var displayPaineis = null;
     var paineis = null;
-    var selectedCheckoutCode = null;
+    var opcoesFrete = null;
     var loadingIcon = "<i class='fas fa-spinner fa-spin icone-loading icon-button'></i>";
-
+    
     var btnCheckoutCreditCard = null;
     var btnCheckoutBoleto = null;
     var btnCheckoutDefaultText = null;
     
-    var opcoesFrete = null;
-    
     var filaMascaras = ["#ccHolderCpf", "#ccHolderBirthDate", "#ccHolderPhone"];
+    // END HTML OBJ
     
+    // STANDARD FORM
     var sendDataForm = new Object();
-    // ESSENCIAL FORM
     sendDataForm.processCheckout = null;
     sendDataForm.paymentMethod = null;
     sendDataForm.senderHash = null;
@@ -33,13 +31,14 @@ $(document).ready(function(){
     sendDataForm.shippingAddressCity = null;
     sendDataForm.shippingAddressComplement = null;
     sendDataForm.jsonProdutos = null;
-    // END ESSENCIAL FORM
+    sendDataForm.cartTotalPrice = null;
+    // END STANDARD FORM
     
+    // INITIALIZE FUNCTIONS
     var CheckoutPagseguro = new Object();
     CheckoutPagseguro.folder = "checkout/";
     CheckoutPagseguro.controller_url = CheckoutPagseguro.folder+"@controller-checkout.php";
     CheckoutPagseguro.session_id = null;
-    CheckoutPagseguro.total_price = null;
     function set_ps_session_id(){
         if(CheckoutPagseguro.session_id == null){
 
@@ -74,29 +73,38 @@ $(document).ready(function(){
             sendDataForm.jsonProdutos[index_controller] = {"id": idProduto, "titulo": tituloProduto, "preco": precoProduto, "comprimento": comprimentoProduto, "largura": larguraProduto, "altura": alturaProduto, "peso": pesoProduto, "quantidade": quantidadeProduto};
         });
     }
-
-    // INITIALIZE FUNCTIONS
+    
     set_ps_session_id();
     set_json_produtos();
     
-    function reset_checkout(objButton){
-        objButton.html(btnCheckoutDefaultText);
-        validandoCheckout = false;
-    }
-    
-    function set_sender_hash(next_function){
-        if(CheckoutPagseguro.session_id != null){
-            PagSeguroDirectPayment.getSenderHash();
-            PagSeguroDirectPayment.onSenderHashReady(function(response){
-                if(response.status == 'error') {
-                    console.log(response.message);
-                    return false;
-                }
-
-                sendDataForm.senderHash = response.senderHash;
-                
-                next_function(); // CHAMADA DA FUNÇÃO CALLBACK
-            });
+    var ctrlAddedMascaras = 0;
+    function set_mascaras(){
+        if(ctrlAddedMascaras <= filaMascaras.length){
+            switch(filaMascaras[ctrlAddedMascaras]){
+                case "#ccHolderCpf":
+                    if(typeof $("#ccHolderCpf").val() != "undefined"){
+                        input_mask("#ccHolderCpf", "999.999.999-99");
+                        filaMascaras[ctrlAddedMascaras] = "added";
+                        ctrlAddedMascaras++;
+                    }
+                    break;
+                case "#ccHolderBirthDate":
+                    if(typeof $("#ccHolderBirthDate").val() != "undefined"){
+                        input_mask("#ccHolderBirthDate", "99/99/9999");
+                        filaMascaras[ctrlAddedMascaras] = "added";
+                        ctrlAddedMascaras++;
+                    }
+                    break;
+                case "#ccHolderPhone":
+                    if(typeof $("#ccHolderPhone").val() != "undefined"){
+                        phone_mask("#ccHolderPhone");
+                        filaMascaras[ctrlAddedMascaras] = "added";
+                        ctrlAddedMascaras++;
+                    }
+                    break;
+            }
+        }else{
+            console.log(typeof $(filaMascaras[ctrlAddedMascaras]));
         }
     }
     
@@ -117,6 +125,25 @@ $(document).ready(function(){
         sendDataForm.shippingAddressState = $("#estadoDestino").val();
         sendDataForm.shippingAddressCity = $("#cidadeDestino").val();
         sendDataForm.shippingAddressComplement = $("#complementoDestino").val();
+    }
+    
+    // END INITIALIZE FUNCTIONS
+    
+    // STANDARD CHECKOUT FUNCTIONS
+    function set_sender_hash(next_function){
+        if(CheckoutPagseguro.session_id != null){
+            PagSeguroDirectPayment.getSenderHash();
+            PagSeguroDirectPayment.onSenderHashReady(function(response){
+                if(response.status == 'error') {
+                    console.log(response.message);
+                    return false;
+                }
+
+                sendDataForm.senderHash = response.senderHash;
+                
+                next_function(); // CHAMADA DA FUNÇÃO CALLBACK
+            });
+        }
     }
     
     function set_brand(card_bin, next_function = false){
@@ -171,106 +198,29 @@ $(document).ready(function(){
                     }else{
                         mensagemAlerta("Dados do cartão incorretos");
                         sendDataForm.creditCardBrand = null;
-                        reset_checkout(btnCheckoutCreditCard);
+                        refresh_checkout(btnCheckoutCreditCard);
                     }
                 },
                 error: function(response){
                     mensagemAlerta("Dados do cartão incorretos");
                     sendDataForm.creditCardBrand = null;
-                    reset_checkout(btnCheckoutCreditCard);
+                    refresh_checkout(btnCheckoutCreditCard);
                 }
             });
         }else{
             mensagemAlerta("Verifique se o número do cartão está correto");
-            reset_checkout(btnCheckoutCreditCard);
+            refresh_checkout(btnCheckoutCreditCard);
         }
     }
     
     function set_total_price(){
-        if(CheckoutPagseguro.total_price == null){
-            CheckoutPagseguro.total_price = $("#checkoutTotalPrice").val() > 0 ? $("#checkoutTotalPrice").val() : null;
+        if(sendDataForm.cartTotalPrice == null){
+            sendDataForm.cartTotalPrice = $("#checkoutTotalPrice").val() > 0 ? $("#checkoutTotalPrice").val() : null;
         }
     }
     
-    function check_pagseguro_auth(){
-        sendDataForm.processCheckout = true;
-        $.ajax({
-            type: "POST",
-            data: JSON.stringify(sendDataForm),
-            contentType: "application/json",
-            url: CheckoutPagseguro.folder+"@controller-checkout.php",
-            error: function(){
-                mensagemAlerta("Ocorreu um erro ao processar a compra. O Pagamento NÃO foi efetuado. Recarregue a página e tente novamente.");
-            },
-            success: function(response){
-                
-                switch(sendDataForm.paymentMethod){
-                    case "creditCard":
-                        var buttonCheckout = btnCheckoutCreditCard;
-                        break;
-                    case "boleto":
-                        var buttonCheckout = btnCheckoutBoleto;
-                        break;
-                }
-                
-                if(response == "aguardando"){
-                    
-                    var redirect = "finalizar-compra.php?clear=true";
-                    mensagemAlerta("Sua compra foi finalizada com sucesso! Assim que o pagamento for confirmado novas informações estarão disponíveis.", false, "limegreen", redirect);
-                    
-                }else if(response == "pago"){
-                    
-                    mensagemAlerta("Seu pagamento foi confirmado com sucesso! Logo informações sobre o rastreamento de sua compra serão adicionadas no seu pedido.", false, "limegreen", redirect);
-                    
-                }else if(typeof JSON.parse(response) != "undefined"){
-                    
-                    var objJson = JSON.parse(response);
-                    var paymentLink = objJson.paymentLink;
-                    if(typeof paymentLink != "undefined"){
-                        reset_checkout(buttonCheckout);
-                        function imprimirBoleto(){
-                            window.open(paymentLink);
-                        }
-                        mensagemConfirma("Sua compra foi finalizada com sucesso! Deseja imprimir o boleto agora?", imprimirBoleto);
-                    }
-                    
-                }else{
-                    reset_checkout(buttonCheckout);
-                    mensagemAlerta("Verifique se os dados do cartão estão corretos.");
-                }
-            }
-        });
-    }
-    
-    var ctrlAddedMascaras = 0;
-    function adicionar_mascaras(){
-        if(ctrlAddedMascaras <= filaMascaras.length){
-            switch(filaMascaras[ctrlAddedMascaras]){
-                case "#ccHolderCpf":
-                    if(typeof $("#ccHolderCpf").val() != "undefined"){
-                        input_mask("#ccHolderCpf", "999.999.999-99");
-                        filaMascaras[ctrlAddedMascaras] = "added";
-                        ctrlAddedMascaras++;
-                    }
-                    break;
-                case "#ccHolderBirthDate":
-                    if(typeof $("#ccHolderBirthDate").val() != "undefined"){
-                        input_mask("#ccHolderBirthDate", "99/99/9999");
-                        filaMascaras[ctrlAddedMascaras] = "added";
-                        ctrlAddedMascaras++;
-                    }
-                    break;
-                case "#ccHolderPhone":
-                    if(typeof $("#ccHolderPhone").val() != "undefined"){
-                        phone_mask("#ccHolderPhone");
-                        filaMascaras[ctrlAddedMascaras] = "added";
-                        ctrlAddedMascaras++;
-                    }
-                    break;
-            }
-        }else{
-            console.log(typeof $(filaMascaras[ctrlAddedMascaras]));
-        }
+    function play_button_loading(btn){
+        btn.html(loadingIcon + " VALIDANDO");
     }
     
     setInterval(function(){
@@ -279,14 +229,13 @@ $(document).ready(function(){
         
         set_transport_info();
         
-        adicionar_mascaras();
+        set_mascaras();
         
         mainDiv = $(".display-checkout");
         mainOptions = mainDiv.children(".main-options");
         buttons = mainOptions.children(".option-buttons");
         displayPaineis = mainDiv.children(".display-options");
         paineis = displayPaineis.children(".checkout-painel");
-        selectedCheckoutCode = null;
 
         btnCheckoutCreditCard = $("#buttonCheckoutCreditCard");
         btnCheckoutBoleto = $("#buttonCheckoutBoleto");
@@ -296,7 +245,6 @@ $(document).ready(function(){
             var button = $(this);
             var target = button.attr("option-target");
             var code = button.attr("option-code");
-            selectedCheckoutCode = code;
             button.off().on("click", function(){
                 buttons.each(function(){
                     $(this).removeClass("selected-option");
@@ -335,7 +283,7 @@ $(document).ready(function(){
                 sendDataForm.arrayInstallments = [];
                 
                 PagSeguroDirectPayment.getInstallments({
-                    amount: CheckoutPagseguro.total_price,
+                    amount: sendDataForm.cartTotalPrice,
                     brand: sendDataForm.creditCardBrand,
                     maxInstallmentNoInterest: parcelasSemJuros,
                     success: function(objResponse){
@@ -374,7 +322,60 @@ $(document).ready(function(){
         
     }, refreshRate);
 
-    function v_checkout_credit_card(objHolderName, objHolderCpf, objHolderBirthDate, objNumber, objCvv, objExpireMonth, objExpireYear, objInstallments){
+    // VALIDATION FUNCTIONS
+    function check_pagseguro_auth(){
+        sendDataForm.processCheckout = true;
+        $.ajax({
+            type: "POST",
+            data: JSON.stringify(sendDataForm),
+            contentType: "application/json",
+            url: CheckoutPagseguro.folder+"@controller-checkout.php",
+            error: function(){
+                mensagemAlerta("Ocorreu um erro ao processar a compra. O Pagamento NÃO foi efetuado. Recarregue a página e tente novamente.");
+            },
+            success: function(response){
+                switch(sendDataForm.paymentMethod){
+                    case "creditCard":
+                        var buttonCheckout = btnCheckoutCreditCard;
+                        break;
+                    case "boleto":
+                        var buttonCheckout = btnCheckoutBoleto;
+                        break;
+                }
+                
+                if(response == "aguardando"){
+                    var redirect = "finalizar-compra.php?clear=true";
+                    mensagemAlerta("Sua compra foi finalizada com sucesso! Assim que o pagamento for confirmado novas informações estarão disponíveis.", false, "limegreen", redirect);
+                }else if(response == "pago"){
+                    mensagemAlerta("Seu pagamento foi confirmado com sucesso! Logo informações sobre o rastreamento de sua compra serão adicionadas no seu pedido.", false, "limegreen", redirect);
+                }else if(typeof JSON.parse(response) != "undefined"){
+                    // CUSTOMIZE FINISH
+                    var json_response = JSON.parse(response);
+                    
+                    if(typeof json_response.paymentLink != "undefined"){
+                        var paymentLink = json_response.paymentLink;
+                        refresh_checkout(buttonCheckout, false);
+                        
+                        function imprimirBoleto(){
+                            window.open(paymentLink);
+                        }
+                        
+                        function voltar(){
+                            window.location.href = "finalizar-compra.php?clear=true";
+                        }
+                        
+                        mensagemConfirma("Sua compra foi finalizada com sucesso! Deseja imprimir o boleto agora?", imprimirBoleto, voltar);
+                    }
+                    // END CUSTOMIZE FINISH
+                }else{
+                    refresh_checkout(buttonCheckout);
+                    mensagemAlerta("Verifique se os dados do cartão estão corretos.");
+                }
+            }
+        });
+    }
+    
+    function valid_checkout_credit_card(objHolderName, objHolderCpf, objHolderBirthDate, objNumber, objCvv, objExpireMonth, objExpireYear, objInstallments){
 
         if(objHolderName.val().length < 1){
             mensagemAlerta("O campo Nome Proprietário deve conter no mínimo 1 caracter", objHolderName);
@@ -419,10 +420,15 @@ $(document).ready(function(){
         return true;
     }
     
-    function play_button_loading(btn){
-        btn.html(loadingIcon + " VALIDANDO");
+    function refresh_checkout(checkout_button, restart = true){
+        checkout_button.html(btnCheckoutDefaultText);
+        if(restart){
+            validandoCheckout = false;
+        }
     }
+    // END VALIDATE FUNCTIONS
     
+    // CONTROLL FUNCTIONS
     function checkout_credit_card(){
         var objHolderName = $("#ccHolderName");
         var objHolderCpf = $("#ccHolderCpf");
@@ -434,10 +440,14 @@ $(document).ready(function(){
         var objExpireYear = $("#ccExpireYear");
         var objInstallments = $("#ccInstallments");
         
+        var startDelay = 500;
+        
         play_button_loading(btnCheckoutCreditCard);
 
         setTimeout(function(){
-            if(v_checkout_credit_card(objHolderName, objHolderCpf, objHolderBirthDate, objNumber, objCvv, objExpireMonth, objExpireYear, objInstallments) == true){
+            
+            if(valid_checkout_credit_card(objHolderName, objHolderCpf, objHolderBirthDate, objNumber, objCvv, objExpireMonth, objExpireYear, objInstallments) == true){
+                
                 sendDataForm.paymentMethod = "creditCard";
                 sendDataForm.creditCardHolderName = objHolderName.val();
                 sendDataForm.creditCardHolderCPF = objHolderCpf.val();
@@ -454,7 +464,7 @@ $(document).ready(function(){
                         set_sender_hash(check_pagseguro_auth);
                     }else{
                         mensagemAlerta("Não foi possível processar a compra. Verifique os dados do Cartão de Crédito.");
-                        reset_checkout(btnCheckoutCreditCard);
+                        refresh_checkout(btnCheckoutCreditCard);
                     }
                 }
 
@@ -462,13 +472,14 @@ $(document).ready(function(){
                     set_token(verify_checkout_auth);
                 }else{
                     mensagemAlerta("Verifique se o Número do Cartão está correto");
-                    reset_checkout(btnCheckoutCreditCard);
+                    refresh_checkout(btnCheckoutCreditCard);
                 }
 
             }else{
-                reset_checkout(btnCheckoutCreditCard);
+                refresh_checkout(btnCheckoutCreditCard);
             }
-        }, 500);
+            
+        }, startDelay);
     }
 
     function checkout_boleto(){
@@ -510,6 +521,5 @@ $(document).ready(function(){
             }
         });
     }, refreshRate);
-
-
+    // END CONTROLL FUNCTIONS
 });

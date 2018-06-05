@@ -1,4 +1,5 @@
 <?php
+
 $post_fields = array("cep_destino", "codigo_servico", "comprimento", "largura", "altura", "peso", "valor_mercadoria");
 $invalid_fileds = array();
 $calcular = true;
@@ -64,8 +65,6 @@ if($calcular){
     
     curl_close($curl);
     
-    //echo $xml; exit;
-    
     $xml = simplexml_load_string($xml);
     
     foreach($xml -> cServico as $row){
@@ -75,8 +74,7 @@ if($calcular){
         $row->ValorAvisoRecebimento = str_replace(",", ".", $row->ValorAvisoRecebimento);
         $row->ValorValorDeclarado = str_replace(",", ".", $row->ValorValorDeclarado);
         if($row->Erro == 0){
-            $jsonRow = json_encode($row);
-            print_r($jsonRow);
+            echo '{"valor": '.$row->Valor.', "prazo": '.$row->PrazoEntrega.'}';
         }else{
             echo "false";
         }
