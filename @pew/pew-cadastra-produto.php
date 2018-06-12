@@ -986,6 +986,7 @@
                     $subcategoriasProduto = $produto->get_subcategorias_produto();
                     $especificacoesProduto = $produto->get_especificacoes_produto();
                     $relacionadosProdutos = $produto->get_relacionados_produto();
+                    $selectedCoresRelacionadas = $produto->get_cores_relacionadas();
 
                     $selectedDepartamentos = array();
                     if($departamentosProduto != false){
@@ -1054,6 +1055,7 @@
                     $ctrlRelacionados = 0;
                     $ctrlCoresRelacionadas = 0;
                     $selectedProdutosRelacionados = array();
+                    $selectedCoresRelacionadas = array();
                 }
         ?>
         <!--PAGE CONTENT-->

@@ -398,7 +398,7 @@
         ?>
         <!--PAGE CONTENT-->
         <h1 class="titulos"><?php echo $page_title; ?></h1>
-            <section class="conteudo-painel">
+        <section class="conteudo-painel">
             <div class="group clear">
                 <form action="pew-vendas.php" method="get" class="label half clear">
                     <label class="group">
@@ -422,7 +422,7 @@
                         <h4 class="subtitulos" align=left>Mais funções</h4>
                     </div>
                     <div class="label full">
-                        <a href="pew-produtos-relatorios.php" class="btn-flat" title="Ver Relatórios"><i class="fas fa-chart-pie"></i> Relatórios</a>
+                        <a href="pew-relatorios.php" class="btn-flat" title="Ver Relatórios"><i class="fas fa-chart-pie"></i> Relatórios</a>
                     </div>
                 </div>
             </div>

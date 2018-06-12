@@ -6,8 +6,10 @@
     $cls_paginas->set_titulo("Finalizar compra");
     $cls_paginas->set_descricao("DESCRIÇÃO MODELO ATUALIZAR...");
 
-    if(isset($_GET["clear"]) && $_GET["clear"] == true || $_GET["clear"] == "true"){
-        unset($_SESSION["carrinho"]);
+    if(isset($_GET["clear"])){
+        if($_GET["clear"] == "true" || $_GET["clear"] == true){
+            unset($_SESSION["carrinho"]);
+        }
     }
 ?>
 <!DOCTYPE html>
@@ -912,7 +914,7 @@
                             $largura = $item_carrinho["largura"];
                             $altura = $item_carrinho["altura"];
                             $peso = $item_carrinho["peso"];
-                            $porcentDesconto = ($item_carrinho["desconto"] * 100) / 100;
+                            $porcentDesconto = isset($item_carrinho["desconto"]) ? ($item_carrinho["desconto"] * 100) / 100 : 0;
                             echo "<div class='item-carrinho'>";
                                 if(isset($item_carrinho["desconto"]) && $item_carrinho["desconto"] > 0){
                                     echo "<div class='promo-tag'>-$porcentDesconto%</div>";

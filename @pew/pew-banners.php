@@ -127,7 +127,7 @@
                 <a href="pew-cadastra-banner.php" class="btn-flat" title="Cadastre um novo banner"><i class="fas fa-plus"></i> Cadastrar banner</a>
             </div>
             <div class="lista-banners">
-                <h3 class="subtitulos">Listagem de banners.</h3>
+                <h3 class="subtitulos" id="teste">Listagem de banners.</h3>
                 <?php
                     $tabela_banners = $pew_db->tabela_banners;
                     $contarBanners = mysqli_query($conexao, "select count(id) as total_banners from $tabela_banners");
