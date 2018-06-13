@@ -563,6 +563,7 @@ $page_title = "Relatório de vendas";
                             $totalProdutos = count($infoProdutos);
                             $pagamento = $cls_pedidos->get_pagamento_string($infoArray["codigo_pagamento"]);
                             $pago = $infoArray["status"] == 3 || $infoArray["status"] == 4 ? true : false;
+                            $cancelado = $infoArray["status"] == 5 || $infoArray["status"] == 6 || $infoArray["status"] == 7 ? true : false;
 
                             $tree = array();
                             $tree["categorias"] = array();
@@ -626,9 +627,9 @@ $page_title = "Relatório de vendas";
                                 $listar = false;
                             }
 
-                            if($listar){
+                            if($listar && $cancelado == false){
                                 $ctrl_produtos_listados++;
-                                $valorDesconto = $valorBruto - $valorTotal;
+                                $valorDesconto = abs($valorBruto - $valorTotal);
 
                                 $bottomTotal["total"] += $valorTotal;
                                 $bottomTotal["total_bruto"] += $valorBruto;
@@ -644,7 +645,7 @@ $page_title = "Relatório de vendas";
                                 echo "<td>{$infoArray['nome_cliente']}</td>";
                                 echo "<td align=center>$totalProdutos</td>";
                                 echo "<td class='prices'>R$ $valorBruto</td>";
-                                echo "<td class='prices'>R$ $valorTotal</td>";
+                                echo "<td class='prices'>R$ {$pew_functions->custom_number_format($valorTotal)}</td>";
                                 if(!isset($_POST["somente_pagos"])){
                                     $valorPago = $pago == true ? $valorBruto : "0.00";
                                     echo "<td class='prices'>R$ $valorPago</td>";
