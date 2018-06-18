@@ -174,100 +174,119 @@
             /*END DISPLAY TODOS PRODUTO DA VITRINE*/
         }
 
-        private function vitrine_categorias($condicao = ""){
-            /*SET */
+        private function vitrine_categorias($condicao = "1"){
+            
+            require_once "@pew/@classe-departamentos.php";
+            
+            $conexao = $this->global_vars["conexao"];
             $tabela_categorias = $this->global_vars["tabela_categorias"];
             $tabela_categorias_vitrine = $this->global_vars["tabela_categoria_destaque"];
-            $condicao = "status = 1";
-            $totalMain = $this->pew_functions->contar_resultados($tabela_categorias_vitrine, $condicao);
-            $ctrlCategorias = 0;
-            $limitCategorias = 4;
+            $cls_departamentos = new Departamentos();
+            $cls_produtos = new Produtos();
             
-            if($totalMain > 0){
-                echo "<section class='vitrine-categorias'>";
-                    if($this->titulo_vitrine != null){
-                        echo "<div class='titulo-vitrine'>".$this->titulo_vitrine."</div>";
-                    }
-                
-                    function listar_categoria($titulo, $desc, $img, $ref, $type){
-                        $dirImagens = "imagens/categorias/destaques";
-                        $urlRedirect = "loja.php?categoria=$ref";
-                        switch($type){
-                            case "normal":
-                                echo "<div class='box-categoria box'>";
-                                    echo "<div class='informacoes'>";
-                                    echo "<a href='$urlRedirect'><img src='$dirImagens/$img'></a>";
-                                    echo "<h2 class='titulo'>$titulo</h2>";
-                                    echo "<h3 class='descricao'>$desc</h3>";
-                                    echo "<a href='$urlRedirect' class='call-to-action'>CONFIRA</a>";
-                                    echo "</div>";
-                                echo "</div>";
+            
+            $dirImagens = "imagens/categorias/destaques";
+            $condicao = $condicao == "" ? "true" : $condicao;
+            
+            if(!function_exists("place_products")){
+                function place_products($array){
+                    $cls_produtos = new Produtos();
+                    $functions = new systemFunctions();
+                    
+                    $classOptions = array();
+                    
+                    $classOptions[0] = array();
+                    $classOptions[0]["name"] = "full-product";
+                    $classOptions[0]["max"] = 1;
+                    
+                    $classOptions[1] = array();
+                    $classOptions[1]["name"] = "half-product";
+                    $classOptions[1]["max"] = 2;
+                    
+                    $classOptions[2] = array();
+                    $classOptions[2]["name"] = "smalls-and-large";
+                    $classOptions[2]["max"] = 3;
+                    
+                    $classOptions[3] = array();
+                    $classOptions[3]["name"] = "small-product";
+                    $classOptions[3]["max"] = 4;
+                    
+                    $dirImagensProdutos = "imagens/produtos";
+                    
+                    if(is_array($array)){
+                        switch(count($array)){
+                            case 1:
+                                $selectedClass = $classOptions[0];
                                 break;
-                            case "normal_alter":
-                                echo "<span class='alter-spacing'></span>";
-                                    echo "<div class='box-categoria box'>";
-                                    echo "<div class='informacoes'>";
-                                    echo "<a href='$urlRedirect'><img src='$dirImagens/$img'></a>";
-                                    echo "<h2 class='titulo'>$titulo</h2>";
-                                    echo "<h3 class='descricao'>$desc</h3>";
-                                    echo "<a href='$urlRedirect' class='call-to-action'>CONFIRA</a>";
-                                    echo "</div>";
-                                echo "</div>";
+                            case 2:
+                                $selectedClass = $classOptions[1];
                                 break;
-                            case "double_1":
-                                echo "<div class='box-categoria-dupla'>";
-                                echo "<div class='box'>";
-                                    echo "<div class='informacoes'>";
-                                    echo "<a href='$urlRedirect'><img src='$dirImagens/$img'></a>";
-                                    echo "<h2 class='titulo'>$titulo</h2>";
-                                    echo "<h3 class='descricao'>$desc</h3>";
-                                    echo "<a href='$urlRedirect' class='call-to-action'>CONFIRA</a>";
-                                    echo "</div>";
-                                echo "</div>";
+                            case 3:
+                                $selectedClass = $classOptions[2];
                                 break;
-                            case "double_2":
-                                echo "<div class='box'>";
-                                    echo "<div class='informacoes'>";
-                                    echo "<a href='$urlRedirect'><img src='$dirImagens/$img'></a>";
-                                    echo "<h2 class='titulo'>$titulo</h2>";
-                                    echo "<h3 class='descricao'>$desc</h3>";
-                                    echo "<a href='$urlRedirect' class='call-to-action'>CONFIRA</a></div>";
-                                    echo "</div>";
-                                echo "</div>";
-                                break;
+                            default:
+                                $selectedClass = $classOptions[rand(0 , 3)];
                         }
-                    }
-                
-                    $queryCatDestaque = mysqli_query($this->conexao(), "select * from $tabela_categorias_vitrine where $condicao limit $limitCategorias");
-                    while($infoCatDestaque = mysqli_fetch_array($queryCatDestaque)){
-                        $idCategoriaMain = $infoCatDestaque["id_categoria"];
-                        $imagemCatDestaque = $infoCatDestaque["imagem"];
-                        $condicaoCat = "id = '$idCategoriaMain'";
-                        $totalCat = $this->pew_functions->contar_resultados($tabela_categorias, $condicaoCat);
-                        if($totalCat > 0){
-                            $queryInfoCategoria = mysqli_query($this->conexao(), "select categoria, ref, descricao from $tabela_categorias where $condicaoCat");
-                            $infoCategoria = mysqli_fetch_array($queryInfoCategoria);
-                            $tituloCat = $infoCategoria["categoria"];
-                            $refCat = $infoCategoria["ref"];
-                            $descricaoCat = $infoCategoria["descricao"];
-                            $refDouble = $totalMain < $limitCategorias ? "normal" : "double_$ctrlCategorias";
-                            $refNormal = $totalMain < $limitCategorias && $ctrlCategorias == 0 ? "normal_alter" : "normal";
-                            switch($ctrlCategorias){
-                                case 1:
-                                    $type = $refDouble;
-                                    break;
-                                case 2:
-                                    $type = $refDouble;
-                                    break;
-                                default:
-                                    $type = $refNormal;
+
+                        shuffle($array);
+                        echo "<div class='display-produtos {$selectedClass['name']}'>";
+                        for($i = 0; $i < $selectedClass["max"]; $i++){
+                            $infoP = $array[$i];
+                            $idProduto = $infoP["id_produto"];
+                            if($cls_produtos->montar_produto($idProduto) != false){
+                                $arrayProduto = $cls_produtos->montar_array();
+                                $precoFinal = $arrayProduto["preco_promocao"] > $arrayProduto["preco"] && $arrayProduto["promocao_ativa"] == 1 ? $arrayProduto["preco_promocao"] : $arrayProduto["preco"];
+                                $precoFinal = $functions->custom_number_format($precoFinal);
+                                $tituloURL = $functions->url_format($arrayProduto['nome']);
+                                $urlProduto = "interna-produto.php?produto=$tituloURL&id_produto={$arrayProduto['id']}";
+                                if(isset($arrayProduto["imagens"])){
+                                    $imagemProduto = $arrayProduto["imagens"][0]["src"];
+                                    echo "<div class='product-box'>";
+                                        echo "<a href='$urlProduto'><img src='$dirImagensProdutos/$imagemProduto' class='product-image'></a>";
+                                        echo "<a href='$urlProduto'><h3 class='title'>{$arrayProduto['nome']}</h3></a>";
+                                        echo "<h4 class='price'>R$ $precoFinal</h4>";
+                                        echo "<a href='$urlProduto' class='botao'>Comprar</a>";
+                                    echo "</div>";
+                                }else{
+                                    $i--;
+                                }
                             }
-                            listar_categoria($tituloCat, $descricaoCat, $imagemCatDestaque, $refCat, $type);
-                            $ctrlCategorias++;
                         }
+                        echo "</div>";
                     }
-                echo "</section>";
+                }
             }
+            
+            $total = $this->pew_functions->contar_resultados($tabela_categorias_vitrine, $condicao);
+            if($total > 0){
+                
+                $queryVitrine = mysqli_query($conexao, "select id_categoria, imagem from $tabela_categorias_vitrine where $condicao");
+                while($infoVitrine = mysqli_fetch_array($queryVitrine)){
+                    $idCategoria = $infoVitrine["id_categoria"];
+                    $imagemCategoria = $infoVitrine["imagem"];
+                    $produtosCategoria = $cls_departamentos->get_produtos_categoria($idCategoria);
+                    $infoCategoria = $cls_departamentos->get_categorias("id = '$idCategoria'", "ref");
+                    $refCategoria = $infoCategoria[0]["ref"];
+                    $urlCategoria = "loja.php?categoria=$refCategoria";
+                    $totalProdutos = count($produtosCategoria);
+                    if($totalProdutos > 0){
+                        $infoCategoria = $cls_departamentos->get_categorias("id = '$idCategoria'", "categoria");
+                        $nomeCategoria = $infoCategoria[0]["categoria"];
+                        echo "<div class='display-vitrine-categoria'>";
+                            echo "<h2 class='titulo-vitrine'>$nomeCategoria</h2>";
+                            echo "<div class='banner'>";
+                                echo "<a href='$urlCategoria'><img src='$dirImagens/$imagemCategoria' alt='$nomeCategoria' title='$nomeCategoria'></a>";
+                                echo "<a href='$urlCategoria' class='botao'>Ver mais</a>";
+                            echo "</div>";
+                            place_products($produtosCategoria);
+                        echo "</div>";
+                    }
+                }
+                
+            }else{
+                return false;
+            }
+            
         }
 
         public function vitrine_carrossel($arrayProdutos = array()){
@@ -410,7 +429,7 @@
             $tipoVitrine = $this->tipo;
             switch($tipoVitrine){
                 case "categorias":
-                    $this->vitrine_categorias($arrayProdutos);
+                    $this->vitrine_categorias($arrayProdutos); //Query normal
                     break;
                 case "carrossel":
                     $this->vitrine_carrossel($arrayProdutos);
