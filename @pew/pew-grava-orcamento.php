@@ -1,4 +1,5 @@
 <?php
+
     session_start();
     $post_fields = array("nome_cliente", "telefone_cliente", "email_cliente", "cpf_cliente", "total_desconto", "total_orcamento");
     $file_fields = array();

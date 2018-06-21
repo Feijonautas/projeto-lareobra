@@ -6,6 +6,7 @@
             public $descricao;
             public $empresa;
             public $logo;
+            public $http;
             public $base_path;
             private $email_user;
             private $smtp_host;
@@ -17,6 +18,8 @@
                 $this->empresa     = "Lar e Obra";
                 
                 $this->logo        = "logo-lareobra.png";
+                
+                $this->http        = "https://";
                 
                 $this->base_path   = "www.lareobra.com.br/dev";
                 
@@ -61,6 +64,10 @@
             
             function get_smtp_port(){
                 return $this->smtp_port;
+            }
+            
+            function get_full_path(){
+                return $this->http . $this->base_path;
             }
         }
     }

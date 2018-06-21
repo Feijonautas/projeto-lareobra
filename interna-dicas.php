@@ -3,12 +3,46 @@
     
     require_once "@classe-paginas.php";
 
-    $cls_paginas->set_titulo("Título da Dica");
-    $cls_paginas->set_descricao("DESCRIÇÃO MODELO ATUALIZAR...");
+    $getNome = isset($_GET["titulo"]) ? $_GET["titulo"] : "Produto não encontrado";
+    $selectedId = isset($_GET["id_dica"]) ? $_GET["id_dica"] : "Produto não encontrado";
+
+    require_once "@pew/pew-system-config.php";
+    $tabela_dicas = $pew_custom_db->tabela_dicas;
+
+    $dirImagens = "imagens/dicas";
+
+    $condicao = "id = $selectedId and status = 1";
+    $contar = mysqli_query($conexao, "select count(id) as total from $tabela_dicas where $condicao");
+    $contagem = mysqli_fetch_assoc($contar);
+    $total = $contagem["total"];
+
+    if($total > 0){
+        
+        $query = mysqli_query($conexao, "select * from $tabela_dicas where $condicao");
+        $infoDica = mysqli_fetch_array($query);
+        $imagem = $infoDica["imagem"];
+        $tituloDica = $infoDica["titulo"];
+        $subtitulo = $infoDica["subtitulo"];
+        $video = $infoDica["video"];
+        $refDica = $infoDica["ref"];
+        $descricaoCurta = $infoDica["descricao_curta"];
+        $descricaoLonga = $infoDica["descricao_longa"];
+        $imagem = $infoDica["imagem"];
+        $srcImagem = file_exists($dirImagens."/".$imagem) && $imagem != "" ? $dirImagens."/".$imagem : $dirImagens."/"."banner-padrao.png";
+        
+    }else{
+        $tituloDica = "Não encontrado";
+        $descricaoCurta = "O post que você buscou não foi encontrado.";
+    }
+
+
+    $cls_paginas->set_titulo($tituloDica);
+    $cls_paginas->set_descricao($descricaoCurta);
 ?>
 <!DOCTYPE html>
 <html>
     <head>
+        <base href="<?= $cls_paginas->get_full_path(); ?>/">
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
@@ -76,50 +110,28 @@
         <div class="main-content">
             <!--GET = titulo, ref-->
             <?php
-                $getNome = isset($_GET["titulo"]) ? $_GET["titulo"] : "Produto não encontrado";
-                $selectedId = isset($_GET["id_dica"]) ? $_GET["id_dica"] : "Produto não encontrado";
-                
-				require_once "@pew/pew-system-config.php";
-				$tabela_dicas = $pew_custom_db->tabela_dicas;
-				
-				$dirImagens = "imagens/dicas";
-                
-                $condicao = "id = $selectedId and status = 1";
-                $contar = mysqli_query($conexao, "select count(id) as total from $tabela_dicas where $condicao");
-                $contagem = mysqli_fetch_assoc($contar);
-                $total = $contagem["total"];
-            
 				if($total > 0){
-					$queryDicas = mysqli_query($conexao, "select * from $tabela_dicas where $condicao");
-					while($dicas = mysqli_fetch_array($queryDicas)){
-						$imagem = $dicas["imagem"];
-						$titulo = $dicas["titulo"];
-						$subtitulo = $dicas["subtitulo"];
-						$video = $dicas["video"];
-						$refDica = $dicas["ref"];
-						$descricaoCurta = $dicas["descricao_curta"];
-						$descricaoLonga = $dicas["descricao_longa"];
-                        $imagem = $dicas["imagem"];
-						$srcImagem = file_exists($dirImagens."/".$imagem) && $imagem != "" ? $dirImagens."/".$imagem : $dirImagens."/"."banner-padrao.png";
-                        
-                        echo "<div class='box'>";  
-                            echo "<img src='$srcImagem' title='' alt=''>";
-                            echo "<div class='breadcrumb'>";
-                                echo "<h4><a href='index.php'>Página Inicial > </a><a href='dicas.php'>Dicas > </a>$titulo</h4>";
-                                echo "<h1>$titulo</h1>";
-                                echo "<h2>$subtitulo</h2>";
-                            echo "</div>";
-                        echo "</div>";  
-                        echo "<div class='display'>";
-                            if($video){
-                                echo $video;
-                            }
-                            echo "<article>$descricaoLonga</article>";
+
+                    echo "<div class='box'>";  
+                        echo "<img src='$srcImagem' title='' alt=''>";
+                        echo "<div class='breadcrumb'>";
+                            echo "<h4><a href='index.php'>Página Inicial > </a><a href='dicas/'>Dicas > </a>$tituloDica</h4>";
+                            echo "<h1>$tituloDica</h1>";
+                            echo "<h2>$subtitulo</h2>";
                         echo "</div>";
-                    }
-				}
-				
-            
+                    echo "</div>";  
+                    echo "<div class='display'>";
+                        if($video){
+                            echo $video;
+                        }
+                        echo "<article>$descricaoLonga</article>";
+                        echo "<div class='full' align=center><a href='dicas/' class='link-padrao'>Voltar à página de dicas</a></div>";
+                    echo "</div>";
+                    
+				}else{
+                    echo "<h3 class='mensagem-no-result'>Nenhum resultado encontrado.</h3>";
+                    echo "<div align=center><a href='dicas/' class='link-padrao'>Voltar à página de dicas</a></div>";
+                }
             ?>
         </div>
         <!--END THIS PAGE CONTENT-->

@@ -6,6 +6,7 @@
 
 
     require_once __DIR__ . "/../@classe-paginas.php";
+    require_once "@include-global-vars.php";
     require_once "pew-system-config.php";
 
     use PHPMailer\PHPMailer\PHPMailer;
@@ -109,6 +110,7 @@
                 $string = str_replace("|", "-", $string);
                 $string = str_replace(" ", "-", $string);
                 $string = str_replace(",", "", $string);
+                $string = str_replace(".", "", $string);
                 return $string;
             }
 

@@ -63,6 +63,7 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <base href="<?= $cls_paginas->get_full_path(); ?>/">
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
@@ -263,7 +264,7 @@
                 $ctrlNavigation++;
             }
             
-            add_navigation("Página inicial", "index.php");
+            add_navigation("Página inicial", "inicio/");
             
             if($buscarSubcategoria){
                 $selected = array();
@@ -296,15 +297,15 @@
 
                         $navInfoDepart = $cls_produtos->get_referencias("departamento", "ref = '$getDepartamento'");
                         if($navInfoDepart != false){
-                            add_navigation($navInfoDepart["titulo"], "loja.php?departamento=$getDepartamento");
+                            add_navigation($navInfoDepart["titulo"], "loja/$getDepartamento/");
                         }
                         
                         $navInfoCat = $cls_produtos->get_referencias("categoria", "ref = '$getCategoria'");
                         if($navInfoCat != false){
-                            add_navigation($navInfoCat["titulo"], "loja.php?departamento=$getDepartamento&categoria=$getCategoria");
+                            add_navigation($navInfoCat["titulo"], "loja/$getDepartamento/$getCategoria/");
                         }
                         
-                        add_navigation($tituloVitrine, "loja.php?departamento=$getDepartamento&categoria=$getCategoria&subcategoria=$getSubcategoria");
+                        add_navigation($tituloVitrine, "loja/$getDepartamento/$getCategoria/$getSubcategoria/");
 
                     }else if($buscarCategoria){
                         $selectedCategoria = $cls_produtos->search_categorias_produtos("ref = '$getCategoria'");
@@ -319,10 +320,10 @@
                         
                         $navInfoCat = $cls_produtos->get_referencias("categoria", "ref = '$getCategoria'");
                         if($navInfoCat != false){
-                            add_navigation($navInfoCat["titulo"], "loja.php?departamento=$getDepartamento&categoria=$getCategoria");
+                            add_navigation($navInfoCat["titulo"], "loja/$getDepartamento/$getCategoria/");
                         }
                         
-                        add_navigation($tituloVitrine, "loja.php?categoria=$getCategoria&subcategoria=$getSubcategoria");
+                        add_navigation($tituloVitrine, "categoria/$getCategoria/$getSubcategoria/");
                         
                     }else{
                         $selectedSubcategoria = $cls_produtos->search_subcategorias_produtos("ref = '$getSubcategoria'");
@@ -332,7 +333,7 @@
                             $ctrlSelectedFinal++;
                         }
                         
-                        add_navigation($tituloVitrine, "loja.php?subcategoria=$getSubcategoria");
+                        add_navigation($tituloVitrine, "subcategoria/$getSubcategoria/");
                     }
                     
                     foreach($selectedFinal as $id){
@@ -420,6 +421,8 @@
             $vitrineProdutos[0]->montar_vitrine($selectedProdutos);
             $selectedExceptions = $vitrineProdutos[0]->get_exceptions();
             
+            $lastProduct = count($selectedProdutos) == count($selectedExceptions) ? true : false;
+            
             $jsonProdutos = json_encode($selectedProdutos);
             $jsonExceptions = json_encode($selectedExceptions);
             
@@ -427,7 +430,9 @@
             echo "<input type='hidden' value='$jsonExceptions' id='vitrineAddedProdutos'>";
             echo "<input type='hidden' value='$maxAppend' id='vitrineMaxAppend'>";
             
-            echo "<div class='btn-show-more js-btn-show-more'><i class='fas fa-plus'></i></div>";
+            if(!$lastProduct){
+                echo "<div class='btn-show-more js-btn-show-more'><i class='fas fa-plus'></i></div>";
+            }
         ?>
         </div>
         <!--END THIS PAGE CONTENT-->

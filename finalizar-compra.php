@@ -15,6 +15,7 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <base href="<?= $cls_paginas->get_full_path(); ?>/">
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
@@ -1069,7 +1070,7 @@
                         // END CHECKOUT TRANSPARENTE
                     }else{
                         echo "<h5 align=center style='width: 100%;'><br>Seu carrinho está vazio</h5>";
-                        echo "<h5 align=center style='width: 100%;'><br><a href='index.php' class='link-padrao'>Voltar as compras</a></h5>";
+                        echo "<h5 align=center style='width: 100%;'><br><a href='inicio/' class='link-padrao'>Voltar as compras</a></h5>";
                     }
                 ?>
             </div>

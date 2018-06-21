@@ -45,6 +45,7 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <base href="<?= $cls_paginas->get_full_path(); ?>/">
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
@@ -608,14 +609,14 @@
                 
             $iconArrow = "<i class='fas fa-angle-right icon'></i>";
 				
-            $navigationTree = "<div class='navigation-tree'><a href='index.php'>Página inicial</a>";
+            $navigationTree = "<div class='navigation-tree'><a href='inicio/'>Página inicial</a>";
 			if(isset($breadCrumbDepartamento)){
-				$navigationTree .= "$iconArrow <a href='loja.php?departamento=$breadCrumbRefDepartamento'>$breadCrumbDepartamento</a>"; 
+				$navigationTree .= "$iconArrow <a href='loja/$breadCrumbRefDepartamento/'>$breadCrumbDepartamento</a>"; 
 			}
 			if(isset($breadCrumbCategoria)){
-				$navigationTree .= "$iconArrow <a href='loja.php?departamento=$breadCrumbRefDepartamento&categoria=$breadCrumbRefCategoria'>$breadCrumbCategoria</a>";
+				$navigationTree .= "$iconArrow <a href='loja/$breadCrumbRefDepartamento/$breadCrumbRefCategoria/'>$breadCrumbCategoria</a>";
 			}
-			$navigationTree .= "$iconArrow <a href='#'>$nomeProduto</a></div>";
+			$navigationTree .= "$iconArrow <a>$nomeProduto</a></div>";
 				
             echo $navigationTree;
                 

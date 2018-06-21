@@ -53,6 +53,7 @@
                     $srcImagem = "produto-padrao.png";
                 }
                 $nome = $info["nome"];
+                $titleURL = $this->pew_functions->url_format($nome);
                 $maxCaracteres = 31;
                 $nomeEllipses = strlen(str_replace(" ", "", $nome)) > $maxCaracteres ? trim(substr($nome, 0, $maxCaracteres))."..." : $nome;
                 $qtdParcelas = 6;
@@ -62,7 +63,7 @@
                 $promoAtiva = $precoPromocao > 0 && $precoPromocao < $preco ? true : false;
                 $precoParcela = $promoAtiva == true ? $precoPromocao / $qtdParcelas : $preco / $qtdParcelas;
                 $priceField = $promoAtiva == true ? "<span class='view-preco'>De <span class='promo-price'>R$".number_format($preco, 2, ",", ".")."</span></span> por <span class='view-preco'><span class='price'>R$".number_format($precoPromocao, 2, ",", ".")."</span></span>" : "<span class='view-preco'><span class='price'>R$ ". number_format($preco, 2, ",", ".")."</span></span>";
-                $urlProduto = "interna-produto.php?id_produto=$idProduto";
+                $urlProduto = "$titleURL/$idProduto/";
                 /*END VARIAVEIS DO PRODUTO*/
 
                 /*DISPLAY DO PRODUTO*/
@@ -79,11 +80,12 @@
                                 $produtoRelacao = new Produtos();
                                 $produtoRelacao->montar_produto($idRelacao);
                                 $info = $produtoRelacao->montar_array();
+                                $tituloURL = $this->pew_functions->url_format($info["nome"]);
                                 $idCor = $info["id_cor"];
                                 $queryCor = mysqli_query($this->conexao(), "SELECT * FROM $tabela_cores where id = '$idCor' and status = 1");
                                 $functions = new systemFunctions();
                                 $totalCores = $functions->contar_resultados($tabela_cores, "id = '$idCor' and status = 1");
-                                $urlProdutoRelacao = "interna-produto.php?id_produto=$idRelacao";
+                                $urlProdutoRelacao = "$titleURL/$idRelacao/";
                                 $dirImagens = "imagens/cores";
                                 if($totalCores > 0){
                                     while($infoCor = mysqli_fetch_assoc($queryCor)){
@@ -238,7 +240,7 @@
                                 $precoFinal = $arrayProduto["preco_promocao"] > $arrayProduto["preco"] && $arrayProduto["promocao_ativa"] == 1 ? $arrayProduto["preco_promocao"] : $arrayProduto["preco"];
                                 $precoFinal = $functions->custom_number_format($precoFinal);
                                 $tituloURL = $functions->url_format($arrayProduto['nome']);
-                                $urlProduto = "interna-produto.php?produto=$tituloURL&id_produto={$arrayProduto['id']}";
+                                $urlProduto = "$tituloURL/{$arrayProduto['id']}/";
                                 if(isset($arrayProduto["imagens"])){
                                     $imagemProduto = $arrayProduto["imagens"][0]["src"];
                                     echo "<div class='product-box'>";
@@ -267,7 +269,7 @@
                     $produtosCategoria = $cls_departamentos->get_produtos_categoria($idCategoria);
                     $infoCategoria = $cls_departamentos->get_categorias("id = '$idCategoria'", "ref");
                     $refCategoria = $infoCategoria[0]["ref"];
-                    $urlCategoria = "loja.php?categoria=$refCategoria";
+                    $urlCategoria = "categoria/$refCategoria/";
                     $totalProdutos = count($produtosCategoria);
                     if($totalProdutos > 0){
                         $infoCategoria = $cls_departamentos->get_categorias("id = '$idCategoria'", "categoria");
@@ -323,6 +325,7 @@
                         $srcImagem = "produto-padrao.png";
                     }
                     $nome = $infoProduto["nome"];
+                    $tituloURL = $this->pew_functions->url_format($nome);
                     $maxCaracteres = 31;
                     $nomeEllipses = strlen(str_replace(" ", "", $nome)) > $maxCaracteres ? trim(substr($nome, 0, $maxCaracteres))."..." : $nome;
                     $qtdParcelas = 6;
@@ -344,7 +347,7 @@
                     $desconto = $precoFinal * $multiplicador;
                     $precoCompreJunto = $precoFinal - $desconto;
                         
-                    $urlProduto = "interna-produto.php?id_produto=$idProduto";
+                    $urlProduto = "$tituloURL/$idProduto/";
                     /*END VARIAVEIS DO PRODUTO*/
                     
                     /*DISPLAY DO PRODUTO*/
@@ -373,10 +376,11 @@
                                     $produtoRelacao = new Produtos();
                                     $produtoRelacao->montar_produto($idRelacao);
                                     $infoProduto = $produtoRelacao->montar_array();
+                                    $tituloURL = $this->pew_functions->url_format($infoProduto["nome"]);
                                     $idCor = $infoProduto["id_cor"];
                                     $functions = new systemFunctions();
                                     $totalCores = $functions->contar_resultados($tb_cores, "id = '$idCor' and status = 1");
-                                    $urlProdutoRelacao = "interna-produto.php?id_produto=$idRelacao";
+                                    $urlProdutoRelacao = "$titleURL/$idRelacao/";
                                     $dirImagens = "imagens/cores";
                                     if($totalCores > 0){
                                         $queryCor = mysqli_query($conexao, "SELECT * FROM $tb_cores where id = '$idCor' and status = 1");

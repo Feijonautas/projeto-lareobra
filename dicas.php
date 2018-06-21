@@ -9,6 +9,7 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <base href="<?= $cls_paginas->get_full_path(); ?>/">
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
@@ -166,7 +167,7 @@
 						$titulo = $dicas["titulo"];
 						$refDica = $dicas["ref"];
 						$descricaoCurta = $dicas["descricao_curta"];
-						$urlDica = "interna-dicas.php?titulo=$refDica&id_dica=$id";
+						$urlDica = "dicas/$refDica/$id/";
 						$max = 155;
 						$descricaoCurta = substr($descricaoCurta, 0, $max)."...";
 						$srcImagem = file_exists($dirImagens."/".$thumb) && $thumb != "" ? $dirImagens."/".$thumb : $dirImagens."/"."thumb-padrao.png";

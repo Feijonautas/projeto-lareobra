@@ -918,41 +918,7 @@
             <div class="header-cart">
                 <div class="view-quantidade-carrinho"></div>
                 <div class="cart-button"><i class="fas fa-shopping-cart"></i></div>
-                <div class="cart-display">
-                    <h4 class="cart-title">Seu carrinho</h4>
-                    <div class="display-itens">
-                        <?php
-                            require_once "@classe-carrinho-compras.php";
-                            $cls_carrinho = new Carrinho();
-                            $carrinho = $cls_carrinho->get_carrinho();
-                            $totalCarrinho = 0;
-                            if(count($carrinho["itens"]) > 0){
-                                foreach($carrinho["itens"] as $item){
-                                    $id = $item["id"];
-                                    $titulo = $item["nome"];
-                                    $preco = $item["preco"];
-                                    $quantidade = $item["quantidade"];
-                                    $total = $preco * $quantidade;
-                                    $total = $pew_functions->custom_number_format($total);
-                                    $totalCarrinho += $total;
-                                    $url = "interna-produto.php?id_produto=$id";
-                                    echo "<div class='cart-item'>";
-                                        echo "<span class='item-quantity'>{$quantidade}x</span>";
-                                        echo "<a href='$url' class='item-name'>$titulo</a>";
-                                        echo "<span class='item-price'>R$ $total</span>";
-                                        echo "<button class='remove-button' title='Remover este item' carrinho-id-produto='$id'><i class='fas fa-times'></i></button>";
-                                    echo "</div>";
-                                }
-                            }else{
-                                echo "<div align=center>Bolsa vazia</div>";
-                            }
-                        ?>
-                    </div>
-                    <div class="cart-bottom">
-                        <span class="total-price">TOTAL: <span class="price-view">R$ <?php echo $pew_functions->custom_number_format($totalCarrinho); ?></span></span><br>
-                        <a href="finalizar-compra.php" class="finalize-button">Finalizar compra</a>
-                    </div>
-                </div>
+                <div class="cart-display"><!--DISPLAY CARRINHO--></div>
                 <div class="cart-background"></div>
             </div>
         </div>
@@ -963,7 +929,7 @@
                     <button type="submit" class="search-submit"><i class="fas fa-search"></i></button>
                 </form>
             </div>
-            <div class="logo-header"><a href="index.php"><img src="<?php echo $dirLogoPrincipal;?>" alt="Logo - Lar e Obra" title="Página Inicial - Lar e Obra"></a></div>
+            <div class="logo-header"><a href="inicio/"><img src="<?php echo $dirLogoPrincipal;?>" alt="Logo - <?= $cls_paginas->empresa; ?>" title="Página Inicial - <?= $cls_paginas->empresa; ?>"></a></div>
             <div class="social-media-field">
                 <a href="https://www.facebook.com/lareobrajardim/" class="facebook" target='_blank'><i class="fab fa-facebook-f"></i></a>
                 <a href="https://www.instagram.com/lareobra/" class="instagram" target='_blank'><i class="fab fa-instagram"></i></a>
@@ -1073,7 +1039,7 @@
         
         $link_nav = null;
         $countLinks = 0;
-        $link_nav[$countLinks] = new NavLinks("PÁGINA INICIAL", "index.php");
+        $link_nav[$countLinks] = new NavLinks("PÁGINA INICIAL", "inicio/");
         $countLinks++;
         
         /*INICIO LINKS ALTERAVEIS*/
@@ -1104,7 +1070,7 @@
                 $idDepartamento = $infoDepartamentos["id"];
                 $tituloDepartamento = $infoDepartamentos["departamento"];
                 $refDepartamento = $infoDepartamentos["ref"];
-                $urlDepartamento = "loja.php?departamento=$refDepartamento";
+                $urlDepartamento = "loja/$refDepartamento/";
                 $departamentoLinks[$ctrlDepartamentoLinks] = array();
                 $departamentoLinks[$ctrlDepartamentoLinks]["titulo"] = $tituloDepartamento;
                 $departamentoLinks[$ctrlDepartamentoLinks]["url"] = $urlDepartamento;
@@ -1121,7 +1087,7 @@
                             $infoCategoria = mysqli_fetch_array($queryCategoria);
                             $tituloCategoria = $infoCategoria["categoria"];
                             $refCategoria = $infoCategoria["ref"];
-                            $urlCategoria = "loja.php?departamento=$refDepartamento&categoria=$refCategoria";
+                            $urlCategoria = "loja/$refDepartamento/$refCategoria/";
                             $departamentoLinks[$ctrlDepartamentoLinks]["sublinks"][$ctrlSub] = array();
                             $departamentoLinks[$ctrlDepartamentoLinks]["sublinks"][$ctrlSub]["titulo"] = $tituloCategoria;
                             $departamentoLinks[$ctrlDepartamentoLinks]["sublinks"][$ctrlSub]["url"] = $urlCategoria;
@@ -1133,7 +1099,7 @@
                                     $idSubcategoria = $infoSubcategoriras["id"];
                                     $tituloSubcategoria = $infoSubcategoriras["subcategoria"];
                                     $refSubcategoria = $infoSubcategoriras["ref"];
-                                    $urlSubcategoria = "loja.php?departamento=$refDepartamento&categoria=$refCategoria&subcategoria=$refSubcategoria";
+                                    $urlSubcategoria = "loja/$refDepartamento/$refCategoria/$refSubcategoria/";
                                     $departamentoLinks[$ctrlDepartamentoLinks]["sublinks"][$ctrlSub]["subsublinks"][$ctrlSubsublinks] = array();
                                     $departamentoLinks[$ctrlDepartamentoLinks]["sublinks"][$ctrlSub]["subsublinks"][$ctrlSubsublinks]["titulo"] = $tituloSubcategoria;
                                     $departamentoLinks[$ctrlDepartamentoLinks]["sublinks"][$ctrlSub]["subsublinks"][$ctrlSubsublinks]["url"] = $urlSubcategoria;
@@ -1193,14 +1159,14 @@
         }
         
         /*END LINKS ALTERAVEIS*/
-        $link_nav[$countLinks] = new NavLinks("DICAS", "dicas.php");
+        $link_nav[$countLinks] = new NavLinks("DICAS", "dicas/");
         $countLinks++;
-        $link_nav[$countLinks] = new NavLinks("CONTATO", "contato.php");
+        $link_nav[$countLinks] = new NavLinks("CONTATO", "contato/");
         $countLinks++;
-        $link_nav[$countLinks] = new NavLinks("<i class='fas fa-star'></i> CLUBE DE DESCONTOS", "clube-de-descontos.php", "link-especial");
-        $link_nav[$countLinks]->add_sublink($countLinks, "Ofertas", "clube-de-descontos.php");
-        $link_nav[$countLinks]->add_sublink($countLinks, "Cupons", "clube-de-descontos.php");
-        $link_nav[$countLinks]->add_sublink($countLinks, "Como funciona", "clube-de-descontos.php");
+        $link_nav[$countLinks] = new NavLinks("<i class='fas fa-star'></i> CLUBE DE DESCONTOS", "clube-de-descontos/", "link-especial");
+        $link_nav[$countLinks]->add_sublink($countLinks, "Ofertas", "clube-de-descontos/");
+        $link_nav[$countLinks]->add_sublink($countLinks, "Cupons", "clube-de-descontos/");
+        $link_nav[$countLinks]->add_sublink($countLinks, "Como funciona", "clube-de-descontos/");
         $countLinks++;
         
         /*END LINKS*/

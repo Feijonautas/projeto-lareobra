@@ -528,7 +528,7 @@
         }
         
         /*TRIGGER VALIDAR*/
-        formularioLogin.off().on("submit", function(){
+        formularioLogin.off().on("submit", function(event){
             event.preventDefault();
             if(!logando){
                 logando = true;

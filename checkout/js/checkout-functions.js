@@ -510,12 +510,14 @@ $(document).ready(function(){
     }
 
     setInterval(function(){
-        btnCheckoutCreditCard.off().on("click", function(){
+        btnCheckoutCreditCard.off().on("click", function(event){
+            event.preventDefault();
             if(!validandoCheckout){
                 execute_checkout("creditCard");
             }
         });
-        btnCheckoutBoleto.off().on("click", function(){
+        btnCheckoutBoleto.off().on("click", function(event){
+            event.preventDefault();
             if(!validandoCheckout){
                 execute_checkout("boleto");
             }
