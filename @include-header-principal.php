@@ -304,6 +304,7 @@
         color: #666;
         text-decoration: none;
         display: block;
+        border-bottom: 1px solid #ccc;
     }
     .header-principal .nav-header .top-bar .display-header-conta .box-header-conta li:hover{
         background-color: #ddd;   
@@ -904,6 +905,7 @@
                             echo "<a class='link-padrao botao-minha-conta'><i class='far fa-user'></i> Olá, $splitNome[0]</a>";
                             echo "<ul class='box-header-conta'>";
                                 echo "<li class='link-conta'><a class='btn-open-minha-conta'>Minha conta</a></li>";
+                                echo "<li class='link-conta'><a href='ticket/'>Central de atendimento</a></li>";
                                 echo "<li class='link-conta'><a href='deslogar-conta.php'>Sair</a></li>";
                             echo "</ul>";
                         echo "</div>";
@@ -1162,6 +1164,8 @@
         $link_nav[$countLinks] = new NavLinks("DICAS", "dicas/");
         $countLinks++;
         $link_nav[$countLinks] = new NavLinks("CONTATO", "contato/");
+        $link_nav[$countLinks]->add_sublink($countLinks, "Telefones", "contato/");
+        $link_nav[$countLinks]->add_sublink($countLinks, "Central de Atendimento", "ticket/");
         $countLinks++;
         $link_nav[$countLinks] = new NavLinks("<i class='fas fa-star'></i> CLUBE DE DESCONTOS", "clube-de-descontos/", "link-especial");
         $link_nav[$countLinks]->add_sublink($countLinks, "Ofertas", "clube-de-descontos/");

@@ -522,7 +522,15 @@
                     </ul>
                 </span>
             </li>
-            <li class='first-li'><span><a href="contato.php" class="link-principal">CONTATO</a></span></li>
+            <li class='first-li'>
+                <span>
+                    <a href="contato.php" class="link-principal">CONTATO</a>
+                    <ul class="sub-menu">
+                        <li><a href="contato.php" class="sub-link">Telefones</a></li>
+                        <li><a href="ticket/" class="sub-link">Central de Atendimento</a></li>
+                    </ul>
+                </span>
+            </li>
             <li class='first-li'>
                 <span>
                     <a class="link-principal">REDES SOCIAIS</a>

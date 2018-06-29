@@ -232,6 +232,7 @@
         top: 0px;
         height: 30px;
         right: 10px;
+        line-height: 30px;
         transition: .2s;
     }
     .section-cadastra .display-formularios .formulario-cadastro .botao-continuar:hover{

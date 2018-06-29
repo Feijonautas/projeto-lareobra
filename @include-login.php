@@ -187,6 +187,7 @@
         height: 30px;
         right: 10px;
         transition: .2s;
+        line-height: 30px;
     }
     .section-login .formulario-login .botao-submit:hover{
         background-color: #518f35;

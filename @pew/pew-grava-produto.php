@@ -174,7 +174,7 @@
                     }
                 }
             }
-            //echo "<script>window.location.href='pew-produtos.php?msg=Produto cadastrado com sucesso&msgType=success';</script>";
+            echo "<script>window.location.href='pew-produtos.php?msg=Produto cadastrado com sucesso&msgType=success';</script>";
         }else{
             //Erro de validação = Nome do produto vazio
             echo "<script>window.location.href='pew-produtos.php?erro=validação_do_produto&msg=Ocorreu um erro ao cadastrar o produto&msgType=error';</script>";
