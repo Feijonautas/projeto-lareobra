@@ -209,6 +209,7 @@
                 right: 15px;
                 top: 0px;
                 height: 30px;
+                line-height: 30px;
                 transition: .2s;
             }
             .main-content .display-carrinho .bottom-info .botao-continuar:hover{
@@ -387,42 +388,6 @@
                 
                 
                 /*MAIN FUNCTIONS*/
-                function guardar_compra(cd_validacao, cd_transacao, cd_transporte, vlr_frete, referencia){
-                    var dados_compra = {
-                        token_carrinho: tokenCarrinho,
-                        itens_carrinho: jsonProduto,
-                        codigo_confirmacao: cd_validacao,
-                        codigo_transacao: cd_transacao,
-                        codigo_transporte: cd_transporte,
-                        referencia: referencia,
-                        id_cliente: idCliente,
-                        nome_cliente: nomeCliente,
-                        cpf_cliente: cpfCliente,
-                        email_cliente: emailCliente,
-                        cep: $("#cepDestino").val(),
-                        rua: $("#ruaDestino").val(),
-                        numero: $("#numeroDestino").val(),
-                        complemento: $("#complementoDestino").val(),
-                        bairro: $("#bairroDestino").val(),
-                        cidade: $("#cidadeDestino").val(),
-                        estado: $("#estadoDestino").val(),
-                        vlr_frete: vlr_frete
-                    }
-                    
-                    $.ajax({
-                        type: "POST",
-                        url: "@grava-pedido.php",
-                        data: JSON.stringify(dados_compra),
-                        contentType: "application/json",
-                        error: function(){
-                            mensagemAlerta("Ocorreu um erro ao finalizar seu pedido. Recarregue a página e tente novamente.");
-                        },
-                        success: function(resposta){
-                            //console.log(resposta);
-                        }
-                    });
-                }
-                
                 var metodosEnvio = [];
                 var ctrlMetodosEnvio = 0;
                 function calcular_frete(){
@@ -598,56 +563,6 @@
                                     changeCheckout();
                                 }
                             );
-                            
-                            
-                            
-
-                            /*$.ajax({
-                                type: "POST",
-                                url: "@valida-finaliza-compra.php",
-                                data: JSON.stringify(dados),
-                                contentType: "application/json",
-                                error: function(){
-                                    mensagemAlerta("Ocorreu um erro ao finalizar sua compra");
-                                    botaoFinalizar.html("Recarregar página");
-                                    botaoFinalizar.off().on("click", function(){
-                                        window.location.reload();
-                                    });
-                                },
-                                success: function(resposta){
-                                    console.log(resposta);
-                                    if(resposta != "false" && resposta != "Unauthorized" && isJson(resposta)){
-                                        resposta = JSON.parse(resposta);
-                                        var confirmationCode = resposta.code;
-                                        var reference = resposta.reference;
-                                        var vlrFrete = resposta.vlr_frete;
-                                        var transactionCode = "0";
-                                        
-                                        guardar_compra(confirmationCode, transactionCode, transportCode, vlrFrete, reference);
-                                        
-                                        PagSeguroLightbox({
-                                            code: confirmationCode
-                                            }, {
-                                            success: function(transactionCode){
-                                                mensagemAlerta("Sua compra foi finalizada com sucesso", false, "limegreen", "finalizar-compra.php?clear=true");
-                                            },
-                                            abort: function() {
-                                                mensagemAlerta("Ocorreu um erro ao finalizar a compra. Tente novamente.", false, false);
-                                                botaoFinalizar.html("<i class='fas fa-sync icon-button'></i> Recarregar página");
-                                                botaoFinalizar.off().on("click", function(){
-                                                    window.location.reload();
-                                                });
-                                            }
-                                        });
-                                    }else{
-                                        mensagemAlerta("Ocorreu um erro ao finalizar sua compra");
-                                        botaoFinalizar.html("<i class='fas fa-sync icon-button'></i> Recarregar página");
-                                        botaoFinalizar.off().on("click", function(){
-                                            window.location.reload();
-                                        });
-                                    }
-                                }
-                            });*/
                         }else{
                             finalizandoCompra = false;
                             mensagemAlerta("Selecione uma opção de frete");
