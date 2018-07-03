@@ -31,6 +31,7 @@
             $tabela_cores = $this->global_vars["tabela_cores"];
             $cls_paginas = new Paginas();
             $cls_produto = new Produtos();
+            $pew_functions = new systemFunctions();
             if(is_array($info) && count($info) > 0){
                 
                 /*STANDARD VARS*/
@@ -53,7 +54,7 @@
                     $srcImagem = "produto-padrao.png";
                 }
                 $nome = $info["nome"];
-                $titleURL = $this->pew_functions->url_format($nome);
+                $titleURL = $pew_functions->url_format($nome);
                 $maxCaracteres = 31;
                 $nomeEllipses = strlen(str_replace(" ", "", $nome)) > $maxCaracteres ? trim(substr($nome, 0, $maxCaracteres))."..." : $nome;
                 $qtdParcelas = 6;
@@ -80,7 +81,7 @@
                                 $produtoRelacao = new Produtos();
                                 $produtoRelacao->montar_produto($idRelacao);
                                 $info = $produtoRelacao->montar_array();
-                                $tituloURL = $this->pew_functions->url_format($info["nome"]);
+                                $tituloURL = $pew_functions->url_format($info["nome"]);
                                 $idCor = $info["id_cor"];
                                 $queryCor = mysqli_query($this->conexao(), "SELECT * FROM $tabela_cores where id = '$idCor' and status = 1");
                                 $functions = new systemFunctions();
@@ -307,7 +308,7 @@
                     $nomeLoja = $cls_paginas->empresa;
                     $dirImagensProdutos = "imagens/produtos";
                     /*END STANDARD VARS*/
-
+                    $pew_functions = new systemFunctions();
                     $produto = new Produtos();
                     $produto->montar_produto($idProduto);
                     $infoProduto = $produto->montar_array();
@@ -325,7 +326,7 @@
                         $srcImagem = "produto-padrao.png";
                     }
                     $nome = $infoProduto["nome"];
-                    $tituloURL = $this->pew_functions->url_format($nome);
+                    $tituloURL = $pew_functions->url_format($nome);
                     $maxCaracteres = 31;
                     $nomeEllipses = strlen(str_replace(" ", "", $nome)) > $maxCaracteres ? trim(substr($nome, 0, $maxCaracteres))."..." : $nome;
                     $qtdParcelas = 6;

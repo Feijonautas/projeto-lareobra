@@ -203,6 +203,7 @@
                 cursor: pointer;
                 bottom: 0px;
                 right: 0px;
+                line-height: 30px;
             }
             .main-content .display-carrinho .bottom-info .botao-continuar .icon-button{
                 position: absolute;

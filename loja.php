@@ -362,10 +362,10 @@
                     
                     $navInfoDepart = $cls_produtos->get_referencias("departamento", "ref = '$getDepartamento'");
                     if($navInfoDepart != false){
-                        add_navigation($navInfoDepart["titulo"], "loja.php?departamento=$getDepartamento");
+                        add_navigation($navInfoDepart["titulo"], "loja/$getDepartamento/");
                     }
                     
-                    add_navigation($tituloVitrine, "loja.php?departamento=$getDepartamento&categoria=$getCategoria");
+                    add_navigation($tituloVitrine, "loja/$getDepartamento/$getCategoria/");
                     
                 }else{
                     $selectedCategoria = $cls_produtos->search_categorias_produtos("ref = '$getCategoria'");
@@ -374,7 +374,7 @@
                         $ctrlSelectedFinal++;
                     }
                     
-                    add_navigation($tituloVitrine, "loja.php?categoria=$getCategoria");
+                    add_navigation($tituloVitrine, "categoria/$getCategoria/");
                 }
                 foreach($selectedFinal as $id){
                     add_produto($id);
@@ -396,7 +396,7 @@
                     $ctrlSelectedFinal++;
                 }
                 
-                add_navigation($tituloVitrine, "loja.php?departamento=$getDepartamento");
+                add_navigation($tituloVitrine, "loja/$getDepartamento/");
                 
                 foreach($selectedFinal as $id){
                     add_produto($id);
