@@ -10,6 +10,10 @@
         $senha = addslashes($_POST["senha"]);
         $email = $_POST["email"];
         $nivel = $_POST["nivel"];
+		
+		$cls_session = new Pew_Session();
+		$empresa = $cls_session->empresa;
+		
         if($usuario != "" && $senha != "" && $email != "" && $nivel != ""){
             $senha = md5($senha);
             $contarUsuario = mysqli_query($conexao, "select count(id) as total_usuario from $tabela_usuarios where usuario = '$usuario'");
@@ -17,7 +21,7 @@
             if($contagem["total_usuario"] > 0){
                 header("location: pew-cadastra-usuario.php?msg=Já existe um usuário chamado: $usuario");
             }else{
-                mysqli_query($conexao, "insert into $tabela_usuarios (usuario, senha, email, nivel) values ('$usuario', '$senha', '$email', '$nivel')");
+                mysqli_query($conexao, "insert into $tabela_usuarios (empresa, usuario, senha, email, nivel) values ('$empresa', '$usuario', '$senha', '$email', '$nivel')");
                 header("location: pew-usuarios.php?msg=Usuário cadastrado com sucesso!&msgType=success");
             }
             mysqli_close($conexao);

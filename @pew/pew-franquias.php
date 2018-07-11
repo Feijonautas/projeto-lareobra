@@ -8,8 +8,8 @@
     require_once "@link-important-functions.php";
     require_once "@valida-sessao.php";
 
-    $navigation_title = "Orçamentos - " . $pew_session->empresa;
-    $page_title = "Gerenciamento de pedidos de orçamento";
+    $navigation_title = "Franquias - " . $pew_session->empresa;
+    $page_title = "Gerenciamento de franquias";
 ?>
 <!DOCTYPE html>
 <html>
@@ -39,14 +39,14 @@
         <h1 class="titulos"><?php echo $page_title; ?></h1>
         <section class="conteudo-painel">
             <div class="group clear">
-                <form action="pew-orcamentos.php" method="get" class="label half clear">
+                <form action="pew-franquias.php" method="get" class="label half clear">
                     <label class="group">
                         <div class="group">
-                            <h3 class="label-title">Busca de orçamentos</h3>
+                            <h3 class="label-title">Busca de franquias</h3>
                         </div>
                         <div class="group">
                             <div class="xlarge" style="margin-left: -5px; margin-right: 0px;">
-                                <input type="search" name="busca" placeholder="Nome, email, telefone ou CPF" class="label-input" title="Buscar">
+                                <input type="search" name="busca" placeholder="Proprietário, CPF, telefone, celular, estado ou cidade" class="label-input" title="Buscar">
                             </div>
                             <div class="xsmall" style="margin-left: 0px;">
                                 <button type="submit" class="btn-submit label-input btn-flat" style="margin: 10px;">
@@ -61,68 +61,71 @@
                         <h4 class="subtitulos" align=left>Mais funções</h4>
                     </div>
                     <div class="label full">
-                        <a href="pew-cadastra-orcamento.php" class="btn-padrao btn-flat" title="Cadastre um novo orçamento"><i class="fas fa-plus"></i> Cadastrar orçamento</a>
+                        <a href="pew-cadastra-franquia.php" class="btn-padrao btn-flat" title="Cadastre uma nova franquia"><i class="fas fa-plus"></i> Cadastrar franquia</a>
                     </div>
                 </div>
             </div>
             <table class="table-padrao group clear" cellspacing="0">
             <?php
-                $tabela_orcamentos = $pew_custom_db->tabela_orcamentos;
+                $tabela_franquias = "franquias_lojas";
                 if(isset($_GET["busca"]) && $_GET["busca"] != ""){
                     $busca = $pew_functions->sqli_format($_GET["busca"]);
-                    $strBusca = "where nome_cliente like '%".$busca."%' or telefone_cliente like '%".$busca."%' or email_cliente like '%".$busca."%' like '%".$busca."%' or cpf_cliente like '%".$busca."%'";
+                    $strBusca = "where proprietario like '%".$busca."%' or cpf like '%".$busca."%' or telefone like '%".$busca."%' or celular like '%".$busca."%' or estado like '%".$busca."%' or cidade like '%".$busca."%'";
                     echo "<div class='full clear'><h3>Exibindo resultados para: $busca</h3></div>";
                 }else{
                     $strBusca = "";
                 }
+				
+                $contar = mysqli_query($conexao, "select count(id) as total from $tabela_franquias $strBusca");
+                $contagem = mysqli_fetch_assoc($contar);
+                $total = $contagem["total"];
                 
-                $contarOrcamentos = mysqli_query($conexao, "select count(id) as total from $tabela_orcamentos where 1");
-                $contagemContatos = mysqli_fetch_assoc($contarOrcamentos);
-                $totalOrcamentos = $contagemContatos["total"];
-                
-                $cls_orcamentos = new Orcamentos();
-                
-                if($totalOrcamentos > 0){
+                if($total > 0){
                     echo "<thead>";
                         echo "<td>Data</td>";
-                        echo "<td>Nome</td>";
-                        echo "<td>E-mail</td>";
+                        echo "<td>Proprietário</td>";
                         echo "<td>Telefone</td>";
+                        echo "<td>Celular</td>";
                         echo "<td>CPF</td>";
-                        echo "<td>Total Orçamento</td>";
+                        echo "<td>Estado</td>";
+                        echo "<td>Cidade</td>";
                         echo "<td>Status</td>";
                         echo "<td>Informações</td>";
                     echo "</thead>";
                     echo "<tbody>";
-                    $queryOrcamentos = mysqli_query($conexao, "select * from $tabela_orcamentos $strBusca order by id desc");
-                    while($orcamentos = mysqli_fetch_array($queryOrcamentos)){
-                        $id = $orcamentos["id"];
-                        $nome = $orcamentos["nome_cliente"];
-                        $email = $orcamentos["email_cliente"];
-                        $telefone = $orcamentos["telefone_cliente"];
-                        $cpf = $pew_functions->mask($orcamentos["cpf_cliente"], "###.###.###-##");
-                        $totalOrcamento = $cls_orcamentos->get_total_orcamento($id);
-                        $dataOrcamento = $orcamentos["data_controle"];
-                        $dataOrcamento = $pew_functions->inverter_data(substr($dataOrcamento, 0, 10));
-                        if($totalOrcamento == 0){
-                            $strOrcamento = "ORÇAR";
-                        }else{
-                            $strOrcamento = "R$ ". $pew_functions->custom_number_format($totalOrcamento);
-                        }
-                        $status = $cls_orcamentos->get_string_status($orcamentos["status_orcamento"]);
+                    $query = mysqli_query($conexao, "select * from $tabela_franquias $strBusca order by id desc");
+                    while($info = mysqli_fetch_array($query)){
+                        $id = $info["id"];
+                        $dataCadastro = substr($info["data_cadastro"], 0, 10);
+						$dataCadastro = $pew_functions->inverter_data($dataCadastro);
+                        $proprietario = $info["proprietario"];
+                        $telefone = $info["telefone"] != "" ? $info["telefone"] : "Não informado";
+                        $celular = $info["celular"];
+						$cpf = $pew_functions->mask($info["cpf"], "###.###.###-##");
+                        $estado = $info["estado"];
+                        $cidade = $info["cidade"];
+						
+						switch($info["status"]){
+							case 1:
+								$status = "Ativo";
+								break;
+							default:
+								$status = "Inativo";
+						}
                         
-                        echo "<tr><td>$dataOrcamento</td>";
-                        echo "<td>$nome</td>";
-                        echo "<td>$email</td>";
+                        echo "<tr><td>$dataCadastro</td>";
+                        echo "<td>$proprietario</td>";
                         echo "<td>$telefone</td>";
+                        echo "<td>$celular</td>";
                         echo "<td>$cpf</td>";
-                        echo "<td>$strOrcamento</td>";
+                        echo "<td>$estado</td>";
+                        echo "<td>$cidade</td>";
                         echo "<td>$status</td>";
-                        echo "<td align=center><a href='pew-edita-orcamento.php?id_orcamento=$id' class='btn-editar'><i class='fa fa-eye' aria-hidden='true'></i></a></td></tr>";
+                        echo "<td align=center><a href='pew-edita-franquia.php?id_franquia=$id' class='btn-editar'><i class='fa fa-eye' aria-hidden='true'></i></a></td></tr>";
                     }
                     echo "</tbody></table>";
                 }else{
-                    $msg = $strBusca != "" ? "Nenhum resultado encontrado. <a href='pew-orcamentos.php' class='link-padrao'><b>Voltar<b></a>" : "Nenhum pedido foi enviado ainda.";
+                    $msg = $strBusca != "" ? "Nenhum resultado encontrado. <a href='pew-franquias.php' class='link-padrao'><b>Voltar<b></a>" : "Nenhuma franquia foi cadastrada ainda.";
                     echo "<br><br><br><br><br><h3 align='center'>$msg</h3></td>";
                 }
             ?>

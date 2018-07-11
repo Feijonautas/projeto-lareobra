@@ -26,8 +26,8 @@
             }
         }
     }
-    /*$pew_db = new Pew_Data_Base("mysql1.lareobra.com.br", "lareobra1", "admlareobra@123", "lareobra1", "pew_banners", "pew_categorias", "pew_subcategorias", "pew_contatos", "pew_usuarios_administrativos");*/
-    $pew_db = new Pew_Data_Base("localhost", "root", "", "pew_lareobra", "pew_banners", "pew_categorias", "pew_subcategorias", "pew_contatos", "pew_usuarios_administrativos");
+    $pew_db = new Pew_Data_Base("mysql1.lareobra.com.br", "lareobra1", "admlareobra@123", "lareobra1", "pew_banners", "pew_categorias", "pew_subcategorias", "pew_contatos", "pew_usuarios_administrativos");
+    /*$pew_db = new Pew_Data_Base("localhost", "root", "", "pew_lareobra", "pew_banners", "pew_categorias", "pew_subcategorias", "pew_contatos", "pew_usuarios_administrativos");*/
     $conexao = mysqli_connect($pew_db->db_host, $pew_db->db_user, $pew_db->db_pass, $pew_db->db_name);
     /*CLASSE PRINCIPAL DO SISTEMA*/
 
@@ -92,31 +92,6 @@
     $pew_custom_db = new Pew_Custom_Data_Base("pew_produtos", "pew_marcas", "pew_marcas_produtos", "pew_cores", "pew_imagens_produtos", "pew_departamentos", "pew_departamentos_produtos", "pew_categorias_produtos", "pew_subcategorias_produtos", "pew_orcamentos", "pew_config_orcamentos", "pew_categorias_vitrine", "pew_categoria_destaque", "pew_especificacoes_tecnicas", "pew_especificacoes_produtos", "pew_produtos_relacionados", "pew_cores_relacionadas", "pew_newsletter", "pew_minha_conta", "pew_enderecos", "pew_links_menu", "pew_dicas", "pew_carrinhos", "pew_pedidos", "pew_contatos_servicos");
     /*FIM TABELAS CUSTOMIZADAS ADICIONAIS*/
 
-    /*GLOBAL VARS*/
-    $globalVars = array(
-        "conexao" => $conexao,
-        "tabela_categorias" => $pew_db->tabela_categorias,
-        "tabela_subcategorias" => $pew_db->tabela_subcategorias,
-        "tabela_produtos" => $pew_custom_db->tabela_produtos,
-        "tabela_cores" => $pew_custom_db->tabela_cores,
-        "tabela_marcas_produtos" => $pew_custom_db->tabela_marcas_produtos,
-        "tabela_imagens_produtos" => $pew_custom_db->tabela_imagens_produtos,
-        "tabela_departamentos" => $pew_custom_db->tabela_departamentos,
-        "tabela_departamentos_produtos" => $pew_custom_db->tabela_departamentos_produtos,
-        "tabela_categorias_produtos" => $pew_custom_db->tabela_categorias_produtos,
-        "tabela_subcategorias_produtos" => $pew_custom_db->tabela_subcategorias_produtos,
-        "tabela_categorias_vitrine" => $pew_custom_db->tabela_categorias_vitrine,
-        "tabela_categoria_destaque" => $pew_custom_db->tabela_categoria_destaque,
-        "tabela_especificacoes" => $pew_custom_db->tabela_especificacoes,
-        "tabela_especificacoes_produtos" => $pew_custom_db->tabela_especificacoes_produtos,
-        "tabela_produtos_relacionados" => $pew_custom_db->tabela_produtos_relacionados,
-        "tabela_minha_conta" => $pew_custom_db->tabela_minha_conta,
-        "tabela_enderecos" => $pew_custom_db->tabela_enderecos,
-        "tabela_carrinhos" => $pew_custom_db->tabela_carrinhos,
-        "tabela_pedidos" => $pew_custom_db->tabela_pedidos,
-    );
-    global $globalVars;
-
     /*END GLOBAL VARS*/
 
     // Aditional Functions
@@ -129,12 +104,14 @@
             public $senha;
             public $nivel;
             public $empresa;
+            public $id_franquia;
 
-            function __construct($usuario, $senha, $nivel, $empresa){
+            function __construct($usuario = null, $senha = null, $nivel = null, $empresa = null, $id_franquia = 0){
+                $this->empresa = "Lar e Obra";
                 $this->usuario = $usuario;
                 $this->senha = $senha;
                 $this->nivel = $nivel;
-                $this->empresa = $empresa;
+                $this->id_franquia = $id_franquia;
             }
             
             function auth(){

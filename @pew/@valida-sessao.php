@@ -9,7 +9,8 @@
         $sessionSenha = $_SESSION["pew_session"]["senha"];
         $sessionNivel = $_SESSION["pew_session"]["nivel"];
         $sessionEmpresa = $_SESSION["pew_session"]["empresa"];
-        $pew_session = new Pew_Session($sessionUsuario, $sessionSenha, $sessionNivel, $sessionEmpresa);
+        $sessionIdFranquia = $_SESSION["pew_session"]["id_franquia"];
+        $pew_session = new Pew_Session($sessionUsuario, $sessionSenha, $sessionNivel, $sessionEmpresa, $sessionIdFranquia);
         if(!$pew_session->auth() == true){
             echo "<script>window.location.href = '$loginPage$next';</script>";
         }else{

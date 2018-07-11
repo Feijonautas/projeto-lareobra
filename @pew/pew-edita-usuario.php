@@ -3,7 +3,7 @@
     
     $thisPageURL = substr($_SERVER["REQUEST_URI"], strpos($_SERVER["REQUEST_URI"], '@pew'));
     $_POST["next_page"] = str_replace("@pew/", "", $thisPageURL);
-    $_POST["invalid_levels"] = array(1, 2);
+    $_POST["invalid_levels"] = array(5, 4);
     
     require_once "@link-important-functions.php";
     require_once "@valida-sessao.php";
@@ -25,22 +25,25 @@
             require_once "@link-standard-scripts.php";
         ?>
         <style>
+			.conteudo-painel{
+				display: flex;
+				flex-flow: row wrap;
+			}
             .formulario{
                 width: 40%;
                 text-align: left;
-                float: left;
             }
             .formulario h3{
                 margin: 0px;
                 margin-left: 5px;
             }
             .niveis{
-                width: 40%;
-                margin-left: 45%;
+				position: relative;
+                width: calc(60% - 20px);
                 background-color: #fbfbfb;
                 color: #333;
                 border-radius: 5px;
-                padding: 1%;
+                padding: 10px 10px 40px 10px;
                 text-align: left;
             }
             .niveis h2{
@@ -56,9 +59,10 @@
                 margin-right: 10%;
             }
             .buttons{
+				height: 30px;
+				line-height: 30px;
+				width: 100%;
                 text-align: left;
-                position: relative;
-                left: 5%;
             }
         </style>
         <script>
@@ -171,11 +175,27 @@
                     </label>
                     <label class="label half">
                         <h3 class="label-title">Nível</h3>
+						<?php
+						if($nivel == 1 || $nivel == 2){
+							switch($nivel){
+								case 1:
+									$strNivel = "Franquia Principal";
+									break;
+								default:
+									$strNivel = "Franquia padrão";
+							}
+							echo "<div class='label-input'>$strNivel</div>";
+							echo "<input type='hidden' name='nivel' id='nivel' value='$nivel'>";
+						}else{
+						?>
                         <select class="label-input" name="nivel" id="nivel">
-                            <option value="1" <?php if($nivel == 1){ echo "selected"; } ?>>Designer</option>
-                            <option value="2" <?php if($nivel == 2){ echo "selected"; } ?>>Comercial</option>
                             <option value="3" <?php if($nivel == 3){ echo "selected"; } ?>>Administrador</option>
+                            <option value="4" <?php if($nivel == 4){ echo "selected"; } ?>>Comercial</option>
+                            <option value="5" <?php if($nivel == 5){ echo "selected"; } ?>>Designer</option>
                         </select>
+						<?php
+						}
+						?>
                     </label>
                     <label class="label half">
                         <h3 class="label-title"><!--ESPAÇAMENTO-->&nbsp;</h3>
@@ -185,14 +205,22 @@
             </div>
             <div class="niveis">
                 <h2>Níveis:</h2>
-                <h3>Designer: Acesso a Banners</h3>
-                <h3>Comercial: Acesso a Banners, Produtos e Categorias</h3>
-                <h3>Administrador: Acesso total</h3>
-            </div>
-            <div class="buttons">
-                <br><br>
-                <a href="pew-usuarios.php" class="btn-alterar">Voltar</a>
-                <a class="btn-desativar" id="btnExcluirUsuario" data-id-usuario="<?php echo $idUsuario;?>">Excluir usuário</a>
+                <h3>Administrador: <span style="font-weight: normal;">Todas as funcionalidades padrão</span></h3>
+                <h3>Designer: <span style="font-weight: normal;">Banners, Dicas e Vitrine</span></h3>
+                <h3>Comercial: <span style="font-weight: normal;">Produtos, Vendas, Dicas, Vitrine, Orçamentos e Mensagens</span></h3>
+				<?php
+				if($nivel == 1 || $nivel == 2){
+					echo "<h4>Não é possível alterar o nível ou apagar um usuário de franquia</h4>";	
+				}
+				?>
+				<div class="buttons">
+					<a href="pew-usuarios.php" class="btn-alterar">Voltar</a>
+					<?php
+					if($nivel != 1 && $nivel != 2){
+						echo "<a class='btn-desativar' id='btnExcluirUsuario' data-id-usuario='$idUsuario'>Excluir usuário</a>";
+					}
+					?>
+				</div>
             </div>
             <br style="clear: both;">
         </section>

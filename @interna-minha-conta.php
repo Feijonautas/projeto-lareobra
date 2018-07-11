@@ -74,6 +74,9 @@ if($listar){
                     echo "<div class='middle control-info'>";
                         echo "<h5 class='descricao'>Método de pagamento: $strPagamento</h3>";
                         echo "<h5 class='descricao'>Total: <b>R$ $totalPedido</b></h3>";
+						if($strPagamento == "Boleto"){
+							echo "<a href='{$infoPedido["payment_link"]}' class='link-padrao' target='_blank' style='margin: 0px;'>Imprimir boleto</a><br>";
+						}
                         echo "<a class='link-padrao btn-mais-info' data-target-pedido='$targetPedido'>Ver mais informações</a>";
                     echo "</div>";
                     echo "<div class='left'>";

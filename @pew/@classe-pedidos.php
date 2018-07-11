@@ -29,6 +29,7 @@
         private $status = 0;
         public $valor_frete = 0;
         public $codigo_rastreamento = 0;
+        public $payment_link = null;
         public $global_vars;
         public $pew_functions;
         
@@ -69,6 +70,7 @@
                 $this->status = $info["status"];
                 $this->valor_frete = $info["vlr_frete"];
                 $this->codigo_rastreamento = $info["codigo_rastreamento"];
+                $this->payment_link = $info["payment_link"];
                 
                 $_POST["console"] = false;
                 $_POST["codigo_referencia"] = $info["referencia"];
@@ -155,6 +157,7 @@
             $array["status"] = $this->status;
             $array["valor_frete"] = $this->valor_frete;
             $array["codigo_rastreamento"] = $this->codigo_rastreamento;
+            $array["payment_link"] = $this->payment_link;
             $array["status_transporte"] = $this->status_transporte;
             return $array;
         }

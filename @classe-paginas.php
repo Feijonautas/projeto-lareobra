@@ -21,7 +21,7 @@
                 
                 $this->http        = "https://";
                 
-                $this->base_path   = "www.lareobra.com.br/dev";
+                $this->base_path   = "www.lareobra.com.br";
                 
                 $this->email_user  = "contato@lareobra.com.br";
                 

@@ -3,7 +3,7 @@
     
     $thisPageURL = substr($_SERVER["REQUEST_URI"], strpos($_SERVER["REQUEST_URI"], '@pew'));
     $_POST["next_page"] = str_replace("@pew/", "", $thisPageURL);
-    $_POST["invalid_levels"] = array(2);
+    $_POST["invalid_levels"] = array(4);
     
     require_once "@link-important-functions.php";
     require_once "@valida-sessao.php";
@@ -51,14 +51,17 @@
     <!--PAGE CONTENT-->
     <h1 class="titulos"><?php echo $page_title; ?><a href="pew-banners.php" class="btn-voltar"><i class="fa fa-arrow-left" aria-hidden="true"></i> Voltar</a></h1>
 <?php
-    $tabela_banners = $pew_db->tabela_banners;
+    $tabela_banners = $pew_db->tabela_banners;		
     if(isset($_GET["id_banner"])){
         $idBanner = (int)$_GET["id_banner"];
         $idBanner = is_int($idBanner) ? $idBanner : 0;
-        $contarBanner = mysqli_query($conexao, "select count(id) as total_banner from $tabela_banners where id = '$idBanner'");
+		
+		$pageMainCondition = "id_franquia = '{$pew_session->id_franquia}' && id = '$idBanner'";
+		
+        $contarBanner = mysqli_query($conexao, "select count(id) as total_banner from $tabela_banners where $pageMainCondition");
         $contagem = mysqli_fetch_assoc($contarBanner);
         if($contagem["total_banner"] > 0){
-            $queryBanner = mysqli_query($conexao, "select * from $tabela_banners where id = '$idBanner'");
+            $queryBanner = mysqli_query($conexao, "select * from $tabela_banners where $pageMainCondition");
             $banner = mysqli_fetch_array($queryBanner);
             $titulo = $banner["titulo"];
             $descricao = $banner["descricao"];
@@ -79,7 +82,7 @@
                 </div>
                 <div class="label medium">
                     <h2 class='label-title'>Link de redirecionamento</h2>
-                    <input type="text" name="link" placeholder="www.efectusweb.com.br" class="label-input   " value="<?php echo $link;?>" required>
+                    <input type="text" name="link" placeholder="www.efectusweb.com.br" class="label-input   " value="<?php echo $link;?>">
                 </div>
                 <div class="half">
                     <img src="../imagens/banners/<?php echo $imagem;?>" width="100%">

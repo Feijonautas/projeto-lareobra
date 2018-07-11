@@ -49,6 +49,203 @@
         private function conexao(){
             return $this->global_vars["conexao"];
         }
+		
+		public function montar_produto($idProduto){
+            $tabela_produtos = $this->global_vars["tabela_produtos"];
+            $tabela_imagens_produtos = $this->global_vars["tabela_imagens_produtos"];
+            $this->produto_montado = false;
+            if($this->pew_functions->contar_resultados($tabela_produtos, "id = '$idProduto'") > 0){
+                $query = mysqli_query($this->conexao(), "select * from $tabela_produtos where id = '$idProduto'");
+                $info = mysqli_fetch_array($query);
+				
+				$precoSugerido = $info["preco_sugerido"] > 0 ? $info["preco_sugerido"] : $info["preco"];
+				
+                $this->id = $info["id"];
+                $this->sku = $info["sku"];
+                $this->codigo_barras = $info["codigo_barras"];
+                $this->nome = $info["nome"];
+                $this->preco = $this->pew_functions->custom_number_format($info["preco"]);
+                $this->preco_custo = $this->pew_functions->custom_number_format($info["preco_custo"]);
+                $this->preco_custo = $this->preco_custo <= 0 ? '0.00' : $this->preco_custo;
+                $this->preco_sugerido = $this->pew_functions->custom_number_format($precoSugerido);
+                $this->preco_sugerido = $this->preco_sugerido <= 0 ? '0.00' : $this->preco_sugerido;
+                $this->preco_promocao = $this->pew_functions->custom_number_format($info["preco_promocao"]);
+                $this->preco_promocao = $this->preco_promocao <= 0 ? '0.00' : $this->preco_promocao;
+                $this->promocao_ativa = $this->pew_functions->custom_number_format($info["promocao_ativa"]);
+                $this->desconto_relacionado = $this->pew_functions->custom_number_format($info["desconto_relacionado"]);
+                $this->marca = $info["marca"];
+                $this->id_cor = $info["id_cor"];
+                $this->estoque = $info["estoque"];
+                $this->estoque_baixo = $info["estoque_baixo"];
+                $this->tempo_fabricacao = $info["tempo_fabricacao"];
+                $this->descricao_curta = $info["descricao_curta"];
+                $this->descricao_longa = $info["descricao_longa"];
+                $this->url_video = $info["url_video"];
+                $this->peso = $info["peso"];
+                $this->comprimento = $info["comprimento"];
+                $this->largura = $info["largura"];
+                $this->altura = $info["altura"];
+                $this->data = $info["data"];
+                $this->visualizacoes = $info["visualizacoes"];
+                $this->status = $info["status"];
+                $this->produto_montado = true;
+                $info_produto = array();
+                if($this->pew_functions->contar_resultados($tabela_imagens_produtos, "where id_produto = '$idProduto'") > 0){
+                    $queryImagens = mysqli_query($this->conexao(), "select id, imagem from $tabela_imagens_produtos where id_produto = '$idProduto'");
+                    $ctrlImagens = 0;
+                    while($infoImagens = mysqli_fetch_array($queryImagens)){
+                        $this->imagens[$ctrlImagens] = array();
+                        $this->imagens[$ctrlImagens]["id_imagem"] = $infoImagens["id"];
+                        $this->imagens[$ctrlImagens]["src"] = $infoImagens["imagem"];
+                        $ctrlImagens++;
+                    }
+                }
+                return true;
+            }else{
+                $this->produto_montado = false;
+                return false;
+            }
+        }
+		
+		public function montar_array(){
+            if($this->produto_montado == true){
+                $infoProduto = array();
+                $infoProduto["id"] = $this->get_id_produto();
+                $infoProduto["sku"] = $this->get_sku_produto();
+                $infoProduto["codigo_barras"] = $this->get_codigo_barras_produto();
+                $infoProduto["nome"] = $this->get_nome_produto();
+                $infoProduto["preco_ativo"] = $this->get_preco_ativo();
+                $infoProduto["preco"] = $this->get_preco_produto();
+                $infoProduto["preco_custo"] = $this->get_preco_custo_produto();
+                $infoProduto["preco_sugerido"] = $this->get_preco_sugerido_produto();
+                $infoProduto["preco_promocao"] = $this->get_preco_promocao_produto();
+                $infoProduto["promocao_ativa"] = $this->get_promocao_ativa();
+                $infoProduto["desconto_relacionado"] = $this->get_desconto_relacionado();
+                $infoProduto["marca"] = $this->get_marca_produto();
+                $infoProduto["id_cor"] = $this->get_id_cor_produto();
+                $infoProduto["estoque"] = $this->get_estoque_produto();
+                $infoProduto["estoque_baixo"] = $this->get_estoque_baixo_produto();
+                $infoProduto["tempo_fabricacao"] = $this->get_tempo_fabricacao_produto();
+                $infoProduto["descricao_curta"] = $this->get_descricao_curta_produto();
+                $infoProduto["descricao_longa"] = $this->get_descricao_longa_produto();
+                $infoProduto["url_video"] = $this->get_url_video_produto();
+                $infoProduto["peso"] = $this->get_peso_produto();
+                $infoProduto["comprimento"] = $this->get_comprimento_produto();
+                $infoProduto["largura"] = $this->get_largura_produto();
+                $infoProduto["altura"] = $this->get_altura_produto();
+                $infoProduto["imagens"] = $this->get_imagens_produto();
+                $infoProduto["data"] = $this->get_data_produto();
+                $infoProduto["visualizacoes"] = $this->get_visualizacoes_produto();
+                $infoProduto["status"] = $this->get_status_produto();
+                return $infoProduto;
+            }else{
+                return false;
+            }
+        }
+		
+		function produto_franquia($idProduto, $idFranquia){
+			$tabela_produtos = $this->global_vars["tabela_produtos"];
+			$tabela_produtos_franquias = "franquias_produtos";
+			
+			$mainCondition = "id_produto = '$idProduto' && id_franquia = '$idFranquia'";
+			$alterCondition = "id = '$idProduto'";
+			
+			$totalP = $this->pew_functions->contar_resultados($tabela_produtos, $alterCondition);
+			$totalF = $this->pew_functions->contar_resultados($tabela_produtos_franquias, $mainCondition);
+			
+			if(!function_exists("set_array")){
+				function set_array($idP, $idF, $precoB, $precoP, $statusPromo, $estoque, $statusProduto){
+					
+					$precoB = $precoB <= 0 ? '0.00' : $precoB;
+					$precoP = $precoP <= 0 ? '0.00' : $precoP;
+					
+					$array["id_produto"] = $idP;
+					$array["id_franquia"] = $idF;
+					$array["preco"] = $precoB;
+					$array["preco_promocao"] = $precoP;
+					$array["promocao_ativa"] = $statusPromo;
+					$array["estoque"] = $estoque;
+					$array["status"] = $statusProduto;
+					return $array;
+				}
+			}
+			
+			if($totalF > 0){
+				$query = mysqli_query($this->conexao(), "select * from $tabela_produtos_franquias where $mainCondition");
+				$info = mysqli_fetch_array($query);
+				
+				return set_array($idProduto, $idFranquia, $info["preco_bruto"], $info["preco_promocao"], $info["promocao_ativa"], $info["estoque"], $info["status"]);
+				
+			}else if($totalP > 0){
+				$query = mysqli_query($this->conexao(), "select * from $tabela_produtos where $alterCondition");
+				$info = mysqli_fetch_array($query);
+				
+				return set_array($idProduto, $idFranquia, $info["preco"], $info["preco_promocao"], 0, 0, $info["status"]);
+				
+			}else{
+				return false;
+			}
+		}
+		
+		function full_search_string($queryString){
+			$tabela_produtos = $this->global_vars["tabela_produtos"];
+			
+			global $selectedProducts;
+			$selectedProducts = array();
+			
+			function push($array){
+				global $selectedProducts;
+				foreach($array as $id){
+					if(in_array($id, $selectedProducts) == false){
+						array_push($selectedProducts, $id);
+					}
+				}
+			}
+			
+			$searchCollumns = array("id", "nome", "marca", "descricao_curta", "descricao_longa");
+			$standardQuery = "";
+			for($i = 0; $i < count($searchCollumns); $i++){
+				$likeSQL = " like '%".$queryString."%'";
+				$standardQuery .= $i == 0 ? $searchCollumns[$i] . $likeSQL : "or ".$searchCollumns[$i] . $likeSQL;
+			}
+			
+			$departmentProducts = $this->search_departamentos_produtos("departamento like '%$queryString%' or ref like '%$queryString%'");
+			
+			$categoryProducts = $this->search_categorias_produtos("categoria like '%$queryString%' or ref like '%$queryString%'");
+			
+			$subcategoryProducts = $this->search_subcategorias_produtos("subcategoria like '%$queryString%' or ref like '%$queryString%'");
+			
+			push($departmentProducts);
+			push($categoryProducts);
+			push($subcategoryProducts);
+			
+			$total = $this->pew_functions->contar_resultados($tabela_produtos, $standardQuery);
+			if($total > 0){
+				$standardSelect = array();
+				$query = mysqli_query($this->conexao(), "select id from $tabela_produtos where $standardQuery");
+				while($info = mysqli_fetch_array($query)){
+					array_push($standardSelect, $info["id"]);
+				}
+				push($standardSelect);
+			}
+			
+			return $selectedProducts;
+		}
+		
+		function status_filter($array, $status = 1, $idFranquia){
+			$tabela_produtos_franquias = "franquias_produtos";
+			
+			if(is_array($array)){
+				foreach($array as $index => $idProduto){
+					$total = $this->pew_functions->contar_resultados($tabela_produtos_franquias, "status = '$status' && id_produto = '$idProduto' && id_franquia = '$idFranquia'");
+					if($total == 0){
+						unset($array[$index]);
+					}
+				}
+			}
+			
+			return $array;
+		}
 
         public function query_produto($condicao = 1){
             $tabela_produtos = $this->global_vars["tabela_produtos"];
@@ -61,38 +258,6 @@
             }else{
                 return false;
             }
-        }
-        
-        function get_referencias($type = null, $condicao = 1){
-            $tabela_departamentos = $this->global_vars["tabela_departamentos"];
-            $tabela_categorias = $this->global_vars["tabela_categorias"];
-            $tabela_subcategorias = $this->global_vars["tabela_subcategorias"];
-            
-            $retorno = false;
-            $retorno = array();
-            
-            switch($type){
-                case "departamento":
-                    $query = mysqli_query($this->conexao(), "select departamento, descricao from $tabela_departamentos where $condicao");
-                    $info = mysqli_fetch_array($query);
-                    $retorno["titulo"] = $info["departamento"];
-                    $retorno["descricao"] = $info["descricao"];
-                    break;
-                case "categoria":
-                    $query = mysqli_query($this->conexao(), "select categoria, descricao from $tabela_categorias where $condicao");
-                    $info = mysqli_fetch_array($query);
-                    $retorno["titulo"] = $info["categoria"];
-                    $retorno["descricao"] = $info["descricao"];
-                    break;
-                case "subcategoria":
-                    $query = mysqli_query($this->conexao(), "select subcategoria, descricao from $tabela_subcategorias where $condicao");
-                    $info = mysqli_fetch_array($query);
-                    $retorno["titulo"] = $info["subcategoria"];
-                    $retorno["descricao"] = $info["descricao"];
-                    break;
-            }
-            
-            return $retorno;
         }
         
         function search_departamentos_produtos($condicao){
@@ -154,184 +319,136 @@
             
             return $selectedProdutos;
         }
-        
-        function buscar($condicao){
-            $tabela_produtos = $this->global_vars["tabela_produtos"];
-            
-            global $selectedFinal, $countFinal;
-            $selectedFinal = array();
-            $countFinal = 0;
-            
-            $condicao = str_replace("where", "", $condicao);
-            $condicao = addslashes($condicao);
-            
-            $selectedDepartamentos = $this->search_departamentos_produtos("departamento like '%$condicao%' or ref like '%$condicao%'");
-            $selectedCategorias = $this->search_categorias_produtos("categoria like '%$condicao%' or ref like '%$condicao%'");
-            $selectedSubcategorias = $this->search_subcategorias_produtos("subcategoria like '%$condicao%' or ref like '%$condicao%'");
-            
-            if(!function_exists("add")){
-                function add($idProduto){
-                    global $selectedFinal, $countFinal;
-
-                    $cls_produto = new Produtos();
-
-                    $is_ativo = $cls_produto->query_produto("id = '$idProduto' and status = 1") != false ? true : false;
-
-                    if(in_array($idProduto, $selectedFinal) != true && $is_ativo == true){
-                        $selectedFinal[$countFinal] = $idProduto;
-                        $countFinal++;
-                    }
-                }
-            }
-            
-            if(!function_exists("ler_array")){
-                function ler_array($array){
-                    if(is_array($array) && count($array) > 0){
-                        foreach($array as $index => $idProduto){
-                            add($idProduto);
-                        }
-                    }
-                }
-            }
-            
-            
-            // MAIN BUSCA
-            $strBusca = "id = '$condicao' or sku like '%$condicao%' or nome like '%$condicao%' or marca like '%$condicao%' and status = 1";
-            $query = mysqli_query($this->conexao(), "select id from $tabela_produtos where $strBusca");
-            while($info = mysqli_fetch_array($query)){
-                add($info["id"]);
-            }
-            
-            ler_array($selectedDepartamentos);
-            ler_array($selectedCategorias);
-            ler_array($selectedSubcategorias);
-            
-            return $selectedFinal;
-        }
-        
-        public function montar_produto($idProduto){
-            $tabela_produtos = $this->global_vars["tabela_produtos"];
-            $tabela_imagens_produtos = $this->global_vars["tabela_imagens_produtos"];
-            $this->produto_montado = false;
-            if($this->pew_functions->contar_resultados($tabela_produtos, "id = '$idProduto'") > 0){
-                $query = mysqli_query($this->conexao(), "select * from $tabela_produtos where id = '$idProduto'");
-                $info = mysqli_fetch_array($query);
-                $this->id = $info["id"];
-                $this->sku = $info["sku"];
-                $this->codigo_barras = $info["codigo_barras"];
-                $this->nome = $info["nome"];
-                $this->preco = $this->pew_functions->custom_number_format($info["preco"]);
-                $this->preco_custo = $this->pew_functions->custom_number_format($info["preco_custo"]);
-                $this->preco_sugerido = $this->pew_functions->custom_number_format($info["preco_sugerido"]);
-                $this->preco_promocao = $this->pew_functions->custom_number_format($info["preco_promocao"]);
-                $this->promocao_ativa = $this->pew_functions->custom_number_format($info["promocao_ativa"]);
-                $this->desconto_relacionado = $this->pew_functions->custom_number_format($info["desconto_relacionado"]);
-                $this->marca = $info["marca"];
-                $this->id_cor = $info["id_cor"];
-                $this->estoque = $info["estoque"];
-                $this->estoque_baixo = $info["estoque_baixo"];
-                $this->tempo_fabricacao = $info["tempo_fabricacao"];
-                $this->descricao_curta = $info["descricao_curta"];
-                $this->descricao_longa = $info["descricao_longa"];
-                $this->url_video = $info["url_video"];
-                $this->peso = $info["peso"];
-                $this->comprimento = $info["comprimento"];
-                $this->largura = $info["largura"];
-                $this->altura = $info["altura"];
-                $this->data = $info["data"];
-                $this->visualizacoes = $info["visualizacoes"];
-                $this->status = $info["status"];
-                $this->produto_montado = true;
-                $info_produto = array();
-                if($this->pew_functions->contar_resultados($tabela_imagens_produtos, "where id_produto = '$idProduto'") > 0){
-                    $queryImagens = mysqli_query($this->conexao(), "select id, imagem from $tabela_imagens_produtos where id_produto = '$idProduto'");
-                    $ctrlImagens = 0;
-                    while($infoImagens = mysqli_fetch_array($queryImagens)){
-                        $this->imagens[$ctrlImagens] = array();
-                        $this->imagens[$ctrlImagens]["id_imagem"] = $infoImagens["id"];
-                        $this->imagens[$ctrlImagens]["src"] = $infoImagens["imagem"];
-                        $ctrlImagens++;
-                    }
-                }
-                return true;
-            }else{
-                $this->produto_montado = false;
-                return false;
-            }
-        }
-        public function get_id_produto(){
+		
+        function get_id_produto(){
             return $this->id;
         }
-        public function get_sku_produto(){
+		
+        function get_sku_produto(){
             return $this->sku;
         }
-        public function get_codigo_barras_produto(){
+		
+        function get_codigo_barras_produto(){
             return $this->codigo_barras;
         }
-        public function get_nome_produto(){
+		
+        function get_nome_produto(){
             return $this->nome;
         }
-        public function get_preco_ativo(){
+		
+        function get_preco_ativo(){
             return $this->preco_ativo;
         }
-        public function get_preco_produto(){
+		
+        function get_preco_produto(){
             return $this->preco;
         }
-        public function get_preco_custo_produto(){
+		
+        function get_preco_custo_produto(){
             return $this->preco_custo;
         }
-        public function get_preco_sugerido_produto(){
+		
+        function get_preco_sugerido_produto(){
             return $this->preco_sugerido;
         }
-        public function get_preco_promocao_produto(){
+		
+        function get_preco_promocao_produto(){
             return $this->preco_promocao;
         }
-        public function get_promocao_ativa(){
+		
+        function get_promocao_ativa(){
             return $this->promocao_ativa;
         }
-        public function get_desconto_relacionado(){
+		
+        function get_desconto_relacionado(){
             return $this->desconto_relacionado;
         }
-        public function get_marca_produto(){
+		
+        function get_marca_produto(){
             return $this->marca;
         }
-        public function get_id_cor_produto(){
+		
+        function get_id_cor_produto(){
             return $this->id_cor;
         }
-        public function get_estoque_produto(){
+		
+        function get_estoque_produto(){
             return $this->estoque;
         }
-        public function get_estoque_baixo_produto(){
+		
+        function get_estoque_baixo_produto(){
             return $this->estoque_baixo;
         }
-        public function get_tempo_fabricacao_produto(){
+		
+        function get_tempo_fabricacao_produto(){
             return $this->tempo_fabricacao;
         }
-        public function get_descricao_curta_produto(){
+		
+        function get_descricao_curta_produto(){
             return $this->descricao_curta;
         }
-        public function get_descricao_longa_produto(){
+		
+        function get_descricao_longa_produto(){
             return $this->descricao_longa;
         }
-        public function get_url_video_produto(){
+		
+        function get_url_video_produto(){
             return $this->url_video;
         }
-        public function get_peso_produto(){
+		
+        function get_peso_produto(){
             return $this->peso;
         }
-        public function get_comprimento_produto(){
+		
+        function get_comprimento_produto(){
             return $this->comprimento;
         }
-        public function get_largura_produto(){
+		
+        function get_largura_produto(){
             return $this->largura;
         }
-        public function get_altura_produto(){
+		
+        function get_altura_produto(){
             return $this->altura;
         }
-        public function get_imagens_produto(){
+		
+        function get_imagens_produto(){
             return $this->imagens;
         }
-        public function get_especificacoes_produto($idProduto = null){
+		
+		function get_referencias($type = null, $condicao = 1){
+            $tabela_departamentos = $this->global_vars["tabela_departamentos"];
+            $tabela_categorias = $this->global_vars["tabela_categorias"];
+            $tabela_subcategorias = $this->global_vars["tabela_subcategorias"];
+            
+            $retorno = false;
+            $retorno = array();
+            
+            switch($type){
+                case "departamento":
+                    $query = mysqli_query($this->conexao(), "select departamento, descricao from $tabela_departamentos where $condicao");
+                    $info = mysqli_fetch_array($query);
+                    $retorno["titulo"] = $info["departamento"];
+                    $retorno["descricao"] = $info["descricao"];
+                    break;
+                case "categoria":
+                    $query = mysqli_query($this->conexao(), "select categoria, descricao from $tabela_categorias where $condicao");
+                    $info = mysqli_fetch_array($query);
+                    $retorno["titulo"] = $info["categoria"];
+                    $retorno["descricao"] = $info["descricao"];
+                    break;
+                case "subcategoria":
+                    $query = mysqli_query($this->conexao(), "select subcategoria, descricao from $tabela_subcategorias where $condicao");
+                    $info = mysqli_fetch_array($query);
+                    $retorno["titulo"] = $info["subcategoria"];
+                    $retorno["descricao"] = $info["descricao"];
+                    break;
+            }
+            
+            return $retorno;
+        }
+		
+        function get_especificacoes_produto($idProduto = null){
             $idProduto = $idProduto == null ? $this->id : $idProduto;
             $condicao = "id_produto = '$idProduto'";
             $tabela_especificacoes = $this->global_vars["tabela_especificacoes"];
@@ -358,10 +475,12 @@
             }
             return $return;
         }
-        public function get_data_produto(){
+		
+        function get_data_produto(){
             return $this->data;
         }
-        public function get_departamentos_produto($idProduto = null){
+		
+        function get_departamentos_produto($idProduto = null){
             $idProduto = $idProduto == null ? $this->id : $idProduto;
             $condicao = "id_produto = '$idProduto'";
             $tabela_departamentos = $this->global_vars["tabela_departamentos"];
@@ -388,7 +507,8 @@
             }
             return $return;
         }
-        public function get_categorias_produto($idProduto = null){
+		
+        function get_categorias_produto($idProduto = null){
             $idProduto = $idProduto == null ? $this->id : $idProduto;
             $condicao = "id_produto = '$idProduto'";
             $tabela_categorias = $this->global_vars["tabela_categorias"];
@@ -415,7 +535,8 @@
             }
             return $return;
         }
-        public function get_subcategorias_produto($idProduto = null){
+		
+        function get_subcategorias_produto($idProduto = null){
             $idProduto = $idProduto == null ? $this->id : $idProduto;
             $condicao = "id_produto = '$idProduto'";
             $tabela_subcategorias = $this->global_vars["tabela_subcategorias"];
@@ -443,7 +564,8 @@
             }
             return $return;
         }
-        public function get_relacionados_produto($idProduto = null, $condicao = null){
+		
+        function get_relacionados_produto($idProduto = null, $condicao = null){
             $idProduto = $idProduto == null ? $this->id : $idProduto;
             $condicao = $condicao == null ? "id_produto = '$idProduto'" : $condicao;
             $tabela_produtos = $this->global_vars["tabela_produtos"];
@@ -468,7 +590,7 @@
             return $return;
         }
             
-        public function get_cores_relacionadas(){
+        function get_cores_relacionadas(){
             $condicao = "id_produto = '".$this->id."'";
             $tabela_produtos = $this->global_vars["tabela_produtos"];
             $tabela_cores_relacionadas = $this->global_vars["tabela_cores_relacionadas"];
@@ -491,7 +613,7 @@
             return $return;
         }
         
-        public function get_preco_relacionado($id){
+        function get_preco_relacionado($id){
             $condicao = "id = $id";
             $tabela_produtos = $this->global_vars["tabela_produtos"];
             
@@ -520,46 +642,12 @@
             }
         }
         
-        public function get_visualizacoes_produto(){
+        function get_visualizacoes_produto(){
             return $this->visualizacoes;
         }
-        public function get_status_produto(){
+		
+        function get_status_produto(){
             return $this->status;   
-        }
-        public function montar_array(){
-            if($this->produto_montado == true){
-                $infoProduto = array();
-                $infoProduto["id"] = $this->get_id_produto();
-                $infoProduto["sku"] = $this->get_sku_produto();
-                $infoProduto["codigo_barras"] = $this->get_codigo_barras_produto();
-                $infoProduto["nome"] = $this->get_nome_produto();
-                $infoProduto["preco_ativo"] = $this->get_preco_ativo();
-                $infoProduto["preco"] = $this->get_preco_produto();
-                $infoProduto["preco_custo"] = $this->get_preco_custo_produto();
-                $infoProduto["preco_sugerido"] = $this->get_preco_sugerido_produto();
-                $infoProduto["preco_promocao"] = $this->get_preco_promocao_produto();
-                $infoProduto["promocao_ativa"] = $this->get_promocao_ativa();
-                $infoProduto["desconto_relacionado"] = $this->get_desconto_relacionado();
-                $infoProduto["marca"] = $this->get_marca_produto();
-                $infoProduto["id_cor"] = $this->get_id_cor_produto();
-                $infoProduto["estoque"] = $this->get_estoque_produto();
-                $infoProduto["estoque_baixo"] = $this->get_estoque_baixo_produto();
-                $infoProduto["tempo_fabricacao"] = $this->get_tempo_fabricacao_produto();
-                $infoProduto["descricao_curta"] = $this->get_descricao_curta_produto();
-                $infoProduto["descricao_longa"] = $this->get_descricao_longa_produto();
-                $infoProduto["url_video"] = $this->get_url_video_produto();
-                $infoProduto["peso"] = $this->get_peso_produto();
-                $infoProduto["comprimento"] = $this->get_comprimento_produto();
-                $infoProduto["largura"] = $this->get_largura_produto();
-                $infoProduto["altura"] = $this->get_altura_produto();
-                $infoProduto["imagens"] = $this->get_imagens_produto();
-                $infoProduto["data"] = $this->get_data_produto();
-                $infoProduto["visualizacoes"] = $this->get_visualizacoes_produto();
-                $infoProduto["status"] = $this->get_status_produto();
-                return $infoProduto;
-            }else{
-                return false;
-            }
         }
     }
 ?>

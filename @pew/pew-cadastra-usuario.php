@@ -3,7 +3,7 @@
     
     $thisPageURL = substr($_SERVER["REQUEST_URI"], strpos($_SERVER["REQUEST_URI"], '@pew'));
     $_POST["next_page"] = str_replace("@pew/", "", $thisPageURL);
-    $_POST["invalid_levels"] = array(1, 2);
+    $_POST["invalid_levels"] = array(5, 4);
     
     require_once "@link-important-functions.php";
     require_once "@valida-sessao.php";
@@ -132,9 +132,9 @@
                     <label class="label half">
                         <h3 class="label-title">Nível</h3>
                         <select class="label-input" name="nivel" id="nivel">
-                            <option value="1">Designer</option>
-                            <option value="2">Comercial</option>
                             <option value="3">Administrador</option>
+                            <option value="4">Comercial</option>
+                            <option value="5">Designer</option>
                         </select>
                     </label>
                     <label class="label half">
@@ -145,9 +145,9 @@
             </div>
             <div class="niveis">
                 <h2>Níveis:</h2>
-                <h3>Designer: Acesso a Banners</h3>
-                <h3>Comercial: Acesso a Banners, Produtos e Categorias</h3>
-                <h3>Administrador: Acesso total</h3>
+                <h3>Administrador: <span style="font-weight: normal;">Todas as funcionalidades padrão</span></h3>
+                <h3>Designer: <span style="font-weight: normal;">Banners, Dicas e Vitrine</span></h3>
+                <h3>Comercial: <span style="font-weight: normal;">Produtos, Vendas, Dicas, Vitrine, Orçamentos e Mensagens</span></h3>
             </div>
             <br class="clear">
         </section>

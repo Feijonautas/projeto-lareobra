@@ -404,7 +404,7 @@
             }else if(isset($_GET["busca"])){
                 $busca = addslashes($_GET["busca"]);
                 $tituloVitrine = "Exibindo resultados para: " . $busca;
-                $selectedProdutos = $cls_produtos->buscar($busca);
+                $selectedProdutos = $cls_produtos->full_search_string($busca);
                 $totalResultados = count($selectedProdutos);
                 $descricaoVitrine = "Foram encontrados <b>$totalResultados resultados</b>";
                 

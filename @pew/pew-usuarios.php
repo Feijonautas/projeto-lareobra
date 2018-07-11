@@ -3,7 +3,7 @@
     
     $thisPageURL = substr($_SERVER["REQUEST_URI"], strpos($_SERVER["REQUEST_URI"], '@pew'));
     $_POST["next_page"] = str_replace("@pew/", "", $thisPageURL);
-    $_POST["invalid_levels"] = array(1, 2);
+    $_POST["invalid_levels"] = array(5, 4);
     
     require_once "@link-important-functions.php";
     require_once "@valida-sessao.php";
@@ -66,6 +66,7 @@
             }
             .box-usuario .nivel-field{
                 position: relative;
+				width: 200px;
                 border-right: 2px solid #111;
                 padding: 0px 20px 0px 20px;
                 transition: .2s;
@@ -156,18 +157,24 @@
                     $contagem = mysqli_fetch_assoc($contarUsuarios);
                     if($contagem["total_usuarios"] > 0){
                         echo "<div class='full' style='margin-top: 40px;'>";
-                        $queryUsuarios = mysqli_query($conexao, "select * from $tabela_usuarios $busca order by usuario asc");
+                        $queryUsuarios = mysqli_query($conexao, "select * from $tabela_usuarios $busca order by id asc");
                         $i = 0;
                         while($usuarios = mysqli_fetch_array($queryUsuarios)){
                             $idUsuario = $usuarios["id"];
                             $usuario  = $usuarios["usuario"];
                             $nivel  = $usuarios["nivel"];
                             switch($nivel){
-                                case 2:
-                                    $nivel = "Comercial";
+                                case 1:
+                                    $nivel = "Franquia Principal";
                                     break;
-                                case 3:
+                                case 2:
+                                    $nivel = "Franquia Padrão";
+                                    break;
+								case 3:
                                     $nivel = "Administrador";
+                                    break;
+								case 4:
+                                    $nivel = "Comercial";
                                     break;
                                 default:
                                     $nivel = "Designer";

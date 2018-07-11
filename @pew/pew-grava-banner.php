@@ -1,4 +1,7 @@
 <?php
+	session_start();
+	require_once "@valida-sessao.php";
+
     $post_fields = array("titulo", "link");
     $file_fields = array("imagem");
     $invalid_fields = array();
@@ -68,7 +71,8 @@
             }
         }
         
-        mysqli_query($conexao, "insert into $tabela_banners (titulo, descricao, imagem, link, posicao, status) values ('$titulo', '$descricao', '$nomeFoto', '$link', 1, 1)");
+        mysqli_query($conexao, "insert into $tabela_banners (id_franquia, titulo, descricao, imagem, link, posicao, status) values ('{$pew_session->id_franquia}', '$titulo', '$descricao', '$nomeFoto', '$link', 1, 1)");
+		
         echo "<script>window.location.href = 'pew-banners.php?msg=O banner foi cadastrado com sucesso!&msgType=success';</script>";
     }else{
         //print_r($invalid_fields);

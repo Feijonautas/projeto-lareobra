@@ -228,6 +228,101 @@
         right: 0px;
     }
 </style>
+<?php
+class NavLinks{
+		private $titulo_link;
+		private $url_link;
+		private $qtd_sublinks;
+		private $sublinks;
+		private $qtd_sub_sublinks;
+		private $sub_sublinks;
+		private $invalid_levels = array();
+		private $classe;
+
+		function __construct($tituloLink, $urlLink, $classe = null, $invalid_levels = array()){
+			$this->titulo_link = $tituloLink;
+			$this->url_link = $urlLink;
+			$this->qtd_sublinks = 0;
+			$this->sublinks = array();
+			$this->qtd_sub_sublinks = 0;
+			$this->sub_sublinks = array();
+			$this->invalid_levels = $invalid_levels;
+			$this->classe = $classe;
+		}
+
+		public function add_sublink($id, $titulo, $url, $invalid_levels = array()){
+			$this->sublinks[$this->qtd_sublinks] = array();
+			$this->sublinks[$this->qtd_sublinks]["id"] = $id;
+			$this->sublinks[$this->qtd_sublinks]["titulo"] = $titulo;
+			$this->sublinks[$this->qtd_sublinks]["url"] = $url;
+			$this->sublinks[$this->qtd_sublinks]["qtd_sub_sublinks"] = 0;
+			$this->sublinks[$this->qtd_sublinks]["invalid_levels"] = $invalid_levels;
+			$this->qtd_sublinks++;
+		}
+
+		public function add_sub_sublink($idSublink, $titulo, $url, $produto_destaque = false){
+			$this->sub_sublinks[$this->qtd_sub_sublinks] = array();
+			$this->sub_sublinks[$this->qtd_sub_sublinks]["id_sublink"] = $idSublink;
+			$this->sub_sublinks[$this->qtd_sub_sublinks]["titulo"] = $titulo;
+			$this->sub_sublinks[$this->qtd_sub_sublinks]["url"] = $url;
+			$this->sub_sublinks[$this->qtd_sub_sublinks]["produto_destaque"] = $produto_destaque;
+			foreach($this->sublinks as $indice => $sublink){
+				$id = $sublink["id"];
+				if($idSublink == $id){
+					$this->sublinks[$indice]["qtd_sub_sublinks"]++;
+				}
+			}
+			$this->qtd_sub_sublinks++;
+		}
+
+		public function get_qtd_sublinks(){
+			return $this->qtd_sublinks;
+		}
+
+		public function listar_link(){
+			$tituloPrincipal = $this->titulo_link;
+			$urlPrincipal = $this->url_link;
+			$subLinks = $this->sublinks;
+			$classe = $this->classe;
+			
+			global $pew_session;
+			
+			if(!in_array($pew_session->nivel, $this->invalid_levels)){
+				
+				echo "<li>";
+					echo "<a href='$urlPrincipal' class='link-principal'>$tituloPrincipal</a>";
+					$quantidadeSubLinks = isset($linkMenu["sub_link"]) ? count($linkMenu["sub_link"]) : 0;
+					if($this->qtd_sublinks > 0){
+						echo "<ul class='sub-menu'>";
+							foreach($subLinks as $sublink){
+								$tituloSubLink = $sublink["titulo"];
+								$urlSubLink = $sublink["url"];
+								$qtd_sub_subLinks = $sublink["qtd_sub_sublinks"];
+								$sub_subLinks = $this->sub_sublinks;
+								$invalid_levels = $sublink["invalid_levels"];
+								if(!in_array($pew_session->nivel, $invalid_levels)){
+									echo "<li><a href='$urlSubLink' class='sub-link'>$tituloSubLink</a>";
+									if($qtd_sub_subLinks > 0){
+										echo "<span class='sub-sub-links-icon'><i class='fa fa-arrow-right' aria-hidden='true'></i></span>";
+										echo "<ul class='sub-sub-menu'>";
+										foreach($sub_subLinks as $subSubLink){
+											$title = $subSubLink["titulo"];
+											$url = $subSubLink["url"];
+											echo "<li><a href='$url' class='sub-sub-links'>$title</a></li><br>";
+										}
+										echo "</ul>";
+									}
+									echo "</li>";
+								}
+							}
+						echo "</ul>";
+					}
+				echo "</li>";
+				
+			}
+		}
+	}
+?>
 <section class="section-header">
     <header class="header-efectus-web">
         <div class="top-info">
@@ -237,11 +332,17 @@
             <div class="login-field"><i class="fas fa-user-circle"></i>
                 <?php
                     switch($pew_session->nivel){
-                        case 2:
-                            $pew_nivel = "Comercial";
-                            break;
+						case 1:
+							$pew_nivel = "Franquia Principal";
+							break;
+						case 2:
+							$pew_nivel = "Franquia";
+							break;
                         case 3:
                             $pew_nivel = "Administrador";
+                            break;
+                        case 4:
+                            $pew_nivel = "Comercial";
                             break;
                         default:
                             $pew_nivel = "Designer";
@@ -257,119 +358,67 @@
         <nav class="nav-header">
             <div class="logo-header"><a href="pew-banners.php"><img src="imagens/sistema/identidadeVisual/logo-efectus-web.png" alt="Efectus Web - Desenvolvimento de Softwares e Plataformas Web" title="Painel de Controle"></a></div>
             <?php
-                /*Primeiro Link*/
-                $linksPrincipais[0]["titulo_link"] = "Banners";
-                $linksPrincipais[0]["url_link"] = "pew-banners.php";
-                $linksPrincipais[0]["sub_link"][0]["titulo_sub_link"] = "<i class='fas fa-images'></i> Listar Banners";
-                $linksPrincipais[0]["sub_link"][0]["url_sub_link"] = "pew-banners.php";
-                $linksPrincipais[0]["sub_link"][1]["titulo_sub_link"] = "<i class='fa fa-plus' aria-hidden='true'></i> Cadastrar novo";
-                $linksPrincipais[0]["sub_link"][1]["url_sub_link"] = "pew-cadastra-banner.php";
-                /*Segundo Link*/
-                $linksPrincipais[1]["titulo_link"] = "Produtos";
-                $linksPrincipais[1]["url_link"] = "pew-produtos.php";
-                $linksPrincipais[1]["sub_link"][0]["titulo_sub_link"] = "<i class='fa fa-th' aria-hidden='true'></i> Listar Produtos";
-                $linksPrincipais[1]["sub_link"][0]["url_sub_link"] = "pew-produtos.php";
-                $linksPrincipais[1]["sub_link"][1]["titulo_sub_link"] = "<i class='fa fa-plus' aria-hidden='true'></i> Cadastrar novo";
-                $linksPrincipais[1]["sub_link"][1]["url_sub_link"] = "pew-cadastra-produto.php";
-                $linksPrincipais[1]["sub_link"][2]["titulo_sub_link"] = "<i class='fa fa-tag' aria-hidden='true'></i> Marcas";
-                $linksPrincipais[1]["sub_link"][2]["url_sub_link"] = "pew-marcas.php";
-                $linksPrincipais[1]["sub_link"][3]["titulo_sub_link"] = "<i class='fas fa-paint-brush'></i> Cores";
-                $linksPrincipais[1]["sub_link"][3]["url_sub_link"] = "pew-cores.php";
-                $linksPrincipais[1]["sub_link"][4]["titulo_sub_link"] = "<i class='fa fa-cogs' aria-hidden='true'></i> Especificações técnicas";
-                $linksPrincipais[1]["sub_link"][4]["url_sub_link"] = "pew-especificacoes.php";
-                
-                $linksPrincipais[2]["titulo_link"] = "Vendas";
-                $linksPrincipais[2]["url_link"] = "pew-vendas.php";
-                $linksPrincipais[2]["sub_link"][0]["titulo_sub_link"] = "<i class='fas fa-dollar-sign'></i> Listar Pedidos";
-                $linksPrincipais[2]["sub_link"][0]["url_sub_link"] = "pew-vendas.php";
-                $linksPrincipais[2]["sub_link"][1]["titulo_sub_link"] = "<i class='fas fa-chart-pie'></i> Relatórios";
-                $linksPrincipais[2]["sub_link"][1]["url_sub_link"] = "pew-relatorios.php";
-                /*Terceiro Link*/
-                $linksPrincipais[3]["titulo_link"] = "Dicas";
-                $linksPrincipais[3]["url_link"] = "pew-dicas.php";
-                $linksPrincipais[3]["sub_link"][0]["titulo_sub_link"] = "<i class='fas fa-newspaper'></i> Listar Dicas";
-                $linksPrincipais[3]["sub_link"][0]["url_sub_link"] = "pew-dicas.php";
-                $linksPrincipais[3]["sub_link"][1]["titulo_sub_link"] = "<i class='fas fa-plus'></i> Cadastrar nova";
-                $linksPrincipais[3]["sub_link"][1]["url_sub_link"] = "pew-cadastra-dica.php";
-                /*Quarto Link*/
-                $linksPrincipais[4]["titulo_link"] = "Vitrine";
-                $linksPrincipais[4]["url_link"] = "pew-categorias-vitrine.php";
-                $linksPrincipais[4]["sub_link"][0]["titulo_sub_link"] = "<i class='fa fa-tag' aria-hidden='true'></i> Categorias da vitrine";
-                $linksPrincipais[4]["sub_link"][0]["url_sub_link"] = "pew-categorias-vitrine.php";
-                $linksPrincipais[4]["sub_link"][1]["titulo_sub_link"] = "<i class='fa fa-star' aria-hidden='true'></i> Categorias destaque";
-                $linksPrincipais[4]["sub_link"][1]["url_sub_link"] = "pew-categoria-destaque.php";
-                /*Quinto Link*/
-                $linksPrincipais[5]["titulo_link"] = "Orçamentos";
-                $linksPrincipais[5]["url_link"] = "pew-orcamentos.php";
-                $linksPrincipais[5]["sub_link"][0]["titulo_sub_link"] = "<i class='fas fa-dollar-sign'></i> Pedidos de orçamento";
-                $linksPrincipais[5]["sub_link"][0]["url_sub_link"] = "pew-orcamentos.php";
-                $linksPrincipais[5]["sub_link"][1]["titulo_sub_link"] = "<i class='fa fa-plus' aria-hidden='true'></i> Cadastrar orçamento";
-                $linksPrincipais[5]["sub_link"][1]["url_sub_link"] = "pew-cadastra-orcamento.php";
-                $linksPrincipais[5]["sub_link"][2]["titulo_sub_link"] = "<i class='fa fa-cogs' aria-hidden='true'></i> Opções orçamentos";
-                $linksPrincipais[5]["sub_link"][2]["url_sub_link"] = "pew-config-orcamentos.php";
-                /*Sexto Link*/
-                $linksPrincipais[6]["titulo_link"] = "Mensagens";
-                $linksPrincipais[6]["url_link"] = "pew-contatos.php";
-                $linksPrincipais[6]["sub_link"][0]["titulo_sub_link"] = "<i class='far fa-comment'></i> Contatos";
-                $linksPrincipais[6]["sub_link"][0]["url_sub_link"] = "pew-contatos.php";
-                $linksPrincipais[6]["sub_link"][1]["titulo_sub_link"] = "<i class='fas fa-question'></i> Atendimento";
-                $linksPrincipais[6]["sub_link"][1]["url_sub_link"] = "pew-tickets.php";
-				$linksPrincipais[6]["sub_link"][2]["titulo_sub_link"] = "<i class='fas fa-briefcase'></i> Contatos Serviços";
-                $linksPrincipais[6]["sub_link"][2]["url_sub_link"] = "pew-contatos-servicos.php";
-                $linksPrincipais[6]["sub_link"][3]["titulo_sub_link"] = "<i class='far fa-envelope'></i> E-mails newsletter";
-                $linksPrincipais[6]["sub_link"][3]["url_sub_link"] = "pew-newsletter.php";
-                /*Setimo Link*/
-                $linksPrincipais[7]["titulo_link"] = "Categorias";
-                $linksPrincipais[7]["url_link"] = "pew-categorias.php";
-                $linksPrincipais[7]["sub_link"][0]["titulo_sub_link"] = "<i class='fa fa-tags' aria-hidden='true'></i> Listar Categorias";
-                $linksPrincipais[7]["sub_link"][0]["url_sub_link"] = "pew-categorias.php";
-                $linksPrincipais[7]["sub_link"][1]["url_sub_link"] = "pew-departamentos.php";
-                $linksPrincipais[7]["sub_link"][1]["titulo_sub_link"] = "<i class='fa fa-th-list' aria-hidden='true'></i> Departamentos";
-                $linksPrincipais[7]["sub_link"][1]["url_sub_link"] = "pew-departamentos.php";
-                /*Oitavo Link*/
-                $linksPrincipais[8]["titulo_link"] = "Usuários";
-                $linksPrincipais[8]["url_link"] = "pew-usuarios.php";
-                $linksPrincipais[8]["sub_link"][0]["titulo_sub_link"] = "<i class='fa fa-users' aria-hidden='true'></i> Listar Usuários";
-                $linksPrincipais[8]["sub_link"][0]["url_sub_link"] = "pew-usuarios.php";
-                $linksPrincipais[8]["sub_link"][1]["titulo_sub_link"] = "<i class='fa fa-plus' aria-hidden='true'></i> Cadastrar novo";
-                $linksPrincipais[8]["sub_link"][1]["url_sub_link"] = "pew-cadastra-usuario.php";
-
-                $quantidadeLinks = count($linksPrincipais);
+				$countLinks = 0;
+			
+				$link_nav[$countLinks] = new NavLinks("Banners", "pew-banners.php", null, array(4));
+				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fas fa-images'></i> Listar Banners", "pew-banners.php");
+				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fa fa-plus'></i> Cadastrar novo", "pew-cadastra-banner.php");
+				$countLinks++;
+				
+				$link_nav[$countLinks] = new NavLinks("Produtos", "pew-produtos.php", null, array(5));
+				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fa fa-th' aria-hidden='true'></i> Listar produtos", "pew-produtos.php");
+				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fa fa-plus' aria-hidden='true'></i> Cadastrar novo", "pew-cadastra-produto.php", array(4, 3, 2));
+				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fa fa-tag' aria-hidden='true'></i> Marcas", "pew-marcas.php", array(4, 3, 2));
+				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fas fa-paint-brush'></i> Cores", "pew-cores.php", array(4, 3, 2));
+				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fa fa-cogs' aria-hidden='true'></i> Especificações técnicas", "pew-especificacoes.php", array(4, 3, 2));
+				$countLinks++;
+			
+				$link_nav[$countLinks] = new NavLinks("Vendas", "pew-vendas.php", null, array(5));
+				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fas fa-dollar-sign'></i> Listar Pedidos", "pew-vendas.php");
+				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fas fa-chart-pie'></i> Relatórios", "pew-relatorios.php");
+				$countLinks++;
+			
+				$link_nav[$countLinks] = new NavLinks("Dicas", "pew-dicas.php", null, array());
+				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fas fa-newspaper'></i> Listar dicas", "pew-dicas.php");
+				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fa fa-plus'></i> Cadastrar nova", "pew-cadastra-dica.php");
+				$countLinks++;
+			
+				$link_nav[$countLinks] = new NavLinks("Vitrine", "pew-categorias-vitrine.php", null, array());
+				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fa fa-tag'></i> Categorias da vitrine", "pew-categorias-vitrine.php");
+				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fa fa-star'></i> Categorias destaque", "pew-categoria-destaque.php");
+				$countLinks++;
+			
+				$link_nav[$countLinks] = new NavLinks("Orçamentos", "pew-orcamentos.php", null, array(5, 4, 3, 2));
+				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fas fa-dollar-sign'></i> Pedidos de orçamento", "pew-orcamentos.php");
+				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fa fa-plus'></i> Cadastrar orçamento", "pew-cadastra-orcamento.php");
+				$countLinks++;
+			
+				$link_nav[$countLinks] = new NavLinks("Mensagens", "pew-contatos.php", null, array(5));
+				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='far fa-comment'></i> Contatos", "pew-contatos.php");
+				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fas fa-question'></i> Atendimento", "pew-tickets.php");
+				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fas fa-briefcase'></i> Contatos Serviços", "pew-contatos-servicos.php");
+				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='far fa-envelope'></i> E-mails newsletter", "pew-newsletter.php");
+				$countLinks++;
+			
+				$link_nav[$countLinks] = new NavLinks("Categorias", "pew-categorias.php", null, array(5, 4, 3, 2));
+				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fa fa-tags'></i> Listar categorias", "pew-categorias.php");
+				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fa fa-th-list'></i> Departamentos", "pew-departamentos.php");
+				$countLinks++;
+			
+				$link_nav[$countLinks] = new NavLinks("Loja", "pew-usuarios.php", null, array(5, 4));
+				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fa fa-users'></i> Usuários", "pew-usuarios.php");
+				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fa fa-plus'></i> Cadastrar usuário", "pew-cadastra-usuario.php");
+				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fas fa-hotel'></i> Franquias", "pew-franquias.php", array(3, 2));
+				$countLinks++;
+			
+                $quantidadeLinks = count($link_nav);
                 if($quantidadeLinks > 0){
                     echo "<ul class='display-links'>";
                     echo "<span class='background-nav'></span>";
                     $i = 0;
-                    foreach($linksPrincipais as $linkMenu){
-                        $i++;
-                        $tituloLink = $linkMenu["titulo_link"];
-                        $urlLink = $linkMenu["url_link"];
-                        $idLink = "linkPrincipal$i";
-                                echo "<li id='$idLink'>";
-                                    echo "<a href='$urlLink' class='link-principal' data-target-id='$idLink'>$tituloLink</a>";
-                                    $quantidadeSubLinks = isset($linkMenu["sub_link"]) ? count($linkMenu["sub_link"]) : 0;
-                                    if($quantidadeSubLinks > 0){
-                                        echo "<ul class='sub-menu'>";
-                                            foreach($linkMenu["sub_link"] as $subLinks){
-                                                $tituloSubLink = $subLinks["titulo_sub_link"];
-                                                $urlSubLink = $subLinks["url_sub_link"];
-                                                $quantidadeSubSubLinks = isset($subLinks["sub_sub_link"]) ? count($subLinks["sub_sub_link"]) : 0;
-                                                echo "<li><a href='$urlSubLink' class='sub-link'>$tituloSubLink</a>";
-                                                if($quantidadeSubSubLinks > 0){
-                                                    echo "<span class='sub-sub-links-icon'><i class='fa fa-arrow-right' aria-hidden='true'></i></span>";
-                                                    echo "<ul class='sub-sub-menu'>";
-                                                    foreach($subLinks["sub_sub_link"] as $subSubLink){
-                                                        $title = $subSubLink["titulo_sub_sub_link"];
-                                                        $url = $subSubLink["url_sub_sub_link"];
-                                                        echo "<li><a href='$url' class='sub-sub-links'>$title</a></li><br>";
-                                                    }
-                                                    echo "</ul>";
-                                                }
-                                                echo "</li>";
-                                            }
-                                        echo "</ul>";
-                                    }
-                                echo "</li>";
-                    }
+                    foreach($link_nav as $link){
+						$link->listar_link();
+					}
                     echo "</ul>";
                     echo "<br style='clear:both;'>";
                 }

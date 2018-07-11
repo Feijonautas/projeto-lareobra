@@ -3,7 +3,7 @@ session_start();
 
 $thisPageURL = substr($_SERVER["REQUEST_URI"], strpos($_SERVER["REQUEST_URI"], '@pew'));
 $_POST["next_page"] = str_replace("@pew/", "", $thisPageURL);
-$_POST["invalid_levels"] = array(1);
+$_POST["invalid_levels"] = array(5);
 
 require_once "@link-important-functions.php";
 require_once "@valida-sessao.php";

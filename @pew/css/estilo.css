@@ -205,6 +205,10 @@ input:focus, select:focus, textarea:focus{
 .label-input:focus, .label-textarea:focus{
     transform: scale(1.05);
 }
+.disabled-input{
+	pointer-events: none;
+	background-color: #f0f0f0;
+}
 .label{
     display: flex;
     flex-flow: row wrap;

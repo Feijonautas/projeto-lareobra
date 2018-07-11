@@ -1,9 +1,14 @@
 <?php
+
+	ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
     session_start();
     
     $thisPageURL = substr($_SERVER["REQUEST_URI"], strpos($_SERVER["REQUEST_URI"], '@pew'));
     $_POST["next_page"] = str_replace("@pew/", "", $thisPageURL);
-    $_POST["invalid_levels"] = array(2);
+    $_POST["invalid_levels"] = array(4);
     
     require_once "@link-important-functions.php";
     require_once "@valida-sessao.php";
@@ -130,12 +135,15 @@
                 <h3 class="subtitulos" id="teste">Listagem de banners.</h3>
                 <?php
                     $tabela_banners = $pew_db->tabela_banners;
-                    $contarBanners = mysqli_query($conexao, "select count(id) as total_banners from $tabela_banners");
+				
+					$pageMainCondition = "id_franquia = '{$pew_session->id_franquia}'";
+				
+                    $contarBanners = mysqli_query($conexao, "select count(id) as total_banners from $tabela_banners where $pageMainCondition");
                     $contagemBanners = mysqli_fetch_assoc($contarBanners);
                     $totalBanners = $contagemBanners["total_banners"];
                     $i = 0;
                     if($totalBanners > 0){
-                        $queryBanners = mysqli_query($conexao, "select * from $tabela_banners order by posicao");
+                        $queryBanners = mysqli_query($conexao, "select * from $tabela_banners where $pageMainCondition order by posicao");
                         while($banners = mysqli_fetch_array($queryBanners)){
                             $i++;
                             $id = $banners["id"];
