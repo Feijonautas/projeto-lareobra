@@ -62,6 +62,7 @@
                     </div>
                     <div class="label full">
                         <a href="pew-cadastra-franquia.php" class="btn-padrao btn-flat" title="Cadastre uma nova franquia"><i class="fas fa-plus"></i> Cadastrar franquia</a>
+                        <a href="pew-gerenciamento-solicitacoes-produtos.php" class="btn-padrao btn-flat" title="Gerencie as solicitações das franquias"><i class="fas fa-tasks"></i> Gerenciar solicitações</a>
                     </div>
                 </div>
             </div>

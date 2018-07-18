@@ -84,7 +84,7 @@
             }
         ?>
         <!--PAGE CONTENT-->
-        <h1 class="titulos"><?php echo $page_title; ?></h1>
+        <h1 class="titulos"><?php echo $page_title; ?><a href="pew-contatos-servicos.php" class="btn-voltar"><i class="fa fa-arrow-left" aria-hidden="true"></i> Voltar</a></h1>
         <section class="conteudo-painel">
             <table class="table-padrao" cellspacing="0">
             <?php

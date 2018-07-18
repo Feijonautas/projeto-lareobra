@@ -231,6 +231,69 @@ input:focus, select:focus, textarea:focus{
 .clear{
     clear: both;
 }
+/*CUSTOM CHECBOX*/
+.checkbox-label{
+	display: block;
+	position: relative;
+	padding-left: 35px;
+	margin-bottom: 12px;
+	cursor: pointer;
+	font-size: 18px;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.checkbox-label input{
+	position: absolute;
+	opacity: 0;
+	cursor: pointer;
+}
+
+.checkmark{
+	position: absolute;
+	margin: 0 auto;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 22px;
+	width: 22px;
+	background-color: #eee;
+	border: 1px solid #ddd;
+}
+
+.checkbox-label:hover input ~ .checkmark{
+	background-color: #ccc;
+}
+
+.checkbox-label input:checked ~ .checkmark{
+	background-color: #df2321;
+	border: 1px solid transparent;
+}
+
+.checkmark:after{
+	content: "";
+	position: absolute;
+	display: none;
+}
+
+.checkbox-label input:checked ~ .checkmark:after{
+	display: block;
+}
+
+.checkbox-label .checkmark:after{
+	left: 7px;
+	top: 4px;
+	width: 5px;
+	height: 10px;
+	border: solid white;
+	border-width: 0 3px 3px 0;
+	-webkit-transform: rotate(45deg);
+	-ms-transform: rotate(45deg);
+	transform: rotate(45deg);
+}
+/*END CUSTOM CHECBOX*/
 /*FIM FORMULARIO GERAL PADRAO*/
 /*LINKS E BOTOES*/
 .link-padrao{
@@ -375,7 +438,7 @@ input:focus, select:focus, textarea:focus{
     line-height: 30px;
     border: none;
     display: block;
-    margin: 0px 15px 0px 0px;
+    margin: 0px 15px 10px 0px;
     padding: 0px 10px 0px 10px;
     border-radius: 5px;
     background-color: #df2321;

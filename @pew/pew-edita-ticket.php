@@ -240,7 +240,7 @@ $page_title = "Gerenciamento de tickets de atendimento";
         }
         ?>
         <!--PAGE CONTENT-->
-        <h1 class="titulos"><?php echo $page_title; ?></h1>
+        <h1 class="titulos"><?php echo $page_title; ?><a href="pew-tickets.php" class="btn-voltar"><i class="fa fa-arrow-left" aria-hidden="true"></i> Voltar</a></h1>
         <section class="conteudo-painel">
             <script>
                 $(document).ready(function(){

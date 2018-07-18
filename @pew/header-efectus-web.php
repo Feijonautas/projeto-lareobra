@@ -367,6 +367,7 @@ class NavLinks{
 				
 				$link_nav[$countLinks] = new NavLinks("Produtos", "pew-produtos.php", null, array(5));
 				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fa fa-th' aria-hidden='true'></i> Listar produtos", "pew-produtos.php");
+				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fas fa-tasks'></i> Atualizar lista de produtos", "pew-lista-produtos-franquia.php", array(1	));
 				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fa fa-plus' aria-hidden='true'></i> Cadastrar novo", "pew-cadastra-produto.php", array(4, 3, 2));
 				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fa fa-tag' aria-hidden='true'></i> Marcas", "pew-marcas.php", array(4, 3, 2));
 				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fas fa-paint-brush'></i> Cores", "pew-cores.php", array(4, 3, 2));

@@ -1,9 +1,4 @@
 <?php
-
-	ini_set('display_errors', 1);
-	ini_set('display_startup_errors', 1);
-	error_reporting(E_ALL);
-
     session_start();
     
     $thisPageURL = substr($_SERVER["REQUEST_URI"], strpos($_SERVER["REQUEST_URI"], '@pew'));
@@ -190,6 +185,38 @@
 						controllDiv.css("display", "none");
 					});
 				});
+				
+				$(".js-active-all").off().on("click", function(){
+					
+					function active_all(){
+						var inactiveProducts = $(".js-inactive-products");
+						var array = [];
+						inactiveProducts.each(function(){
+							var idProduto = $(this).attr("js-id-produto");
+							array.push(idProduto);
+						});
+						$.ajax({
+							type: "POST",
+							url: "pew-status-produto.php",
+							data: {acao: "ativar_produtos", produtos: array},
+							error: function(){
+								mensagemAlerta("Ocorreu um erro. Recarregue a página e tente novamente.");
+							},
+							success: function(response){
+								if(response == "true"){
+									mensagemAlerta("Os produtos foram ativados", false, "limegreen", "pew-produtos.php", false, "limegreen");
+								}else{
+									mensagemAlerta("Ocorreu um erro. Recarregue a página e tente novamente.");
+								}
+							},
+							beforeSend: function(){
+								notificacaoPadrao("Aguarde... Pode demorar um pouco", "success", 15000);
+							}
+						});
+					}
+					
+					mensagemConfirma("Tem certeza que deseja ativar todos os produtos?", active_all);
+				});
 			});
 		</script>
         <!--FIM THIS PAGE CSS-->
@@ -204,7 +231,7 @@
         ?>
         <!--PAGE CONTENT-->
         <h1 class="titulos"><?php echo $page_title; ?></h1>
-            <section class="conteudo-painel">
+		<section class="conteudo-painel">
             <div class="group clear">
                 <form action="pew-produtos.php" method="get" class="label half clear">
                     <label class="group">
@@ -213,7 +240,7 @@
                         </div>
                         <div class="group">
                             <div class="xlarge" style="margin-left: -5px; margin-right: 0px;">
-                                <input type="search" name="busca" placeholder="Busque por titulo, categorias, marcas..." class="label-input" title="Buscar">
+                                <input type="search" name="busca" placeholder="Nome, Marca, Departamentos e Categorias..." class="label-input" title="Buscar">
                             </div>
                             <div class="xsmall" style="margin-left: 0px;">
                                 <button type="submit" class="btn-submit label-input btn-flat" style="margin: 10px;">
@@ -229,12 +256,25 @@
                     </div>
                     <div class="label full">
 						<?php
+						
+						$layoutType = isset($_GET['layout']) ? $_GET['layout'] : "grade";
+						
 						if($pew_session->nivel == 1){
 							echo "<a href='pew-cadastra-produto.php' class='btn-flat' title='Cadastre um novo produto'><i class='fas fa-plus'></i> Cadastrar produto</a>";
 							echo "<a href='pew-marcas.php' class='btn-flat' title='Gerenciamento de marcas'><i class='fas fa-plus'></i> Marcas</a>";
 							echo "<a href='pew-cores.php' class='btn-flat' title='Gerenciamento de cores'><i class='fas fa-plus'></i> Cores</a>";
 						}else{
 							echo "<a href='pew-lista-produtos-franquia.php' class='btn-flat' title='Atualize sua lista de produtos'><i class='fas fa-tasks'></i> Atualizar lista de produtos</a>";
+							echo "<a href='pew-gerenciamento-lista-produtos.php' class='btn-flat' title='Gerencie suas solicitações'><i class='fas fa-cogs'></i> Gerenciamento de solicitações</a>";
+						}
+						
+						$page_url = str_replace("@pew/", "", $thisPageURL);
+						$has_arguments = strpos($page_url, '?') !== false ? true : false;
+						$redirect_url = strpos($page_url, '?') !== false ? $page_url : $page_url."?";
+						if($layoutType == "grade"){
+							echo "<a href='{$redirect_url}&layout=list' class='btn-flat' title='Listar produtos em modo lista'><i class='fas fa-list-ol'></i> Modo lista</a>";
+						}else{
+							echo "<a href='{$redirect_url}&layout=grade' class='btn-flat' title='Listar produtos em modo grade'><i class='fas fa-th'></i> Modo grade</a>";
 						}
 						?>
                         <a href="pew-relatorios.php" class="btn-flat" title="Ver Relatórios"><i class="fas fa-chart-pie"></i> Relatórios</a>
@@ -252,20 +292,30 @@
 					$getSEARCH = isset($_GET["busca"]) && $_GET["busca"] ? $_GET["busca"] : null;
 					if($getSEARCH != null){
 						echo "<h5>Exibindo resultados para: $getSEARCH &nbsp;&nbsp; <a href='pew-produtos.php' class='link-padrao'>Limpar busca</a></h5>";
+					}else{
+						$getSEARCH = "all_products";
 					}
 				
 					$selected_products = $cls_produtos->full_search_string($getSEARCH);
-					$totalProducts = count($selected_products);
+					$base_active_products = $cls_produtos->status_filter($selected_products, 1, false);
+					$totalBaseActive = count($base_active_products);
 				
-					$active_products = $cls_produtos->status_filter($selected_products, 1, $pew_session->id_franquia);
-					$inactive_products = $cls_produtos->status_filter($selected_products, 0, $pew_session->id_franquia);
+					$f_id_franquia = $pew_session->nivel == 1 ? false : $pew_session->id_franquia;
+				
+					$active_products = $cls_produtos->status_filter($selected_products, 1, $f_id_franquia);
+					$inactive_products = $cls_produtos->status_filter($selected_products, 0, $f_id_franquia);
 				
 					$totalAtivos = count($active_products);
 					$totalInativos = count($inactive_products);
+					$totalFiltered = $totalAtivos + $totalInativos;
+				
+					if($totalBaseActive > $totalFiltered && $pew_session->nivel != 1){
+						echo "<h4>Existem produtos novos na loja! <a href='pew-lista-produtos-franquia.php' class='link-padrao'>Clique aqui para atualizar sua lista de produtos</a></h4>";
+					}
 				
 					$franquias_controll_divs = "";
 				
-					function list_products($array){
+					function list_products($array, $class = null, $layoutType = "grade"){
 						global $cls_produtos, $pew_functions, $pew_session, $franquias_controll_divs;
 						
 						$dir_imagens = '../imagens/produtos/';
@@ -284,7 +334,6 @@
 								$padrao_preco_promocao = $infoProduto["preco_promocao"];
 								$padrao_promocao_ativa = $infoProduto["promocao_ativa"];
 								$padrao_sku = $infoProduto["sku"];
-								$padrao_data = $pew_functions->inverter_data(substr($infoProduto["data"], 0, 10));
 								$padrao_status = $infoProduto["status"];
 								$padrao_imagem = count($infoProduto["imagens"]) > 0 ? $infoProduto["imagens"][0]["src"] : null;
 								if(!file_exists($dir_imagens.$padrao_imagem) || $padrao_imagem == null){
@@ -319,7 +368,7 @@
 								
 								if($pew_session->nivel == 1){
 									$image_field = "<a href='$padrao_url'><img src='$padrao_full_imagem'></a>";
-									$name_field = "<a href='$padrao_url'>$nome</a>";
+									$name_field = "<a href='$padrao_url'>$padrao_nome</a>";
 									$alter_product_field = "<a href='$padrao_url' class='btn-alterar btn-alterar-produto' title='Clique para fazer alterações no produto'>Alterar</a>";
 								}else{
 									$image_field = "<img src='$padrao_full_imagem'>";
@@ -330,54 +379,68 @@
 								$padrao_btn_status = $view_status == 1 ? "<a class='btn-desativar btn-status-produto' data-produto-id='$idProduto' data-acao='desativar' title='Clique para alterar o status do produto'>Desativar</a>" : "<a class='btn-ativar btn-status-produto' data-produto-id='$idProduto' data-acao='ativar' title='Clique para alterar o status do produto'>Ativar</a>";
 								
 								
-								echo "<div class='box-produto' id='boxProduto$idProduto'>";
-								
-									echo "<div class='imagem'>$image_field</div>";
+								if($layoutType == "grade"){
+									echo "<div class='box-produto $class' id='boxProduto$idProduto' js-id-produto='$idProduto'>";
 
-									echo "<div class='informacoes'>";
-										echo "<h3 class='nome-produto'>$name_field</h3>";
+										echo "<div class='imagem'>$image_field</div>";
 
-										echo "<div class='half box-info'>";
-											echo "<h4 class='titulo'><i class='fa fa-power-off' aria-hidden='true'></i> Status</h4>";
-											echo "<h3 class='descricao' id='viewStatusProd'>$view_status_string</h3>";
-										echo "</div>";
+										echo "<div class='informacoes'>";
+											echo "<h3 class='nome-produto'>$name_field</h3>";
 
-										echo "<div class='half box-info'>";
-											echo "<h4 class='titulo'><i class='fas fa-money-bill-wave' aria-hidden='true'></i> Preço</h4>";
-											echo "<h3 class='descricao'>R$ $view_preco</h3>";
-										echo "</div>";
-								
-										echo "<div class='half box-info'>";
-											echo "<h4 class='titulo'><i class='fas fa-dollar-sign' aria-hidden='true'></i> P. Promoção</h4>";
-											echo "<h3 class='descricao'>R$ $view_preco_promocao</h3>";
-										echo "</div>";
-								
-										echo "<div class='half box-info'>";
-											echo "<h4 class='titulo'><i class='fa fa-tag' aria-hidden='true'></i> Promoção</h4>";
-											echo "<h3 class='descricao'>$view_status_promocao_string</h3>";
-										echo "</div>";
-
-										echo "<div class='half box-info'>";
-											echo "<h4 class='titulo'><i class='fas fa-cubes'></i> Estoque</h4>";
-											echo "<h3 class='descricao'>$view_estoque</h3>";
-										echo "</div>";
-
-										echo "<div class='half box-info'>";
-											echo "<h4 class='titulo'><i class='fas fa-hashtag'></i> SKU</h4>";
-											echo "<h3 class='descricao'>$padrao_sku</h3>";
-										echo "</div>";
-
-										echo "<div class='bottom-buttons group clear'>";
-											echo "<div class='box-button' style='margin: 0px;'>";
-												echo $padrao_btn_status;
+											echo "<div class='half box-info'>";
+												echo "<h4 class='titulo'><i class='fa fa-power-off' aria-hidden='true'></i> Status</h4>";
+												echo "<h3 class='descricao' id='viewStatusProd'>$view_status_string</h3>";
 											echo "</div>";
-											echo "<div class='box-button' style='margin: 0px;'>";
-												echo $alter_product_field;
-											echo "</div>";
-										echo "</div>";
 
+											echo "<div class='half box-info'>";
+												echo "<h4 class='titulo'><i class='fas fa-money-bill-wave' aria-hidden='true'></i> Preço</h4>";
+												echo "<h3 class='descricao'>R$ $view_preco</h3>";
+											echo "</div>";
+
+											echo "<div class='half box-info'>";
+												echo "<h4 class='titulo'><i class='fas fa-dollar-sign' aria-hidden='true'></i> P. Promoção</h4>";
+												echo "<h3 class='descricao'>R$ $view_preco_promocao</h3>";
+											echo "</div>";
+
+											echo "<div class='half box-info'>";
+												echo "<h4 class='titulo'><i class='fa fa-tag' aria-hidden='true'></i> Promoção</h4>";
+												echo "<h3 class='descricao'>$view_status_promocao_string</h3>";
+											echo "</div>";
+
+											echo "<div class='half box-info'>";
+												echo "<h4 class='titulo'><i class='fas fa-cubes'></i> Estoque</h4>";
+												echo "<h3 class='descricao'>$view_estoque</h3>";
+											echo "</div>";
+
+											echo "<div class='half box-info'>";
+												echo "<h4 class='titulo'><i class='fas fa-hashtag'></i> SKU</h4>";
+												echo "<h3 class='descricao'>$padrao_sku</h3>";
+											echo "</div>";
+
+											echo "<div class='bottom-buttons group clear'>";
+												echo "<div class='box-button' style='margin: 0px;'>";
+													echo $padrao_btn_status;
+												echo "</div>";
+												echo "<div class='box-button' style='margin: 0px;'>";
+													echo $alter_product_field;
+												echo "</div>";
+											echo "</div>";
+
+										echo "</div>";
 									echo "</div>";
-								echo "</div>";
+								}else{
+									echo "<tr class='$class' id='boxProduto$idProduto' js-id-produto='$idProduto'>";
+										echo "<td>$idProduto</td>";
+										echo "<td>$padrao_nome</td>";
+										echo "<td>$padrao_sku</td>";
+										echo "<td class='prices'>R$ $view_preco</td>";
+										echo "<td class='prices'>R$ $view_preco_promocao</td>";
+										echo "<td>$view_status_promocao_string</td>";
+										echo "<td>$padrao_marca</td>";
+										echo "<td align=center>$padrao_btn_status</td>";
+										echo "<td align=center>$alter_product_field</td>";
+									echo "</tr>";
+								}
 								
 								// APENAS FRANQUIA
 								if($pew_session->nivel != 1){
@@ -446,12 +509,63 @@
 						echo "<div class='display-paineis display-produtos'>";
 							echo "<div class='painel selected-painel' id='mtPainel1'>";
 								echo "<div class='display-produtos'>";
-								list_products($active_products);
+								if($totalAtivos == 0){
+									echo "Nenhum produto está ativo";
+								}else{
+									if($layoutType == "grade"){
+										list_products($active_products, "js-active-products", $layoutType);
+									}else{
+										echo "<table class='table-padrao' cellspacing=0>";
+											echo "<thead>";
+												echo "<td>ID</td>";
+												echo "<td>Produto</td>";
+												echo "<td>SKU</td>";
+												echo "<td>Preço</td>";
+												echo "<td>Preço promoção</td>";
+												echo "<td>Promoção</td>";
+												echo "<td>Marca</td>";
+												echo "<td align=center><i class='fas fa-power-off'></i></td>";
+												echo "<td align=center>Editar</td>";
+											echo "</thead>";
+											echo "<tbody>";
+											list_products($active_products, "js-active-products", $layoutType);
+											echo "</tbody>";
+										echo "</table>";
+									}
+								}
 								echo "</div>";
 							echo "</div>";
 							echo "<div class='painel' id='mtPainel2'>";
 								echo "<div class='display-produtos'>";
-								list_products($inactive_products);
+								if($totalInativos == 0){
+									echo "Nenhum produto está desativado";
+								}else{
+									echo "<div class='label group jc-right' style='margin-bottom: 15px;'>";
+										echo "<div class='small'>";
+											echo "<input type='button' class='label-input js-active-all' value='Ativar todos'>";
+										echo "</div>";
+									echo "</div>";
+									if($layoutType == "grade"){
+										list_products($inactive_products, "js-inactive-products", $layoutType);
+									}else{
+										echo "<table class='table-padrao' cellspacing=0>";
+											echo "<thead>";
+												echo "<td>ID</td>";
+												echo "<td>Produto</td>";
+												echo "<td>SKU</td>";
+												echo "<td>Preço</td>";
+												echo "<td>Preço promoção</td>";
+												echo "<td>Promoção</td>";
+												echo "<td>Marca</td>";
+												echo "<td align=center><i class='fas fa-power-off'></i></td>";
+												echo "<td align=center>Editar</td>";
+											echo "</thead>";
+											echo "<tbody>";
+											list_products($inactive_products, "js-inactive-products", $layoutType);
+											echo "</tbody>";
+										echo "</table>";
+									}
+								}
 								echo "</div>";
 							echo "</div>";
 						echo "</div>";
@@ -460,7 +574,7 @@
 				
 					echo $franquias_controll_divs; // DIVs de controle
 
-                    if($totalProducts == 0){
+                    if($totalFiltered == 0){
                         if($getSEARCH == ""){
                             echo "<br><h3 align='center'>Nenhum Produto foi cadastrado. <a href='pew-cadastra-produto.php' class='link-padrao'>Clique aqui é cadastre</a></h3>";
                         }else{
