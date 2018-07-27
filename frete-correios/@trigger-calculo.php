@@ -1,5 +1,4 @@
 <?php
-
     $jsonData = json_decode(file_get_contents('php://input'), true);
     if($jsonData != null){
         $codigoCorreios = isset($jsonData["codigo_correios"]) ? $jsonData["codigo_correios"] : null;
@@ -31,6 +30,7 @@
 
     if($calcular){
         require_once "@classe-paginas.php";
+        require_once "@pew/pew-system-config.php";
         require_once "calcular-frete.php";
         
         if(!function_exists("is_json")){
@@ -47,6 +47,7 @@
 
         $codigoCorreios = isset($_POST["codigo_correios"]) ? $_POST["codigo_correios"] : "41106";
         
+        $cepEnvio = str_replace("-", "", $_POST["cep_envio"]);
         $cepDestino = str_replace("-", "", $_POST["cep_destino"]);
         
         $declararValor = isset($_POST["declarar_valor"]) ? $_POST["declarar_valor"] : false;
@@ -64,7 +65,6 @@
         
         $produtos = is_array($_POST["produtos"]) ? $_POST["produtos"] : array();
         
-        
         /*
         $produtos[0] = array();
         $produtos[0]["id"] = "#idProduto";
@@ -78,10 +78,8 @@
         
         $url_correios_api = $baseSite."/".$pastaCorreios;
         
-        $infoFrete = frete($produtos, $codigoCorreios, $cepDestino, $declararValor, $url_correios_api);
-        if($infoFrete != false && $produtos != false){
-            //echo $infoFrete; // RETORNO EM JSON
-        }else{
+        $infoFrete = frete($produtos, $codigoCorreios, $cepEnvio, $cepDestino, $declararValor, $url_correios_api);
+        if($infoFrete == false || $produtos == false){
             echo "false";
         }
         

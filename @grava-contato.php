@@ -1,4 +1,6 @@
 <?php
+	$_POST['controller'] = "get_id_franquia";
+	require_once "@valida-regiao.php";
 
 	$post_fields = array("nome", "email", "telefone", "assunto", "mensagem");
     $invalid_fields = array();
@@ -21,7 +23,7 @@
 		
 		$tabela_contatos = $pew_db->tabela_contatos;
 		
-		mysqli_query($conexao, "insert into $tabela_contatos (nome, email, telefone, assunto, mensagem, data, status) values ('$nome', '$email', '$telefone', '$assunto', '$mensagem', '$data', '$status')");
+		mysqli_query($conexao, "insert into $tabela_contatos (id_franquia, nome, email, telefone, assunto, mensagem, data, status) values ('$session_id_franquia', '$nome', '$email', '$telefone', '$assunto', '$mensagem', '$data', '$status')");
 		
 		echo "<script>window.location.href = 'contato.php?msg=Sua mensagem foi enviada com sucesso. Logo entraremos em contato.&msgType=success'</script>";
 	}else{

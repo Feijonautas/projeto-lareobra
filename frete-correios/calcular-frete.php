@@ -1,9 +1,8 @@
 <?php
-
 require_once "classe-sistema-empacotamento.php";
 $functions = new Empacotamento();
 
-function frete($produtos = null, $codigo_correios = "41106", $cep_destino = null, $declarar_valor = false, $url_api = null){
+function frete($produtos = null, $codigo_correios = "41106", $cep_envio = 0, $cep_destino = null, $declarar_valor = false, $url_api = null){
     require_once "classe-sistema-empacotamento.php";
     require_once "calculo-caixas.php";
     
@@ -34,10 +33,12 @@ function frete($produtos = null, $codigo_correios = "41106", $cep_destino = null
         }
     }
 
-    function calcular_frete($servicoCorreios, $cepDestino, $declararValor, $url_api_transportadora){
+    function calcular_frete($servicoCorreios, $cepEnvio, $cepDestino, $declararValor, $url_api_transportadora){
         global $caixas, $functions;
+		
         $frete_caixas = array();
         $ctrlFrete = 0;
+		$print_response = null;
         foreach($caixas as $infoCaixa){
             if($infoCaixa != false){
                 $alturaCaixa = $infoCaixa->altura;
@@ -51,6 +52,7 @@ function frete($produtos = null, $codigo_correios = "41106", $cep_destino = null
                 $valorMercadoria = $declararValor == true ? $valorItens : 0;
 
                 $dadosFrete = [
+                    'cep_envio' => $cepEnvio,
                     'cep_destino' => $cepDestino,
                     'codigo_servico' => $servicoCorreios,
                     'comprimento' => $comprimentoCaixa,
@@ -67,20 +69,17 @@ function frete($produtos = null, $codigo_correios = "41106", $cep_destino = null
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                 
                 $response = curl_exec($ch);
+				$print_response = $response;
                 
                 if($response != "false" && is_json($response)){
                     
                     $json_response = json_decode($response);
                     
-                    $split_response = explode(",", $response);
                     $frete_caixas[$ctrlFrete] = array();
-                    
                     $frete_caixas[$ctrlFrete]["Valor"] = $json_response->valor;
                     $frete_caixas[$ctrlFrete]["PrazoEntrega"] = $json_response->prazo;
 
                     $ctrlFrete++;
-                }else{
-                    return false;
                 }
 
                 curl_close($ch);
@@ -101,11 +100,11 @@ function frete($produtos = null, $codigo_correios = "41106", $cep_destino = null
         
         $textPrazo = $prazoFinal == 1 ? "dia" : "dias";
         
-        $finalReturn = '{"valor": '.$freteFinal.', "prazo": "'.$prazoFinal.' '.$textPrazo.'"}';
+        $finalReturn = $freteFinal > 0 ? '{"valor": '.$freteFinal.', "prazo": "'.$prazoFinal.' '.$textPrazo.'"}' : false;
 
         return $finalReturn;
     }
 
-    $frete = calcular_frete($codigo_correios, $cep_destino, $declarar_valor, $url_api);
+    $frete = calcular_frete($codigo_correios, $cep_envio, $cep_destino, $declarar_valor, $url_api);
     return $frete;
 }

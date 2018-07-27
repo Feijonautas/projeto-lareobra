@@ -52,7 +52,7 @@ $(document).ready(function(){
                 success: function(id){
                     CheckoutPagseguro.session_id = id;
                     PagSeguroDirectPayment.setSessionId(CheckoutPagseguro.session_id);
-                    console.log("ID SESSAO: " + CheckoutPagseguro.session_id);
+                    //console.log("ID SESSAO: " + CheckoutPagseguro.session_id);
                 },
             });
         }

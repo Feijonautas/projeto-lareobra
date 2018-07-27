@@ -111,6 +111,7 @@
             if($this->produto_montado == true){
                 $infoProduto = array();
                 $infoProduto["id"] = $this->get_id_produto();
+                $infoProduto["id_cor"] = $this->get_id_cor();
                 $infoProduto["sku"] = $this->get_sku_produto();
                 $infoProduto["codigo_barras"] = $this->get_codigo_barras_produto();
                 $infoProduto["nome"] = $this->get_nome_produto();
@@ -180,14 +181,14 @@
 				$query = mysqli_query($this->conexao(), "select * from $tabela_produtos where $alterCondition");
 				$info = mysqli_fetch_array($query);
 				
-				return set_array($idProduto, $idFranquia, $info["preco"], $info["preco_promocao"], 0, 0, $info["status"]);
+				return set_array($idProduto, $idFranquia, $info["preco"], $info["preco_promocao"], 0, 0, 0);
 				
 			}else{
 				return false;
 			}
 		}
 		
-		function full_search_string($queryString){
+		function full_search_string($queryString = "all_products"){
 			$tabela_produtos = $this->global_vars["tabela_produtos"];
 			
 			global $selectedProducts;
@@ -202,22 +203,29 @@
 				}
 			}
 			
-			$searchCollumns = array("id", "nome", "marca", "descricao_curta", "descricao_longa");
-			$standardQuery = "";
-			for($i = 0; $i < count($searchCollumns); $i++){
-				$likeSQL = " like '%".$queryString."%'";
-				$standardQuery .= $i == 0 ? $searchCollumns[$i] . $likeSQL : "or ".$searchCollumns[$i] . $likeSQL;
+			if($queryString != "all_products"){
+				
+				$searchCollumns = array("id", "nome", "marca", "descricao_curta", "descricao_longa");
+				$standardQuery = "";
+				for($i = 0; $i < count($searchCollumns); $i++){
+					$likeSQL = " like '%".$queryString."%'";
+					$standardQuery .= $i == 0 ? $searchCollumns[$i] . $likeSQL : "or ".$searchCollumns[$i] . $likeSQL;
+				}
+
+				$departmentProducts = $this->search_departamentos_produtos("departamento like '%$queryString%' or ref like '%$queryString%'");
+
+				$categoryProducts = $this->search_categorias_produtos("categoria like '%$queryString%' or ref like '%$queryString%'");
+
+				$subcategoryProducts = $this->search_subcategorias_produtos("subcategoria like '%$queryString%' or ref like '%$queryString%'");
+
+				push($departmentProducts);
+				push($categoryProducts);
+				push($subcategoryProducts);
+				
+			}else{
+				$standardQuery = "true";
 			}
 			
-			$departmentProducts = $this->search_departamentos_produtos("departamento like '%$queryString%' or ref like '%$queryString%'");
-			
-			$categoryProducts = $this->search_categorias_produtos("categoria like '%$queryString%' or ref like '%$queryString%'");
-			
-			$subcategoryProducts = $this->search_subcategorias_produtos("subcategoria like '%$queryString%' or ref like '%$queryString%'");
-			
-			push($departmentProducts);
-			push($categoryProducts);
-			push($subcategoryProducts);
 			
 			$total = $this->pew_functions->contar_resultados($tabela_produtos, $standardQuery);
 			if($total > 0){
@@ -232,12 +240,18 @@
 			return $selectedProducts;
 		}
 		
-		function status_filter($array, $status = 1, $idFranquia){
+		function status_filter($array, $status = 1, $idFranquia = false){
+			$tabela_produtos = $this->global_vars["tabela_produtos"];
 			$tabela_produtos_franquias = "franquias_produtos";
+			
+			$table = $idFranquia != false ? $tabela_produtos_franquias : $tabela_produtos;
 			
 			if(is_array($array)){
 				foreach($array as $index => $idProduto){
-					$total = $this->pew_functions->contar_resultados($tabela_produtos_franquias, "status = '$status' && id_produto = '$idProduto' && id_franquia = '$idFranquia'");
+					
+					$condition = $idFranquia != false ? "status = '$status' and id_produto = '$idProduto' and id_franquia = '$idFranquia'" : "status = '$status' and id = '$idProduto'";
+					
+					$total = $this->pew_functions->contar_resultados($table, $condition);
 					if($total == 0){
 						unset($array[$index]);
 					}
@@ -322,6 +336,10 @@
 		
         function get_id_produto(){
             return $this->id;
+        }
+		
+		function get_id_cor(){
+            return $this->id_cor;
         }
 		
         function get_sku_produto(){
@@ -415,6 +433,12 @@
         function get_imagens_produto(){
             return $this->imagens;
         }
+		
+		function get_promo_percent($price, $promo_price){
+			$percent = ($promo_price * 100) / $price;
+			$percent = 100 - (int) $percent;
+			return $percent;
+		}
 		
 		function get_referencias($type = null, $condicao = 1){
             $tabela_departamentos = $this->global_vars["tabela_departamentos"];
@@ -595,18 +619,16 @@
             $tabela_produtos = $this->global_vars["tabela_produtos"];
             $tabela_cores_relacionadas = $this->global_vars["tabela_cores_relacionadas"];
             $totalCoresRelacionadas = $this->pew_functions->contar_resultados($tabela_cores_relacionadas, $condicao);
-            $return = false;
+            $return = array();
             if($totalCoresRelacionadas > 0){
-                $return = array();
-                $ctrlCoresRelacionadas = 0;
                 $queryRelacionados = mysqli_query($this->conexao(), "select id_relacao from $tabela_cores_relacionadas where $condicao");
                 while($infoRelacionado = mysqli_fetch_array($queryRelacionados)){
                     $condition = "id_relacao = '{$infoRelacionado["id_relacao"]}'";
                     $totalProdRelacionado = $this->pew_functions->contar_resultados($tabela_cores_relacionadas, $condition);
                     if($totalProdRelacionado > 0){
-                        $return[$ctrlCoresRelacionadas] = array();
-                        $return[$ctrlCoresRelacionadas]["id_relacao"] = $infoRelacionado["id_relacao"];
-                        $ctrlCoresRelacionadas++;
+						$array = array();
+						$array['id_relacao'] = $infoRelacionado['id_relacao'];
+						array_push($return, $array);
                     }
                 }
             }

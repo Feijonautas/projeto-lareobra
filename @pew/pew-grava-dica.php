@@ -1,4 +1,5 @@
 <?php
+	session_start();
 
     $post_fields = array("titulo", "subtitulo", "status", "descricao_curta", "descricao_longa", "url_video");
     $file_fields = array("imagem", "thumbnail");
@@ -24,6 +25,7 @@
     }
 
     if($gravar){
+		require_once "@valida-sessao.php";
         require_once "pew-system-config.php";
         require_once "@classe-system-functions.php";
         
@@ -57,7 +59,7 @@
             move_uploaded_file($_FILES["thumbnail"]["tmp_name"], $dirImagens.$thumb);
         }
 
-        mysqli_query($conexao, "insert into $tabela_dica (titulo, subtitulo, ref, descricao_curta, descricao_longa, imagem, thumb, video, data_controle, status) values ('$titulo', '$subtitulo', '$refDicas', '$descricaoCurta', '$descricaoLonga','$imagem', '$thumb', '$video','$data', '$status')");
+        mysqli_query($conexao, "insert into $tabela_dica (id_franquia, titulo, subtitulo, ref, descricao_curta, descricao_longa, imagem, thumb, video, data_controle, status) values ('{$pew_session->id_franquia}', '$titulo', '$subtitulo', '$refDicas', '$descricaoCurta', '$descricaoLonga','$imagem', '$thumb', '$video','$data', '$status')");
         
         echo "<script>window.location.href = 'pew-dicas.php?msg=Dica cadastrada com sucesso&msgType=success'; </script>";
     }else{

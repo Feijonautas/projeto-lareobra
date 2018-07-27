@@ -38,8 +38,8 @@ if($listar){
     
         $_POST["diretorio"] = "";
         $_POST["diretorio_db"] = "@pew/";
+        $_POST["start_session"] = false;
         require_once "@pew/@classe-pedidos.php";
-    
     
         $cls_pedidos = new Pedidos();
         $getPedidos = $cls_pedidos->get_pedidos_conta($idConta);

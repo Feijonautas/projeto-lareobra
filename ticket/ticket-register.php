@@ -1,4 +1,6 @@
 <?php
+	$_POST['acao'] = "get_id_franquia";
+	require_once "@valida-regiao.php";
     require_once "@pew/pew-system-config.php";
     require_once "@classe-minha-conta.php";
 
@@ -34,7 +36,7 @@
             return $infoLastID["last_insert_id()"];
         }
 
-        mysqli_query($conexao, "insert into tickets_register (ref, id_cliente, topic, priority, department, data_controle, status) values ('$ticketRef', '$idConta', '$assunto', '$prioridade', '$departamento', '$dataAtual', 1)");
+        mysqli_query($conexao, "insert into tickets_register (id_franquia, ref, id_cliente, topic, priority, department, data_controle, status) values ('$session_id_franquia' ,'$ticketRef', '$idConta', '$assunto', '$prioridade', '$departamento', '$dataAtual', 1)");
 
         $ticketID = get_last_insert_id();
 

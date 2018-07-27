@@ -311,7 +311,7 @@
             }
             .section-cadastra .display-formularios .small{
                 width: calc(100% - 30px);
-                margin: 5px 15px 5px 15px; 
+                margin: 5px 15px 5px 15px;
             }
             .section-cadastra .display-formularios .xsmall{
                 width: calc((100%/2) - 30px);
@@ -338,6 +338,10 @@
                 <button class="top-buttons selected-button" id="botaoPasso1">INFORMAÇÕES DE CONTATO</button>
                 <button class="top-buttons" id="botaoPasso2">ENDEREÇO</button>
             </div>
+			<?php
+			$modalCep = isset($_SESSION['franquia']['cep']) ? $_SESSION['franquia']['cep'] : null;
+			$modalEmail = isset($_SESSION['franquia']['email']) ? $_SESSION['franquia']['email'] : null;
+			?>
             <form class="formulario-cadastro" name="formulario_cadastro" id="formularioCadastroConta">
                 <div class="background-loading">
                     <i class="fas fa-spinner fa-spin icone-loading"></i>
@@ -350,7 +354,7 @@
                     </div>
                     <div class="half">
                         <h4 class="input-title">E-mail</h4>
-                        <input type="text" placeholder="contato@bolsasemcouro.com.br" name="email" id="email">
+                        <input type="text" placeholder="contato@bolsasemcouro.com.br" name="email" id="email" value="<?= $modalEmail; ?>">
                         <h6 class="msg-input"></h6>
                     </div>
                     <div class="small">
@@ -400,7 +404,15 @@
                 <div class="displays display-info-enderecos">
                     <div class="small">
                         <h4 class="input-title">CEP</h4>
-                        <input type="text" placeholder="00000-000" name="cep" id="cep" tabindex="1" class="mascara-cep">
+                        <input type="text" placeholder="00000-000" name="cep" id="cep" tabindex="1" class="mascara-cep" value="<?= $modalCep; ?>">
+						<script>
+							$(document).ready(function(){
+								var cep = $("#cep").val().replace("-", "");
+								if(cep.length > 0){
+									buscarCEP(cep, $("#rua"), $("#estado"), $("#cidade"), $("#bairro"));	
+								}
+							});
+						</script>
                         <h6 class="msg-input"></h6>
                     </div>
                     <div class="xlarge">

@@ -190,20 +190,23 @@
                 <?php
                     require_once "pew-system-config.php";
                     $tabela_categoria_destaque = $pew_custom_db->tabela_categoria_destaque;
-                    $contar = mysqli_query($conexao, "select count(id) as total from $tabela_categoria_destaque");
-                    $contagem = mysqli_fetch_assoc($contar);
-                    $totalCategoriaDestaque = $contagem["total"];
-                    $ctrlQtdDestaques = 0;
+                   
+					$mainCondition = "id_franquia = '{$pew_session->id_franquia}'";
+					$total = $pew_functions->contar_resultados($tabela_categoria_destaque, $mainCondition);
+				
+                    $ctrlQuantidades = 0;
+				
                     $iconCategorias = "<i class='fa fa-folder icone-categorias' aria-hidden='true'></i>";
                     $iconPlus = "<i class='fa fa-plus icone-categorias' aria-hidden='true'></i>";
-                    if($totalCategoriaDestaque > 0){
+				
+                    if($total > 0){
                         echo "<h2 class='titulo'>Categoria Destaque:</h2>";
                         echo "<div class='display-categorias'>";
-                        $queryCatDestaque = mysqli_query($conexao, "select id, titulo from $tabela_categoria_destaque");
-                        while($categoriaDestaque = mysqli_fetch_array($queryCatDestaque)){
-                            $idDestaque = $categoriaDestaque["id"];
-                            $tituloDestaque = $categoriaDestaque["titulo"];
-                            $ctrlQtdDestaques++;
+                        $query = mysqli_query($conexao, "select id, titulo from $tabela_categoria_destaque where $mainCondition");
+                        while($info = mysqli_fetch_array($query)){
+                            $idDestaque = $info["id"];
+                            $tituloDestaque = $info["titulo"];
+                            $ctrlQuantidades++;
                             echo "<div class='box-categoria' style='height: 20px;' pew-id-categoria-destaque='$idDestaque'>";
                                 echo "<h3 class='alter-button-box-categoria' pew-id-categoria-destaque='$idDestaque' >".$iconCategorias." $tituloDestaque</h3>";
                             echo "</div>";
@@ -214,7 +217,7 @@
             </div>
             <?php
                 $class = "";
-                if($ctrlQtdDestaques == 0){
+                if($ctrlQuantidades == 0){
                     echo "<br class='clear'><h3 class='mensagem-padrao' align=center>Nenhuma categoria destaque foi encontrada. <a class='link-padrao btn-add-categoria'>Clique aqui e cadastre</a></h3>";
                     $class = "display-ger-center";
                 }

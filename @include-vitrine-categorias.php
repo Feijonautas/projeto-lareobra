@@ -62,6 +62,7 @@
         height: 498px;
     }
     .display-vitrine-categoria .product-box{
+		position: relative;
         text-align: center;
         padding: 10px;
     }

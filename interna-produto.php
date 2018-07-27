@@ -500,12 +500,13 @@
                                         var tituloServico = get_titulo_servico(codigo);
                                         
                                         if(resultado != false){
+											console.log(resultado)
                                             if(isJson(resultado) == true && JSON.parse(resultado) != false){
                                                 var jsonData = JSON.parse(resultado);
                                                 var valor = jsonData.valor.toFixed(2);
                                                 var prazo = jsonData.prazo;
                                                 var strValor = valor > 0 ? "R$ " + valor : "Grátis";
-                                                valor = strValor == "Grátis" ? "0.01" : valor;
+                                                valor = strValor == "Grátis" ? "0.00" : valor;
                                                 var strPrazo = prazo != 0 ? " em até <b>"+ prazo +"</b>" : "";
                                                 
                                                 var msgPadrao = tituloServico + ": <b>" + strValor + "</b>" + strPrazo + "</b>";
@@ -559,38 +560,48 @@
         <!--THIS PAGE CONTENT-->
         <div class="main-content">
             <?php
+			require_once "@classe-franquias.php";
 
             if($infoProduto != null){
-                
+               
             /*INFO PRODUTO*/
-            $nomeProduto = $infoProduto["nome"];
-            $precoProduto = $infoProduto["preco"];
-            $precoPromocaoProduto = $infoProduto["preco_promocao"];
-            $promocaoAtiva = $infoProduto["promocao_ativa"] == 1 && $precoPromocaoProduto > 0 && $precoPromocaoProduto < $precoProduto ? true : false;
-            $precoFinal = $promocaoAtiva == true ? $precoPromocaoProduto : $precoProduto;
+			$cls_produtos = new Produtos();
+			$cls_franquias = new Franquias();
+			$session_id_franquia = $cls_franquias->id_franquia;
+				
+				
+			$infoFranquia = $cls_produtos->produto_franquia($idInternaProduto, $session_id_franquia);
+			
+			$franquia_preco = $infoFranquia["preco"];
+			$franquia_preco_promocao = $infoFranquia["preco_promocao"];
+			$franquia_promocao_ativa = $infoFranquia["promocao_ativa"];
+			$franquia_estoque = $infoFranquia["estoque"];
+				
+            $promocaoAtiva = $franquia_promocao_ativa == 1 && $franquia_preco_promocao > 0 && $franquia_preco_promocao < $franquia_preco ? true : false;
+            $precoFinal = $promocaoAtiva == true ? $franquia_preco_promocao : $franquia_preco;
             $precoBoleto = $precoFinal - ($precoFinal * 0.05);
+				
             $qtdParcelas = 6;
             $precoParcelas = $precoFinal / $qtdParcelas;
-            $estoqueProduto = $infoProduto["estoque"];
+				
+            $nomeProduto = $infoProduto["nome"];
             $imagensProduto = $infoProduto["imagens"];
             $urlVideo = $infoProduto["url_video"];
-                
+				
             $descricaoProduto = $infoProduto["descricao_longa"];
             /*INFO PRODUTO*/
                 
             /*FRETE VARS*/
-            $precoFrete = $precoFinal;
             $comprimentoProduto = $infoProduto["comprimento"];
             $larguraProduto = $infoProduto["largura"];
             $alturaProduto = $infoProduto["altura"];
             $pesoProduto = $infoProduto["peso"];
             /*END FRETE VARS*/
-                
 
             /*HTML VIEW*/
             $viewPriceField = null;
             if($promocaoAtiva){
-                $viewPriceField = "<h3 class='preco-produto'>De <span class='promo-price'>R$".number_format($precoProduto, 2, ",", ".")."</span> por <span class='final-price'>R$".number_format($precoFinal, 2, ",", ".")."</span></h3>";
+                $viewPriceField = "<h3 class='preco-produto'>De <span class='promo-price'>R$".number_format($franquia_preco, 2, ",", ".")."</span> por <span class='final-price'>R$".number_format($precoFinal, 2, ",", ".")."</span></h3>";
             }else{
                 $viewPriceField = "<h3 class='preco-produto'><span class='final-price'>R$".number_format($precoFinal, 2, ",", ".")."</span></h3>";
             }
@@ -602,9 +613,9 @@
                 $viewParcelasField = "<h4 class='price-info'>ou à vista R$".number_format($precoBoleto, 2, ",", ".")."<br> (5% de desconto no boleto)</h4>";
             }
 
-            $viewDisponibilidadadeField = $estoqueProduto == 0 ? "<div class='view-disponibilidade indisponivel'><span class='icone-disponibilidade'><i class='fas fa-times'></i></span> SEM ESTOQUE</div>" : "<div class='view-disponibilidade disponivel'><span class='icone-disponibilidade'><i class='fas fa-check'></i></span> EM ESTOQUE</div>";
+            $viewDisponibilidadadeField = $franquia_estoque == 0 ? "<div class='view-disponibilidade indisponivel'><span class='icone-disponibilidade'><i class='fas fa-times'></i></span> SEM ESTOQUE</div>" : "<div class='view-disponibilidade disponivel'><span class='icone-disponibilidade'><i class='fas fa-check'></i></span> EM ESTOQUE</div>";
 
-            $viewBotaoComprar = $estoqueProduto == 0 ? "<button class='botao-comprar sem-estoque'>COMPRAR</button>" : "<input type='text' class='quantidade-produto' value=1 placeholder='Qtd'><button  class='botao-comprar' id='addProdutoCarrinho' carrinho-id-produto='$idInternaProduto'>COMPRAR</button>";
+            $viewBotaoComprar = $franquia_estoque == 0 ? "<button class='botao-comprar sem-estoque'>COMPRAR</button>" : "<input type='text' class='quantidade-produto' value=1 placeholder='Qtd'><button  class='botao-comprar' id='addProdutoCarrinho' carrinho-id-produto='$idInternaProduto'>COMPRAR</button>";
             /*END HTML VIEW*/
                 
             $iconArrow = "<i class='fas fa-angle-right icon'></i>";
@@ -659,37 +670,53 @@
                     <h1 class="titulo-produto"><?php echo $nomeProduto; ?></h1>
                     <?php
                         echo $viewPriceField;
+						if($promocaoAtiva){
+							$discountPercent = $cls_produtos->get_promo_percent($franquia_preco, $franquia_preco_promocao);
+							echo "<h4>Desconto de $discountPercent%</h4>";
+						}
                         echo $viewParcelasField;
                         echo $viewDisponibilidadadeField;
                 
                         $infoCoresRelacionadas = $produto->get_cores_relacionadas();
                         $totalCores = is_array($infoCoresRelacionadas) ? count($infoCoresRelacionadas) : 0;
                         if($totalCores > 0){
-                            echo "<h6 style='margin: 5px 0px -15px 0px; font-weight: normal;'>Outras cores</h6>";
-                            echo "<div class='display-cores'>";
+							$div_cores = "";
+							$ctrl_cores = 0;
                             foreach($infoCoresRelacionadas as $id => $info){
                                 $idRelacao = $info["id_relacao"];
                                 $produtoRelacao = new Produtos();
                                 $produtoRelacao->montar_produto($idRelacao);
                                 $infoProduto = $produtoRelacao->montar_array();
-                                $idCor = $infoProduto["id_cor"];
-                                $queryCor = mysqli_query($conexao, "SELECT * FROM pew_cores where id = '$idCor' and status = 1");
-                                $functions = new systemFunctions();
-                                $totalCores = $functions->contar_resultados("pew_cores", "id = '$idCor' and status = 1");
-                                $urlProdutoRelacao = "interna-produto.php?id_produto=$idRelacao";
-                                $dirImagens = "imagens/cores";
-                                if($totalCores > 0){
-                                    while($infoCor = mysqli_fetch_assoc($queryCor)){
-                                        $nomeCor = $infoCor["cor"];
-                                        $imagemCor = $infoCor["imagem"];
-                                        if(!file_exists($dirImagens."/".$imagemCor) || $imagemCor == ""){
-                                            $imagemCor = "cor-padrao.png";
-                                        }
-                                        echo "<div class='box-cor'><a href='$urlProdutoRelacao'><img title='$nomeCor' src='$dirImagens/$imagemCor'></a></div>";
-                                    }
-                                }
+								$infoF = $produtoRelacao->produto_franquia($idRelacao, $session_id_franquia);
+								if(isset($infoF['status']) && $infoF['status'] == 0){
+									$idCor = $infoProduto["id_cor"];
+									$queryCor = mysqli_query($conexao, "select * from pew_cores where id = '$idCor' and status = 1");
+									$functions = new systemFunctions();
+									$totalCores = $functions->contar_resultados("pew_cores", "id = '$idCor' and status = 1");
+									$urlTitulo = $functions->url_format($infoProduto['nome']);
+									$urlProdutoRelacao = "$urlTitulo/$idRelacao/";
+									$dirImagens = "imagens/cores";
+									if($totalCores > 0){
+										while($infoCor = mysqli_fetch_assoc($queryCor)){
+											$nomeCor = $infoCor["cor"];
+											$imagemCor = $infoCor["imagem"];
+											if(!file_exists($dirImagens."/".$imagemCor) || $imagemCor == ""){
+												$imagemCor = "cor-padrao.png";
+											}
+											$div_cores .= "<div class='box-cor'><a href='$urlProdutoRelacao'><img title='$nomeCor' src='$dirImagens/$imagemCor'></a></div>";
+											$ctrl_cores++;
+										}
+									}
+								}
                             }
-                            echo "</div>";
+							
+							if($ctrl_cores > 0){
+								echo "<h6 style='margin: 5px 0px -15px 0px; font-weight: normal;'>Outras cores</h6>";
+                            	echo "<div class='display-cores'>";
+									echo $div_cores;
+                            	echo "</div>";
+							}
+							
                         }
                     ?>
                     <div class="display-comprar">
@@ -703,7 +730,7 @@
                         <div class="display-info-calculo-frete">
                             <input type="hidden" id="freteIdProduto" value="<?php echo $idInternaProduto; ?>">
                             <input type="hidden" id="freteTituloProduto" value="<?php echo $nomeProduto; ?>">
-                            <input type="hidden" id="fretePrecoProduto" value="<?php echo $precoFrete; ?>">
+                            <input type="hidden" id="fretePrecoProduto" value="<?php echo $precoFinal; ?>">
                             <input type="hidden" id="freteComprimentoProduto" value="<?php echo $comprimentoProduto; ?>">
                             <input type="hidden" id="freteLarguraProduto" value="<?php echo $larguraProduto; ?>">
                             <input type="hidden" id="freteAlturaProduto" value="<?php echo $alturaProduto; ?>">
@@ -737,6 +764,13 @@
                 }
                 
                 $selectedProdutosRelacionados = get_relacionados($idInternaProduto);
+				
+				foreach($selectedProdutosRelacionados as $index => $idProdRel){
+					$infoF = $cls_produtos->produto_franquia($idProdRel, $session_id_franquia);
+					if(isset($infoF['status']) && $infoF['status'] == 0){
+						unset($selectedProdutosRelacionados[$index]);
+					}
+				}
                 
                 if($selectedProdutosRelacionados != false){
                     $vitrineProdutos[0] = new VitrineProdutos("carrossel", 15, "COMPRE JUNTO COM DESCONTO");

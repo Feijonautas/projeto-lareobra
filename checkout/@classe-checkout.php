@@ -114,7 +114,7 @@
                                     echo "</select>";
                                 echo "</div>";
                                 echo "<div class='half'>";
-                                    echo "<button class='form-input button-checkout' type='button' id='buttonCheckoutCreditCard'   >FINALIZAR <i class='fas fa-check'></i></button>";
+                                    echo "<button class='form-input button-checkout' type='button' id='buttonCheckoutCreditCard'>FINALIZAR <i class='fas fa-check'></i></button>";
                                 echo "</div>";
                                 echo "<br class='clear'>";
                             echo "</form>";
@@ -137,7 +137,7 @@
 
                 echo "</div>";
             }else{
-                echo "false";
+                echo "<h3 align=center>Não é possível finalizar sua compra. Certifique-se de que o produto selecionado está disponível na sua região</h3>";
             }
         }
     }

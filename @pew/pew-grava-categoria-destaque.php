@@ -1,4 +1,7 @@
 <?php
+	session_start();
+	require_once "@valida-sessao.php";
+
     $post_fields = array("info_categoria", "status");
     $file_fields = array("imagem");
     $invalid_fileds = array();
@@ -47,7 +50,7 @@
 
         $refCategoria = $pew_functions->url_format($tituloCategoria);
 
-        mysqli_query($conexao, "insert into $tabela_categoria_destaque (id_categoria, titulo, ref, imagem, data_controle, status) values ('$idCategoria', '$tituloCategoria', '$refCategoria', '$nomeImagem', '$data', '$status')");
+        mysqli_query($conexao, "insert into $tabela_categoria_destaque (id_categoria, id_franquia, titulo, ref, imagem, data_controle, status) values ('$idCategoria', '{$pew_session->id_franquia}', '$tituloCategoria', '$refCategoria', '$nomeImagem', '$data', '$status')");
         
         echo "true";
     }else{

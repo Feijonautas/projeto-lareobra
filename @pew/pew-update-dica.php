@@ -57,13 +57,12 @@
             move_uploaded_file($_FILES["thumbnail"]["tmp_name"], $dirImagens.$thumb);
         }
 
-        mysqli_query($conexao, "update $tabela_dica set id = '$id', titulo = '$titulo', subtitulo = '$subtitulo', ref = '$refDicas', descricao_curta = '$descricaoCurta', descricao_longa = '$descricaoLonga', imagem = '$imagem', thumb = '$thumb', video = '$video', data_controle = '$data', status = '$status' where id = '$id'");
+        mysqli_query($conexao, "update $tabela_dica set titulo = '$titulo', subtitulo = '$subtitulo', ref = '$refDicas', descricao_curta = '$descricaoCurta', descricao_longa = '$descricaoLonga', imagem = '$imagem', thumb = '$thumb', video = '$video', data_controle = '$data', status = '$status' where id = '$id'");
         
-        header("location: pew-dicas.php");
-        echo "true";
+        echo "<script>window.location.href = 'pew-edita-dica.php?id_dica=$id&msg=Atualizado com sucesso&msgType=success';</script>";
+		
     }else{
-        echo "false";
-        echo "Contate um administrador";
-        print_r($invalid_fields);
+        echo "<script>window.location.href = 'pew-dicas.php?msg=Ocorreu um erro ao atualizar a dica';</script>";
+        //print_r($invalid_fields);
     }
 ?>

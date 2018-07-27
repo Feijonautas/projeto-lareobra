@@ -1,8 +1,6 @@
 <?php
-
-	ini_set('display_errors', 1);
-	ini_set('display_startup_errors', 1);
-	error_reporting(E_ALL);
+	$_POST['controller'] = "get_id_franquia";
+	require_once "@valida-regiao.php";
 
 	$post_fields = array("nome", "email", "telefone", "mensagem", "tipo");
     $invalid_fields = array();
@@ -41,7 +39,7 @@
 		
 		$tabela_contatos_servicos = $pew_custom_db->tabela_contatos_servicos;
 		
-		mysqli_query($conexao, "insert into $tabela_contatos_servicos (nome, email, telefone, mensagem, tipo, data, status) values ('$nome', '$email', '$telefone', '$mensagem', '$tipo', '$data', '$status')");
+		mysqli_query($conexao, "insert into $tabela_contatos_servicos (id_franquia, nome, email, telefone, mensagem, tipo, data, status) values ('$session_id_franquia' ,'$nome', '$email', '$telefone', '$mensagem', '$tipo', '$data', '$status')");
 		
 		echo "<script>window.location.href = '$urlRedirect'</script>";
 	}else{

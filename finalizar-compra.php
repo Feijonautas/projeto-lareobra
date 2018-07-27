@@ -77,16 +77,19 @@
             }
             .main-content .display-carrinho .item-carrinho .information{
                 width: calc(60% - 180px);
-                height: 40px;
-                line-height: 40px;
                 margin: 0px;
-                display: flex;
             }
+            .main-content .display-carrinho .item-carrinho .information a{
+				text-decoration: none;
+				color: #555;
+			}
+            .main-content .display-carrinho .item-carrinho .information a:hover{
+				color: #222;	
+			}
             .main-content .display-carrinho .item-carrinho .information .titulo{
                 font-size: 18px;
+				line-height: 18px;
                 width: 100%;
-                white-space: nowrap;
-                text-overflow: ellipsis;
             }
             .main-content .display-carrinho .item-carrinho .price-field{
                 width: calc(50% - 180px);
@@ -94,6 +97,7 @@
                 height: 40px;
                 margin: 15px 0px 0px 0px;
                 justify-content: flex-end;
+				flex-flow: row wrap;
             }
             .main-content .display-carrinho .item-carrinho .price-field .controller-preco{
                 width: 60%;
@@ -203,7 +207,6 @@
                 cursor: pointer;
                 bottom: 0px;
                 right: 0px;
-                line-height: 30px;
             }
             .main-content .display-carrinho .bottom-info .botao-continuar .icon-button{
                 position: absolute;
@@ -370,6 +373,12 @@
                 var cidadePadrao = $("#cidadeDestino").val() != "undefined" ? $("#cidadeDestino").val() : 0;
                 var estadoPadrao = $("#estadoDestino").val() != "undefined" ? $("#estadoDestino").val() : 0;
                 var cepAlternativo = false;
+				
+				//DADOS DA LOJA
+				var zonaInicial = $("#zonaInicial").val();
+				var zonaFinal = $("#zonaFinal").val();
+				var estadoLoja = $("#estadoLoja").val();
+				var cidadeLoja = $("#cidadeLoja").val();
                 
                 // INFORMAÇÕES DO PRODUTO
                 var jsonProduto = new Array();
@@ -391,6 +400,30 @@
                 /*MAIN FUNCTIONS*/
                 var metodosEnvio = [];
                 var ctrlMetodosEnvio = 0;
+				
+				function get_titulo_servico(cod){
+					switch(cod){
+						case "7777":
+							var titulo = "Retirada na Loja";
+							break;
+						case "8888":
+							var titulo = "Motoboy";
+							break;
+						case "40010":
+							var titulo = "SEDEX";
+							break;
+						case "40215":
+							var titulo = "SEDEX 10";
+							break;
+						case "40290":
+							var titulo = "SEDEX Hoje";
+							break;
+						default:
+							var titulo = "PAC";
+					}
+					return titulo;
+				}
+				
                 function calcular_frete(){
                     if(!calculandoFrete){
                         set_view_preco(totalCarrinho, "0.00");
@@ -402,91 +435,68 @@
                         cepDestino = cepDestino.length == 9 ? cepDestino.replace("-", "") : cepDestino;
                         
                         if(cepDestino.length == 8){
-                            
-                            calculandoFrete = true;
-                            var mensagemFinal = [];
-                            var ctrlExec = 0;
-                            
-                            function get_titulo_servico(cod){
-                                switch(cod){
-                                    case "7777":
-                                        var titulo = "Retirada na Loja";
-                                        break;
-                                    case "8888":
-                                        var titulo = "Motoboy";
-                                        break;
-                                    case "40010":
-                                        var titulo = "SEDEX";
-                                        break;
-                                    case "40215":
-                                        var titulo = "SEDEX 10";
-                                        break;
-                                    case "40290":
-                                        var titulo = "SEDEX Hoje";
-                                        break;
-                                    default:
-                                        var titulo = "PAC";
-                                }
-                                return titulo;
-                            }
-                            codigosServico.forEach(function(codigo){
-                                var dados = {
-                                    cep_destino: cepDestino,
-                                    codigo_transporte: codigo,
-                                    produtos: jsonProduto,
-                                }
-                                $.ajax({
-                                    type: "POST",
-                                    url: urlFrete,
-                                    data: JSON.stringify(dados),
-                                    contentType: "application/json",
-                                    error: function(){
-                                        displayResultadoFrete.html("Ocorreu um erro ao calcular o frete. Recarregue a página e tente novamente.");
-                                    },
-                                    success: function(resultado){
-                                        //console.log(resultado)
-                                        var tituloServico = get_titulo_servico(codigo);
-                                        
-                                        if(resultado != false){
-                                            if(isJson(resultado) == true && JSON.parse(resultado) != false){
-                                                var jsonData = JSON.parse(resultado);
-                                                var valor = jsonData.valor.toFixed(2);
-                                                var prazo = jsonData.prazo;
-                                                var strValor = valor > 0 ? "R$ " + valor : "Grátis";
-                                                valor = strValor == "Grátis" ? "0.00" : valor;
-                                                var strPrazo = prazo != 0 ? " em até <b>"+ prazo +"</b>" : "";
-                                                
-                                                var msgPadrao = "<label class='label-frete'><input type='checkbox' name='metodo_envio[]' class='opcao-frete' value='" + codigo + "' price-frete='" + valor + "'>" + tituloServico + ": <b>" + strValor + "</b>" + strPrazo + "</label>";
-                                                mensagemFinal[ctrlExec] = "<br>" + msgPadrao + "<br>";
-                                                metodosEnvio[ctrlMetodosEnvio] = new Object();
-                                                metodosEnvio[ctrlMetodosEnvio]["codigo"] = codigo;
-                                                metodosEnvio[ctrlMetodosEnvio]["valor"] = valor;
-                                                ctrlMetodosEnvio++;
-                                            }else{
-                                                //mensagemFinal[ctrlExec] = "<br>" + tituloServico + ": Localidade insdisponível<br>";
-                                            }
-                                        }else{
-                                            notificacaoPadrao("Ocorreu um erro ao calcular o frete. Recarregue a página e tente novamente.");
-                                        }
-                                        ctrlExec++;
-                                        
-                                        if(ctrlExec == codigosServico.length && mensagemFinal.length > 0){
-                                            calculandoFrete = false;
-                                            var mensagem = "";
-                                            mensagemFinal.forEach(function(msg){
-                                                //if(msg == "") msg = "<br>" + get_titulo_servico(codigo) + ": Localidade indisponível<br>";
-                                                mensagem += msg;
-                                            });
-                                            displayResultadoFrete.html(mensagem);
-                                        }else if(mensagemFinal.length == 0){
-                                            var msg = "<br>" + get_titulo_servico(codigo) + ": Localidade indisponível<br>";
-                                            displayResultadoFrete.html(msg);
-                                        }
-                                    }
-                                });
-                                
-                            });
-                            
+							if(cepDestino >= zonaInicial && cepDestino <= zonaFinal){
+								calculandoFrete = true;
+								var mensagemFinal = [];
+								var ctrlExec = 0;
+
+								codigosServico.forEach(function(codigo){
+									var dados = {
+										cep_destino: cepDestino,
+										codigo_transporte: codigo,
+										produtos: jsonProduto,
+									}
+									$.ajax({
+										type: "POST",
+										url: urlFrete,
+										data: JSON.stringify(dados),
+										contentType: "application/json",
+										error: function(){
+											displayResultadoFrete.html("Ocorreu um erro ao calcular o frete. Recarregue a página e tente novamente.");
+										},
+										success: function(resultado){
+											console.log(resultado)
+											var tituloServico = get_titulo_servico(codigo);
+
+											if(resultado != false){
+												if(isJson(resultado) == true && JSON.parse(resultado) != false){
+													var jsonData = JSON.parse(resultado);
+													var valor = jsonData.valor.toFixed(2);
+													var prazo = jsonData.prazo;
+													var strValor = valor > 0 ? "R$ " + valor : "Grátis";
+													valor = strValor == "Grátis" ? "0.00" : valor;
+													var strPrazo = prazo != 0 ? " em até <b>"+ prazo +"</b>" : "";
+
+													var msgPadrao = "<label class='label-frete'><input type='checkbox' name='metodo_envio[]' class='opcao-frete' value='" + codigo + "' price-frete='" + valor + "'>" + tituloServico + ": <b>" + strValor + "</b>" + strPrazo + "</label>";
+													mensagemFinal[ctrlExec] = "<br>" + msgPadrao + "<br>";
+													metodosEnvio[ctrlMetodosEnvio] = new Object();
+													metodosEnvio[ctrlMetodosEnvio]["codigo"] = codigo;
+													metodosEnvio[ctrlMetodosEnvio]["valor"] = valor;
+													ctrlMetodosEnvio++;
+												}
+											}else{
+												notificacaoPadrao("Ocorreu um erro ao calcular o frete. Recarregue a página e tente novamente.");
+											}
+											ctrlExec++;
+
+											if(ctrlExec == codigosServico.length && mensagemFinal.length > 0){
+												calculandoFrete = false;
+												var mensagem = "";
+												mensagemFinal.forEach(function(msg){
+													mensagem += msg;
+												});
+												displayResultadoFrete.html(mensagem);
+											}else if(mensagemFinal.length == 0){
+												var msg = "<br>" + get_titulo_servico(codigo) + ": Localidade indisponível<br>";
+												displayResultadoFrete.html(msg);
+											}
+										}
+									});
+
+								});	
+							}else{
+                            	displayResultadoFrete.html("A loja escolhida (" + cidadeLoja + " - " + estadoLoja + ") não atende o CEP digitado. Selecione outra loja para seu atendimento.");
+							}
                         }else{
                             displayResultadoFrete.html("O campo CEP precisa ser preenchido corretamente.");
                         }
@@ -741,6 +751,7 @@
                                     adicionandoCarrinho = false;
                                 },
                                 success: function(resposta){
+									console.log(resposta)
                                     if(resposta == "true"){
                                         notificacaoPadrao("<i class='fas fa-plus'></i> Produto atualizado", "success");
                                         setTimeout(function(){
@@ -748,7 +759,12 @@
                                         }, 300);
                                     }else if(resposta == "sem_estoque"){
                                         notificacaoPadrao("<i class='fas fa-exclamation-circle'></i> Produto sem estoque");
-                                    }else{
+                                    }else if(resposta > 0){
+										notificacaoPadrao("<i class='fas fa-exclamation-circle'></i> Estoque insuficiente + " + resposta + " adicionados", "success");
+										setTimeout(function(){
+                                            window.location.reload();
+                                        }, 1400);
+									}else{
                                         notificacaoPadrao("Ocorreu um erro ao adicionar o produto ao carrinho");
                                     }
                                 }
@@ -794,8 +810,18 @@
             <div class="display-carrinho">
                 <?php
                     require_once "@classe-carrinho-compras.php";
+                    require_once "@classe-franquias.php";
                     $cls_carrinho = new Carrinho();
                     $tabela_imagens_produtos = $pew_custom_db->tabela_imagens_produtos;
+				
+                    $cls_franquias = new Franquias();
+					$idFranquia = $cls_franquias->id_franquia;
+					$arrayFranquia = $cls_franquias->query_franquias("id = '$idFranquia'");
+					$infoFranquia = $arrayFranquia[0];
+					$zonaInicial = str_replace("-", "", $infoFranquia['cep_inicial']);
+					$zonaFinal = str_replace("-", "", $infoFranquia['cep_final']);
+					$estadoLoja = $infoFranquia['estado'];
+					$cidadeLoja = $infoFranquia['cidade'];
                 
                     if(isset($_GET["token_carrinho"]) && $_GET["token_carrinho"] != ""){
                         $carrinho_finalizar = $cls_carrinho->rebuild_carrinho($_GET["token_carrinho"]);
@@ -803,21 +829,20 @@
                         $carrinho_finalizar = $cls_carrinho->get_carrinho();
                     }
                 
-                    $carrinho_json = json_encode($carrinho_finalizar);
-                    echo "<input type='hidden' value='$carrinho_json' id='carrinhoFinalizar'>";
-                
                     $dirImagens = "imagens/produtos";
                     if(count($carrinho_finalizar["itens"]) > 0){
                         $totalItens = 0;
+						$json_cart = array();
                         foreach($carrinho_finalizar["itens"] as $indice => $item_carrinho){
                             $idProduto = $item_carrinho["id"];
                             $nome = $item_carrinho["nome"];
+							$padrao_titulo_url = $pew_functions->url_format($nome);
+							$padrao_url_produto = "$padrao_titulo_url/$idProduto/";
                             $preco = $item_carrinho["preco"];
                             $preco = $pew_functions->custom_number_format($preco);
                             $quantidade = $item_carrinho["quantidade"];
                             $subtotal = $preco * $quantidade;
                             $subtotal = $pew_functions->custom_number_format($subtotal);
-                            $totalItens += $subtotal;
                             $condicao = "id_produto = '$idProduto'";
                             $queryImagem = mysqli_query($conexao, "select * from $tabela_imagens_produtos where $condicao order by posicao asc");
                             $infoImagem = mysqli_fetch_array($queryImagem);
@@ -838,30 +863,44 @@
                                 }
                                 echo "<div class='box-imagem'><img class='imagem' src='$dirImagens/$imagem'></div>";
                                 echo "<div class='information'>";
-                                    echo "<h2 class='titulo'>$nome</h2>";
+                                    echo "<a href='$padrao_url_produto'><h2 class='titulo'>$nome</h2></a>";
                                 echo "</div>";
                                 echo "<div class='price-field'>";
-                                    echo "<div class='controller-preco'>";
-                                        echo "<h5 class='price'>R$ $preco</h5>";
-                                        echo "<input type='text' class='quantidade-produto' placeholder='Qtd' value='$quantidade' carrinho-id-produto='$idProduto'>";
-                                    echo "</div>";
-                                    echo "<div class='view-subtotal-produto'>";
-                                        echo "<h4 class='subtotal'>R$ <span class='view-price'>$subtotal</span></h4>";
-                                        echo "<a class='link-padrao botao-remover' carrinho-id-produto='$idProduto'>Remover</a>";
-                                    echo "</div>";
+									if($item_carrinho['status'] == 1){
+										echo "<div class='controller-preco'>";
+											echo "<h5 class='price'>R$ $preco</h5>";
+											echo "<input type='text' class='quantidade-produto' placeholder='Qtd' value='$quantidade' carrinho-id-produto='$idProduto'>";
+										echo "</div>";
+										echo "<div class='view-subtotal-produto' align=right>";
+											echo "<h4 class='subtotal'>R$ <span class='view-price'>$subtotal</span></h4>";
+											echo "<a class='link-padrao botao-remover' carrinho-id-produto='$idProduto'>Remover</a>";
+										echo "</div>";
+									}else{
+										echo "<div class='view-subtotal-produto' align=right>";
+											echo "<h5 style='margin: 5px;'>Este produto não está disponível nesta região.</h5>";
+											echo "<a class='link-padrao botao-remover' carrinho-id-produto='$idProduto'>Remover</a>";
+										echo "</div>";
+									}
                                 echo "</div>";
-                                echo "<span class='info-frete'>";
-                                    echo "<input type='hidden' id='freteIdProduto' value='$idProduto'>";
-                                    echo "<input type='hidden' id='freteTituloProduto' value='$nome'>";
-                                    echo "<input type='hidden' id='fretePrecoProduto' value='$precoFrete'>";
-                                    echo "<input type='hidden' id='freteComprimentoProduto' value='$comprimento'>";
-                                    echo "<input type='hidden' id='freteLarguraProduto' value='$largura'>";
-                                    echo "<input type='hidden' id='freteAlturaProduto' value='$altura'>";
-                                    echo "<input type='hidden' id='fretePesoProduto' value='$peso'>";
-                                    echo "<input type='hidden' id='freteQuantidadeProduto' value='$quantidade'>";
-                                echo "</span>";
+								if($item_carrinho['status'] == 1){
+									$totalItens += $subtotal;
+									array_push($json_cart, $item_carrinho);
+									echo "<span class='info-frete'>";
+										echo "<input type='hidden' id='freteIdProduto' value='$idProduto'>";
+										echo "<input type='hidden' id='freteTituloProduto' value='$nome'>";
+										echo "<input type='hidden' id='fretePrecoProduto' value='$precoFrete'>";
+										echo "<input type='hidden' id='freteComprimentoProduto' value='$comprimento'>";
+										echo "<input type='hidden' id='freteLarguraProduto' value='$largura'>";
+										echo "<input type='hidden' id='freteAlturaProduto' value='$altura'>";
+										echo "<input type='hidden' id='fretePesoProduto' value='$peso'>";
+										echo "<input type='hidden' id='freteQuantidadeProduto' value='$quantidade'>";
+									echo "</span>";
+								}
                             echo "</div>";
                         }
+						$json_cart = json_encode($json_cart);echo "<input type='hidden' value='$carrinho_json' id='carrinhoFinalizar'>";
+						echo "<input type='hidden' value='$carrinho_json' id='carrinhoFinalizar'>";
+						
                             echo "<div class='display-resultados-frete before-checkout-area'>";
                                 echo "<h5 class='titulo'>Método de envio</h5>";
                                 $totalItens = $pew_functions->custom_number_format($totalItens);
@@ -963,6 +1002,10 @@
                                             echo "<input type='hidden' id='nomeCliente' value='{$infoCliente["usuario"]}'>";
                                             echo "<input type='hidden' id='cpfCliente' value='{$infoCliente["cpf"]}'>";
                                             echo "<input type='hidden' id='emailCliente' value='{$infoCliente["email"]}'>";
+                                            echo "<input type='hidden' id='zonaInicial' value='$zonaInicial'>";
+                                            echo "<input type='hidden' id='zonaFinal' value='$zonaFinal'>";
+                                            echo "<input type='hidden' id='estadoLoja' value='$estadoLoja'>";
+                                            echo "<input type='hidden' id='cidadeLoja' value='$cidadeLoja'>";
                                         echo "</span>";
                                         echo "<button type='button' class='botao-continuar botao-finalizar-compra' id='botaoFinalizarCompra'>Continuar <i class='fas fa-angle-double-right icon-button'></i></button>";
                                     }else{
@@ -980,7 +1023,6 @@
                         echo "<link type='text/css' rel='stylesheet' href='$checkoutFolder/css/checkout-style.css?v=" . uniqid() . "'>";
                         echo "<script type='text/javascript' src='$checkoutFolder/js/checkout-functions.js?v=" . uniqid() . "'></script>";
                         echo "<div class='finish-checkout-box'>";
-                        //require_once "$checkoutFolder/@controller-checkout.php";
                         echo "</div>";
                             
                         // END CHECKOUT TRANSPARENTE

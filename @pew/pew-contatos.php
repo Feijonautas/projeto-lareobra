@@ -56,29 +56,39 @@
             <table class="table-padrao" cellspacing="0">
             <?php
                 $tabela_contatos = $pew_db->tabela_contatos;
+                $tabela_franquias = "franquias_lojas";
+				
+				$mainCondition = null;
                 if(isset($_GET["busca"]) && $_GET["busca"] != ""){
-                    $busca = addslashes($_GET["busca"]);
-                    $strBusca = "where nome like '%".$busca."%' or telefone like '%".$busca."%' or email like '%".$busca."%' or mensagem like '%".$busca."%'";
-                    echo "<h3>Exibindo resultados para: $busca</h3>";
-                }else{
-                    $strBusca = "";
+                    $getSEARCH = addslashes($_GET["busca"]);
+                    $mainCondition = "nome like '%".$getSEARCH."%' or telefone like '%".$getSEARCH."%' or email like '%".$getSEARCH."%' or mensagem like '%".$getSEARCH."%'";
+                    echo "<h3>Exibindo resultados para: $getSEARCH</h3>";
                 }
-                $contarContatos = mysqli_query($conexao, "select count(id) as total_contatos from $tabela_contatos $strBusca");
-                $contagemContatos = mysqli_fetch_assoc($contarContatos);
-                $totalContatos = $contagemContatos["total_contatos"];
-                if($totalContatos > 0){
+				
+				if($pew_session->nivel == 1){
+					$mainCondition = $mainCondition == null ? "true" : $mainCondition;
+				}else{
+					$mainCondition = $mainCondition == null ? "id_franquia = '{$pew_session->id_franquia}'" : str_replace("or", "and id_franquia = '{$pew_session->id_franquia}' or", $mainCondition);
+				}
+				
+                $total = $pew_functions->contar_resultados($tabela_contatos, $mainCondition);
+                if($total > 0){
                     echo "<thead>";
                         echo "<td>Nome</td>";
                         echo "<td>E-mail</td>";
                         echo "<td>Telefone</td>";
                         echo "<td>Assunto</td>";
+						if($pew_session->nivel == 1){
+                        	echo "<td>Franquia</td>";
+						}
                         echo "<td>Status</td>";
                         echo "<td>Informações</td>";
                     echo "</thead>";
                     echo "<tbody>";
-                    $queryContatos = mysqli_query($conexao, "select * from $tabela_contatos $strBusca order by data desc");
+                    $queryContatos = mysqli_query($conexao, "select * from $tabela_contatos where $mainCondition order by data desc");
                     while($contatos = mysqli_fetch_array($queryContatos)){
                         $id = $contatos["id"];
+                        $idFranquia = $contatos["id_franquia"];
                         $nome = $contatos["nome"];
                         $email = $contatos["email"];
                         $telefone = $contatos["telefone"];
@@ -101,12 +111,25 @@
                         echo "<td>$email</td>";
                         echo "<td>$telefone</td>";
                         echo "<td>$assunto</td>";
+						if($pew_session->nivel == 1){
+							$fCondition = "id = '$idFranquia'";
+							$totalF = $pew_functions->contar_resultados($tabela_franquias, $fCondition);
+							if($totalF > 0){
+								$queryF = mysqli_query($conexao, "select cidade, estado from $tabela_franquias where $fCondition");
+								$infoF = mysqli_fetch_array($queryF);
+								$cidade = $infoF["cidade"];
+								$estado = $infoF["estado"];
+								echo "<td>$cidade - $estado</td>";
+							}else{
+								echo "<td>Não especificado</td>";
+							}
+						}
                         echo "<td>$status</td>";
                         echo "<td align=center><a href='pew-edita-contato.php?id_contato=$id' class='btn-editar'><i class='fa fa-eye' aria-hidden='true'></i></a></td></tr>";
                     }
                     echo "</tbody></table>";
                 }else{
-                    $msg = $strBusca != "" ? "Nenhum resultado encontrado. <a href='pew-contatos.php' class='link-padrao'><b>Voltar<b></a>" : "Nenhuma mensagem foi enviada ainda.";
+                    $msg = $mainCondition != "true" ? "Nenhum resultado encontrado. <a href='pew-contatos.php' class='link-padrao'><b>Voltar<b></a>" : "Nenhuma mensagem foi enviada ainda.";
                     echo "<br><br><br><br><br><h3 align='center'>$msg</h3></td>";
                 }
             ?>

@@ -37,6 +37,8 @@
 				var objEmail = $("#emailProprietario");
 				var objCpf = $("#cpfProprietario");
 				var objCep = $("#cepLoja");
+				var objCepInicial = $("#cepInicialLoja");
+				var objCepFinal = $("#cepFinalLoja");
 				var objRua = $("#ruaLoja");
 				var objEstado = $("#estadoLoja");
 				var objCidade = $("#cidadeLoja");
@@ -58,6 +60,8 @@
                 phone_mask(objCelular);
                 input_mask(objCpf, "999.999.999-99");
                 input_mask(objCep, "99999-999");
+                input_mask(objCepInicial, "99999-999");
+                input_mask(objCepFinal, "99999-999");
 				
 				var formCadastra = $(".formulario-cadastro-franquia");
                 var cadastrando = false;
@@ -71,6 +75,8 @@
                         var email = objEmail.val();
                         var cpf = objCpf.val();
                         var cep = objCep.val();
+                        var cepInicial = objCepInicial.val();
+                        var cepFinal = objCepFinal.val();
                         var estado = objEstado.val();
                         var cidade = objCidade.val();
                         var numero = objNumero.val();
@@ -101,6 +107,14 @@
                             }
 							if(numero.length < 1){
                                 mensagemAlerta("O Campo Número deve conter no mínimo 1 caracter", objNumero);
+                                return false;
+                            }
+							if(cepInicial.length < 8){
+                                mensagemAlerta("O Campo CEP inicial deve conter no mínimo 8 caracteres", objCepInicial);
+                                return false;
+                            }
+							if(cepFinal.length < 8){
+                                mensagemAlerta("O Campo CEP final deve conter no mínimo 8 caracteres", objCepFinal);
                                 return false;
                             }
 							if(login.length < 4){
@@ -198,6 +212,17 @@
                     </label>
                     <br style="clear: both;">
                 </div>
+				<div class="group clear">
+                    <h3 align='left' style="margin: 5px 10px 5px 10px;">Área de atendimento</h3>
+					<label class="label xsmall">
+                        <h3 class="label-title" align=left>CEP inicial</h3>
+                        <input type="text" name="cep_inicial_loja" id="cepInicialLoja" placeholder="00000-000" class="label-input">
+                    </label>
+					<label class="label xsmall">
+                        <h3 class="label-title" align=left>CEP final</h3>
+                        <input type="text" name="cep_final_loja" id="cepFinalLoja" placeholder="00000-000" class="label-input">
+                    </label>
+				</div>
 				<div class="group clear">
                     <h3 align='left' style="margin: 5px 10px 5px 10px;">Informações de Acesso</h3>
                     <label class="label small">

@@ -1,3 +1,8 @@
+<?php
+require_once "@classe-franquias.php";
+$cls_franquias = new Franquias();
+$session_id_franquia = $cls_franquias->id_franquia;
+?>
 <style>
     .header-principal{
         position: relative;

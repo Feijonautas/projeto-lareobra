@@ -10,9 +10,9 @@
         }
         
         function set_pagseguro_session(){
-            /*$response_file = "ws-pagseguro-set-session.php";
+            $response_file = "ws-pagseguro-set-session.php";
             require_once $this->pagseguro_folder.$response_file;
-            return $responseSessionID;*/
+            return $responseSessionID;
         }
     }
 

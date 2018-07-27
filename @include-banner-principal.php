@@ -167,13 +167,19 @@
 </script>
 <?php
     require_once "@pew/pew-system-config.php";
+    require_once "@pew/@classe-system-functions.php";
+	require_once "@classe-franquias.php";
+
+	$cls_franquias = new Franquias();
+	
     $tabela_banners = $pew_db->tabela_banners;
-    $contarBanners = mysqli_query($conexao, "select count(id) as total_banners from $tabela_banners where status = 1");
-    $contagemBanners = mysqli_fetch_assoc($contarBanners);
-    $quantidadeBanners = $contagemBanners["total_banners"];
+
+	$mainCondition = "status = 1 and id_franquia = '{$cls_franquias->id_franquia}'";
+
+    $quantidadeBanners = $pew_functions->contar_resultados($tabela_banners, $mainCondition);
     if($quantidadeBanners > 0){
         echo "<section class='display-banner'>";
-            $queryBanners = mysqli_query($conexao, "select * from $tabela_banners where status = 1 order by posicao asc");
+            $queryBanners = mysqli_query($conexao, "select * from $tabela_banners where $mainCondition order by posicao asc");
             $ctrlQtdBanners = 0;
             while($banner = mysqli_fetch_array($queryBanners)){
                 $titulo = $banner["titulo"];

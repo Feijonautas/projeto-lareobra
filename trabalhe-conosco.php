@@ -107,12 +107,13 @@
 				var objEmail = $("#tcEmail");
 				var objTelefone = $("#tcTelefone");
 				var objMensagem = $("#tcMensagem");
+				var submitButton = $("#btnEnviaFormulario");
 				
 				phone_mask(objTelefone);
 				
 				var enviandoFormulario = false;
 				
-				formulario.off().on("submit", function(){
+				submitButton.off().on("click", function(){
 					event.preventDefault();
 					if(!enviandoFormulario){
 						enviandoFormulario = true;
@@ -194,7 +195,7 @@
 					<textarea class="input-standard" name="mensagem" id="tcMensagem" style="resize: none; height: 150px;"></textarea>
             	</div>
             	<div class="full" align="right">
-           			<input class="btn" type="submit" value="Enviar">
+           			<input class="btn" type="submit" value="Enviar" id="btnEnviaFormulario">
            		</div>
             </form>
         </div>

@@ -90,39 +90,63 @@
             <table class="table-padrao" cellspacing="0">
             <?php
                 $tabela_newsletter = $pew_custom_db->tabela_newsletter;
+				$tabela_franquias = "franquias_lojas";
+				
                 if(isset($_GET["busca"]) && $_GET["busca"] != ""){
-                    $busca = addslashes($_GET["busca"]);
-                    $strBusca = "where nome like '%".$busca."%' or email like '%".$busca."%' or data like '%".$busca."%'";
-                    $busca = $busca == "" ? "Todos e-mails" : $busca;
-                    echo "<br class='clear'><h3>Exibindo resultados para: $busca</h3>";
+                    $getSEARCH = addslashes($_GET["busca"]);
+                    $mainCondition = "nome like '%".$getSEARCH."%' or email like '%".$getSEARCH."%' or data like '%".$getSEARCH."%'";
+                    $getSEARCH = $getSEARCH == "" ? "Todos e-mails" : $getSEARCH;
+                    echo "<br class='clear'><h3>Exibindo resultados para: $getSEARCH</h3>";
                 }else{
-                    $strBusca = "";
+                    $mainCondition = "";
                 }
-                $contarNewsletter = mysqli_query($conexao, "select count(id) as total_newsletter from $tabela_newsletter $strBusca");
-                $contagemNewsletter = mysqli_fetch_assoc($contarNewsletter);
-                $totalNewsletter = $contagemNewsletter["total_newsletter"];
+				
+				if($pew_session->nivel == 1){
+					$mainCondition = $mainCondition == null ? "true" : $mainCondition;
+				}else{
+					$mainCondition = $mainCondition == null ? "id_franquia = '{$pew_session->id_franquia}'" : str_replace("or", "and id_franquia = '{$pew_session->id_franquia}' or", $mainCondition);
+				}
+                
+                $totalNewsletter = $pew_functions->contar_resultados($tabela_newsletter, $mainCondition);
                 if($totalNewsletter > 0){
                     echo "<thead>";
                         echo "<td>Data</td>";
                         echo "<td>Nome</td>";
                         echo "<td>E-mail</td>";
+						if($pew_session->nivel == 1){
+                        	echo "<td>Franquia</td>";
+						}
                         echo "<td>Excluir</td>";
                     echo "</thead>";
                     echo "<tbody>";
-                    $queryNewsletter = mysqli_query($conexao, "select * from $tabela_newsletter $strBusca order by data desc");
+                    $queryNewsletter = mysqli_query($conexao, "select * from $tabela_newsletter where $mainCondition order by data desc");
                     while($newsletter = mysqli_fetch_array($queryNewsletter)){
                         $id = $newsletter["id"];
+                        $idFranquia = $newsletter["id_franquia"];
                         $nome = $newsletter["nome"];
                         $email = $newsletter["email"];
                         $data = $pew_functions->inverter_data(substr($newsletter["data"], 0, 10));
                         echo "<tr><td>$data</td>";
                         echo "<td>$nome</td>";
                         echo "<td>$email</td>";
+						if($pew_session->nivel == 1){
+							$fCondition = "id = '$idFranquia'";
+							$totalF = $pew_functions->contar_resultados($tabela_franquias, $fCondition);
+							if($totalF > 0){
+								$queryF = mysqli_query($conexao, "select cidade, estado from $tabela_franquias where $fCondition");
+								$infoF = mysqli_fetch_array($queryF);
+								$cidade = $infoF["cidade"];
+								$estado = $infoF["estado"];
+								echo "<td>$cidade - $estado</td>";
+							}else{
+								echo "<td>Não especificado</td>";
+							}
+						}
                         echo "<td><a data-id-newsletter='$id' class='btn-editar btn-excluir-newsletter'><i class='fa fa-trash' aria-hidden='true'></i></a></td></tr>";
                     }
                     echo "</tbody>";
                 }else{
-                    $msg = $busca != "" ? "Nenhum resultado encontrado." : "Nenhum e-mail foi cadastrado.";
+                    $msg = $mainCondition != "true" ? "Nenhum resultado encontrado." : "Nenhum e-mail foi cadastrado.";
                     echo "<br><br><br><br><br><h3 align='center'>$msg</h3></td>";
                 }
             ?>

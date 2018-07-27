@@ -68,49 +68,46 @@
                 $tabela_dicas = $pew_custom_db->tabela_dicas;
                 if(isset($_GET["busca"]) && $_GET["busca"] != ""){
                     $busca = $pew_functions->sqli_format($_GET["busca"]);
-                    $strBusca = "where titulo like '%{$busca}%' or subtitulo like '%{$busca}%' or descricao_curta like '%{$busca}%'";
+                    $strBusca = "titulo like '%{$busca}%' or subtitulo like '%{$busca}%' or descricao_curta like '%{$busca}%'";
                     echo "<div class='full clear'><h3>Exibindo resultados para: $busca</h3></div>";
                 }else{
-                    $strBusca = "";
+                    $strBusca = null;
                 }
-                $contarDicas = mysqli_query($conexao, "select count(id) as total from $tabela_dicas");
-                $contagemDicas = mysqli_fetch_assoc($contarDicas);
-                $totalDicas = $contagemDicas["total"];
-                if($totalDicas > 0){
+				
+				$idFranquia = $pew_session->id_franquia;
+				$mainCondition = $strBusca != null ? str_replace("or", "and id_franquia = '$idFranquia' or", $strBusca) : "id_franquia = '$idFranquia'";
+				$mainCondition .= $strBusca != null ? " and id_franquia = '$idFranquia'" : "";
+				
+                $total = $pew_functions->contar_resultados($tabela_dicas, $mainCondition);
+                if($total > 0){
                     echo "<thead>";
+                        echo "<td>Alteração</td>";
                         echo "<td>Titulo</td>";
                         echo "<td>Sub-titulo</td>";
                         echo "<td>Descricao curta</td>";
-                        echo "<td>Data Controle</td>";
                         echo "<td>Status</td>";
                         echo "<td>Informações</td>";
                     echo "</thead>";
                     echo "<tbody>";
-                    $queryDicas = mysqli_query($conexao, "select * from $tabela_dicas $strBusca order by data_controle desc");
+                    $queryDicas = mysqli_query($conexao, "select * from $tabela_dicas where $mainCondition order by id desc");
                     while($dica = mysqli_fetch_array($queryDicas)){
                         $id = $dica["id"];
                         $titulo = $dica["titulo"];
                         $subtitulo = $dica["subtitulo"];
                         $descricaoCurta = $dica["descricao_curta"];
-                        $dataControle = $dica["data_controle"];
+                        $dataControle = $pew_functions->inverter_data(substr($dica["data_controle"], 0, 10));
                         $status = $dica["status"];
                         switch($status){
                             case 1:
-                                $status = "Manter contato";
-                                break;
-                            case 2:
-                                $status = "Finalizado";
-                                break;
-                            case 3:
-                                $status = "Cancelado";
+                                $status = "Ativa";
                                 break;
                             default:
-                                $status = "Fazer primeiro contato";
+                                $status = "Inativa";
                         }
-                        echo "<tr><td>$titulo</td>";
+                        echo "<tr><td>$dataControle</td>";
+                        echo "<td>$titulo</td>";
                         echo "<td>$subtitulo</td>";
                         echo "<td>$descricaoCurta</td>";
-                        echo "<td>$dataControle</td>";
                         echo "<td>$status</td>";
                         echo "<td align=center><a href='pew-edita-dica.php?id_dica=$id' class='btn-editar'><i class='fa fa-eye' aria-hidden='true'></i></a></td></tr>";
                     }

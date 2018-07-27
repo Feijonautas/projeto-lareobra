@@ -4,6 +4,7 @@
     require_once "@include-global-vars.php";
     require_once "@classe-system-functions.php";
     require_once "@classe-produtos.php";
+    require_once "@classe-franquias.php";
     class Carrinho{
         private $produtos = array();
         private $ctrl_produtos = 0;
@@ -11,20 +12,24 @@
         private $valor_total;
         private $status;
         private $classe_produtos;
+		private $id_franquia;
         public $pew_functions;
         public $global_vars;
         
         function __construct(){
+            global $pew_functions, $globalVars;
+			$cls_franquias = new Franquias();
+			
             $this->verify_session();
             $this->valor_total = 0;
             $this->status = "vazio";
             $this->ctrl_produtos = count($_SESSION["carrinho"]["itens"]) > 0 ? count($_SESSION["carrinho"]["itens"]) : 0;
             
-            global $pew_functions, $globalVars;
             $this->classe_produtos = new Produtos();
             $this->pew_functions = $pew_functions;
             $this->global_vars = $globalVars;
             $this->set_token();
+            $this->id_franquia = $cls_franquias->id_franquia;
         }
         
         function conexao(){
@@ -53,8 +58,25 @@
                 $this->set_token();
             }
         }
+		
+		function set_info_franquia($info){
+			$cls_produtos = new Produtos();
+			$infoFranquia = $cls_produtos->produto_franquia($info['id'], $this->id_franquia);
+			$franquia_preco = $infoFranquia["preco"];
+			$franquia_preco_promocao = $infoFranquia["preco_promocao"];
+			$franquia_promocao_ativa = $infoFranquia["promocao_ativa"];
+			$franquia_estoque = $infoFranquia["estoque"];
+			$franquia_status = $infoFranquia["status"];
+			$precoFinal = $franquia_promocao_ativa == 1 && $franquia_preco_promocao < $franquia_preco && $franquia_preco_promocao > 0 ? $franquia_preco_promocao : $franquia_preco;
+			$info["preco"] = $precoFinal;
+			$info["estoque"] = $franquia_estoque;
+			$info["status"] = $franquia_status;
+			$info["quantidade"] = $info["quantidade"] > $franquia_estoque ? $franquia_estoque : $info["quantidade"];
+			return $info;
+		}
         
         function add_produto($idProduto, $quantidade = 1){
+			$cls_produtos = new Produtos();
             $tabela_produtos = $this->global_vars["tabela_produtos"];
             $total = $this->pew_functions->contar_resultados($tabela_produtos, "id = '$idProduto'");
             $quantidade = $quantidade == 0 ? 1 : $quantidade;
@@ -62,12 +84,13 @@
             if($total > 0){
                 $this->classe_produtos->montar_produto($idProduto);
                 $infoProduto = $this->classe_produtos->montar_array();
+				$infoFranquia = $cls_produtos->produto_franquia($idProduto, $this->id_franquia);
+				$franquia_preco = $infoFranquia["preco"];
+				$franquia_preco_promocao = $infoFranquia["preco_promocao"];
+				$franquia_promocao_ativa = $infoFranquia["promocao_ativa"];
+				$franquia_estoque = $infoFranquia["estoque"];
                 
-                $precoBruto = $infoProduto["preco"];
-                $precoPromocao = $infoProduto["preco_promocao"];
-                $promocaoAtiva = $infoProduto["promocao_ativa"];
-                
-                $precoFinal = $promocaoAtiva == 1 && $precoPromocao < $precoBruto && $precoPromocao > 0 ? $precoPromocao : $precoBruto;
+                $precoFinal = $franquia_promocao_ativa == 1 && $franquia_preco_promocao < $franquia_preco && $franquia_preco_promocao > 0 ? $franquia_preco_promocao : $franquia_preco;
                 $this->verify_session();
                 
                 function set_produto($id, $nome, $preco, $estoque, $quantidade, $comprimento, $largura, $altura, $peso, $count){
@@ -93,18 +116,18 @@
                 }
                 
                 
-                if($infoProduto["estoque"] > 0 && $quantidade <= $infoProduto["estoque"] && $is_adicionado == false){
-                    set_produto($infoProduto["id"], $infoProduto["nome"], $precoFinal, $infoProduto["estoque"], $quantidade, $infoProduto["comprimento"], $infoProduto["largura"], $infoProduto["altura"], $infoProduto["peso"], $this->ctrl_produtos);
+                if($franquia_estoque > 0 && $quantidade <= $franquia_estoque && $is_adicionado == false){
+                    set_produto($infoProduto["id"], $infoProduto["nome"], $precoFinal, $franquia_estoque, $quantidade, $infoProduto["comprimento"], $infoProduto["largura"], $infoProduto["altura"], $infoProduto["peso"], $this->ctrl_produtos);
                     $this->ctrl_produtos++;
                     return "true";
                     
-                }else if($is_adicionado == true && $quantidade <= $infoProduto["estoque"]){
-                    set_produto($infoProduto["id"], $infoProduto["nome"], $precoFinal, $infoProduto["estoque"], $quantidade, $infoProduto["comprimento"], $infoProduto["largura"], $infoProduto["altura"], $infoProduto["peso"], $indice_item);
+                }else if($is_adicionado == true && $quantidade <= $franquia_estoque){
+                    set_produto($infoProduto["id"], $infoProduto["nome"], $precoFinal, $franquia_estoque, $quantidade, $infoProduto["comprimento"], $infoProduto["largura"], $infoProduto["altura"], $infoProduto["peso"], $indice_item);
                     return "true";
                     
-                }else if($infoProduto["estoque"] > 0){
-                    set_produto($infoProduto["id"], $infoProduto["nome"], $precoFinal, $infoProduto["estoque"], $infoProduto["estoque"], $infoProduto["comprimento"], $infoProduto["largura"], $infoProduto["altura"], $infoProduto["peso"], $indice_item);
-                    return $infoProduto["estoque"];
+                }else if($franquia_estoque > 0){
+                    set_produto($infoProduto["id"], $infoProduto["nome"], $precoFinal, $franquia_estoque, $franquia_estoque, $infoProduto["comprimento"], $infoProduto["largura"], $infoProduto["altura"], $infoProduto["peso"], $indice_item);
+                    return $franquia_estoque;
                 }else{
                     return "sem_estoque";
                 }
@@ -138,7 +161,6 @@
             $carrinho["itens"] = array();
             $carrinho["token"] = $_SESSION["carrinho"]["token"];
             
-            
             $ctrl = 0;
             
             foreach($_SESSION["carrinho"]["itens"] as $itens){
@@ -146,16 +168,18 @@
                 $selectedRelacionados = $this->classe_produtos->get_relacionados_produto($idProduto, "id_relacionado = '$idProduto'");
                 $is_compre_junto = false;
                 
-                
-                $carrinho["itens"][$ctrl] = $itens;
+                $carrinho["itens"][$ctrl] = $this->set_info_franquia($itens);
                 
                 if(is_array($selectedRelacionados)){
                     $selected = array();
                     $ctrlInterno = 0;
                     
                     foreach($selectedRelacionados as $idRelacionado){
-                        $selected[$ctrlInterno] = $idRelacionado;
-                        $ctrlInterno++;
+						$infoF = $this->classe_produtos->produto_franquia($idRelacionado, $this->id_franquia);
+						if(isset($infoF['status']) && $infoF['status'] == 1){
+							$selected[$ctrlInterno] = $idRelacionado;
+							$ctrlInterno++;
+						}
                     }
                     
                     foreach($_SESSION["carrinho"]["itens"] as $index => $valor){

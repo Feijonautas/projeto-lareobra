@@ -2,20 +2,27 @@ var objRua = null;
 var objBairro = null;
 var objCidade = null;
 var objEstado = null;
+var callback_function = null;
+var callback_only_right = null;
 
 function retorno_cep(conteudo){
+	var callback = true;
     if(!("erro" in conteudo)){
         //Atualiza os campos com os valores.
         objRua.val(conteudo.logradouro);
         objBairro.val(conteudo.bairro);
         objCidade.val(conteudo.localidade);
         objEstado.val(conteudo.uf);
-    }
-    else{
+    }else{
+		callback = callback_only_right == true ? false : true;
         //CEP não Encontrado.
         limpa_formulario();
         notificacaoPadrao("CEP não encontrado");
     }
+	
+	if(callback_function != null && typeof callback_function == "function" && callback == true){
+		callback_function();
+	}
 }
 
 function limpa_formulario(){
@@ -27,12 +34,14 @@ function limpa_formulario(){
 
 }
 
-function buscarCEP(cep, rua, estado, cidade, bairro){
+function buscarCEP(cep, rua, estado, cidade, bairro, cbFunction = null, cbOnlyRight = false){
     
     objRua = rua;
     objBairro = bairro;
     objCidade = cidade;
     objEstado = estado;
+	callback_function = cbFunction;
+	callback_only_right = cbOnlyRight;
 
     function pesquisa_cep(){
 

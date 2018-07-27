@@ -342,7 +342,6 @@
 .vitrine-carrossel .display-produtos .box-produto{
     position: relative;
     width: 160px;
-    height: 285px;
     margin: 10px 10px 50px 15px;
     margin-bottom: 10px;
     padding: 10px;
@@ -502,6 +501,8 @@
     border-radius: 5px;
     color: #fff;
     background-color: limegreen;
+	z-index: 40;
+	pointer-events: none;
 }
 .btn-show-more{
     position: absolute;

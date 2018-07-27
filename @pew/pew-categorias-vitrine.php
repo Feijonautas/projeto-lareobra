@@ -1,4 +1,9 @@
 <?php
+
+	ini_set('display_errors', 1);
+	ini_set('display_startup_errors', 1);
+	error_reporting(E_ALL);
+
     session_start();
     
     $thisPageURL = substr($_SERVER["REQUEST_URI"], strpos($_SERVER["REQUEST_URI"], '@pew'));
@@ -190,20 +195,23 @@
                 <?php
                     require_once "pew-system-config.php";
                     $tabela_categorias_vitrine = $pew_custom_db->tabela_categorias_vitrine;
-                    $contar = mysqli_query($conexao, "select count(id) as total from $tabela_categorias_vitrine");
-                    $contagem = mysqli_fetch_assoc($contar);
-                    $totalCategoriasVitrine = $contagem["total"];
-                    $ctrlQtdDestaques = 0;
+					
+					$mainCondition = "id_franquia = '{$pew_session->id_franquia}'";
+				
+                    $total = $pew_functions->contar_resultados($tabela_categorias_vitrine, $mainCondition);
+                    $ctrlQuantidade = 0;
+				
                     $iconCategorias = "<i class='fa fa-folder icone-categorias' aria-hidden='true'></i>";
                     $iconPlus = "<i class='fa fa-plus icone-categorias' aria-hidden='true'></i>";
-                    if($totalCategoriasVitrine > 0){
+				
+                    if($total > 0){
                         echo "<h2 class='titulo'>Categorias Vitrine:</h2>";
                         echo "<div class='display-categorias'>";
-                        $queryCatVitrine = mysqli_query($conexao, "select id, titulo from $tabela_categorias_vitrine");
-                        while($categoriasVitrine = mysqli_fetch_array($queryCatVitrine)){
-                            $idDestaque = $categoriasVitrine["id"];
-                            $tituloDestaque = $categoriasVitrine["titulo"];
-                            $ctrlQtdDestaques++;
+                        $query = mysqli_query($conexao, "select id, titulo from $tabela_categorias_vitrine where $mainCondition");
+                        while($info = mysqli_fetch_array($query)){
+                            $idDestaque = $info["id"];
+                            $tituloDestaque = $info["titulo"];
+                            $ctrlQuantidade++;
                             echo "<div class='box-categoria' style='height: 20px;' pew-id-categoria-vitrine='$idDestaque'>";
                                 echo "<h3 class='alter-button-box-categoria' pew-id-categoria-vitrine='$idDestaque' >".$iconCategorias." $tituloDestaque</h3>";
                             echo "</div>";
@@ -214,7 +222,7 @@
             </div>
             <?php
                 $class = "";
-                if($ctrlQtdDestaques == 0){
+                if($ctrlQuantidade == 0){
                     echo "<br style='clear: both;'><h3 class='mensagem-padrao' align=center>Nenhuma categoria vitrine foi encontrada. <a class='link-padrao btn-add-categoria'>Clique aqui e cadastre</a></h3>";
                     $class = "display-ger-center";
                 }

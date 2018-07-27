@@ -1,4 +1,9 @@
 <?php
+	$start_session = isset($_POST['start_session']) ? $_POST['start_session'] : true;
+	if($start_session){
+		session_start();
+		require_once "@valida-sessao.php";
+	}
     require_once "@include-global-vars.php";
 
     $diretorioAPI = isset($_POST["diretorio"]) ? str_replace(" ", "", $_POST["diretorio"]) : "../";
@@ -27,6 +32,7 @@
         private $data_controle;
         private $status_transporte = 0;
         private $status = 0;
+        public $id_franquia = 0;
         public $valor_frete = 0;
         public $codigo_rastreamento = 0;
         public $payment_link = null;
@@ -48,6 +54,7 @@
                 $query = mysqli_query($conexao, "select * from $tabela_pedidos where id = '$id'");
                 $info = mysqli_fetch_array($query);
                 $this->id = $info["id"];
+                $this->id_franquia = $info["id_franquia"];
                 $this->codigo_confirmacao = $info["codigo_confirmacao"];
                 $this->codigo_transacao = $info["codigo_transacao"];
                 $this->codigo_transporte = $info["codigo_transporte"];
@@ -134,6 +141,7 @@
         function montar_array(){
             $array = array();
             $array["id"] = $this->id;
+            $array["id_franquia"] = $this->id_franquia;
             $array["codigo_confirmacao"] = $this->codigo_confirmacao;
             $array["codigo_transacao"] = $this->codigo_transacao;
             $array["codigo_transporte"] = $this->codigo_transporte;
@@ -310,6 +318,9 @@
         }
         
         function listar_pedidos($selectedIDs){
+			global $pew_session;
+			$conexao = $this->global_vars["conexao"];
+			$tabela_franquias = "franquias_lojas";
             
             foreach($selectedIDs as $id){
                 $listar = $this->montar($id) == true ? true : false;
@@ -320,6 +331,7 @@
                     $statusTransporteStr = $this->get_status_transporte_string($this->status_transporte);
                     $pagamentoStr = $this->get_pagamento_string($this->codigo_pagamento);
                     $transporteStr = $this->get_transporte_string();
+					$idFranquia = $this->id_franquia;
                     
                     $data = substr($this->data_controle, 0, 10);
                     $data = $this->pew_functions->inverter_data($data);
@@ -334,6 +346,16 @@
                     echo "<div class='box-produto display-pedido' id='boxProduto$id'>";
                         echo "<div class='informacoes'>";
                             echo "<h3 class='nome-produto'><a>{$this->nome_cliente}</a></h3>";
+							if($pew_session->nivel == 1){
+								$queryFranquia = mysqli_query($conexao, "select cidade, estado from $tabela_franquias where id = '$idFranquia'");
+								$infoFranquia = mysqli_fetch_array($queryFranquia);
+								$cidade = $infoFranquia["cidade"];
+								$estado = $infoFranquia["estado"];
+								echo "<div class='full box-info'>";
+									echo "<h4 class='titulo'><i class='fas fa-globe-americas'></i> Franquia</h4>";
+									echo "<h3 class='descricao'>$cidade - $estado</h3>";
+								echo "</div>";
+							}
                             echo "<div class='half box-info'>";
                                 echo "<h4 class='titulo'><i class='fas fa-clipboard'></i> Status</h4>";
                                 echo "<h3 class='descricao'>$statusStr</h3>";

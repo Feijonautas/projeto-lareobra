@@ -1,6 +1,5 @@
 <?php
-
-$post_fields = array("cep_destino", "codigo_servico", "comprimento", "largura", "altura", "peso", "valor_mercadoria");
+$post_fields = array("cep_envio" ,"cep_destino", "codigo_servico", "comprimento", "largura", "altura", "peso", "valor_mercadoria");
 $invalid_fileds = array();
 $calcular = true;
 $i = 0;
@@ -14,7 +13,7 @@ foreach($post_fields as $post_name){
 }
 
 if($calcular){
-
+    $cepEnvio = str_replace("-", "", $_POST["cep_envio"]);
     $cepDestino = str_replace("-", "", $_POST["cep_destino"]);
     $codigoServico = $_POST["codigo_servico"] != "" && $_POST["codigo_servico"] > 0 ? $_POST["codigo_servico"] : "41106";
     $comprimento = $_POST["comprimento"];
@@ -22,8 +21,6 @@ if($calcular){
     $altura = $_POST["altura"];
     $peso = $_POST["peso"];
     $valorMercadoria = $_POST["valor_mercadoria"] > 0 ? $_POST["valor_mercadoria"] : '0';
-
-    $cepEnvio = "80710110";
 
     $data['nCdEmpresa'] = '';
     $data['sDsSenha'] = '';
@@ -69,10 +66,6 @@ if($calcular){
     
     foreach($xml -> cServico as $row){
         $row->Valor = str_replace(",", ".", $row->Valor);
-        $row->ValorSemAdicionais = str_replace(",", ".", $row->ValorSemAdicionais);
-        $row->ValorMaoPropria = str_replace(",", ".", $row->ValorMaoPropria);
-        $row->ValorAvisoRecebimento = str_replace(",", ".", $row->ValorAvisoRecebimento);
-        $row->ValorValorDeclarado = str_replace(",", ".", $row->ValorValorDeclarado);
         if($row->Erro == 0){
             echo '{"valor": '.$row->Valor.', "prazo": '.$row->PrazoEntrega.'}';
         }else{

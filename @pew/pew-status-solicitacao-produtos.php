@@ -33,7 +33,9 @@
 					$idProduto = $info[0];
 					$addQuantidade = $info[1];
 					
-					$queryProd = mysqli_query($conexao, "select estoque from $tabela_produtos_franquia where id_produto = '$idProduto'");
+					$condProdutos = "id_produto = '$idProduto' and id_franquia = '$idFranquia'";
+					
+					$queryProd = mysqli_query($conexao, "select estoque from $tabela_produtos_franquia where $condProdutos");
 					$infoProd = mysqli_fetch_array($queryProd);
 					$estoqueAtual = $infoProd["estoque"];
 					
@@ -52,8 +54,6 @@
 					
 					
 					if($update){
-						
-						$condProdutos = "id_produto = '$idProduto' and id_franquia = '$idFranquia'";
 						
 						$totalProdFranquia = $pew_functions->contar_resultados($tabela_produtos_franquia, $condProdutos);
 						

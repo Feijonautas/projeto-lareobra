@@ -1,5 +1,4 @@
 <?php
-    
     $codigoTransporte = null;
     
     $jsonData = json_decode(file_get_contents('php://input'), true);
@@ -10,6 +9,13 @@
     }
 
     $infoFrete = false;
+
+	require_once "@classe-franquias.php";
+	$cls_franquias = new Franquias();
+	$idFranquia = $cls_franquias->id_franquia;
+	$arrayFranquia = $cls_franquias->query_franquias("id = '$idFranquia'");
+	$infoFranquia = $arrayFranquia[0];
+	$_POST['cep_envio'] = str_replace("-", "", $infoFranquia['cep']);
 
     function calcular_correios(){
         global $codigoTransporte, $infoFrete;

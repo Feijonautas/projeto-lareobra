@@ -56,16 +56,23 @@
             <table class="table-padrao" cellspacing="0">
             <?php
                 $tabela_tickets = "tickets_register";
+				$tabela_franquias = "franquias_lojas";
+				
                 if(isset($_GET["busca"]) && $_GET["busca"] != ""){
-                    $busca = addslashes($_GET["busca"]);
-                    $strBusca = "where ref like '%".$busca."%'";
-                    echo "<h3>Exibindo resultados para: $busca</h3>";
+                    $getSEARCH = addslashes($_GET["busca"]);
+                    $strBusca = "ref like '%".$getSEARCH."%'";
+                    echo "<h3>Exibindo resultados para: $getSEARCH</h3>";
                 }else{
                     $strBusca = "";
                 }
-                $contar = mysqli_query($conexao, "select count(id) as total from $tabela_tickets $strBusca");
-                $contagem = mysqli_fetch_assoc($contar);
-                $total = $contagem["total"];
+				
+				if($pew_session->nivel == 1){
+					$mainCondition = $mainCondition == null ? "true" : $mainCondition;
+				}else{
+					$mainCondition = $mainCondition == null ? "id_franquia = '{$pew_session->id_franquia}'" : str_replace("or", "and id_franquia = '{$pew_session->id_franquia}' or", $mainCondition);
+				}
+				
+                $total = $pew_functions->contar_resultados($tabela_tickets, $mainCondition);
                 if($total > 0){
                     echo "<thead>";
                         echo "<td>Referência</td>";
@@ -73,6 +80,9 @@
                         echo "<td>Departamento</td>";
                         echo "<td>Enviado</td>";
                         echo "<td>Prioridade</td>";
+						if($pew_session->nivel == 1){
+                        	echo "<td>Franquia</td>";
+						}
                         echo "<td>Status</td>";
                         echo "<td>Ver</td>";
                     echo "</thead>";
@@ -80,6 +90,7 @@
                     $query = mysqli_query($conexao, "select * from $tabela_tickets $strBusca order by id desc");
                     while($infoTicket = mysqli_fetch_array($query)){
                         $ticketID = $infoTicket["id"];
+                        $idFranquia = $infoTicket["id_franquia"];
                         $ticketREF = $infoTicket["ref"];
                         $clienteID = $infoTicket["id_cliente"];
                         $assunto = $infoTicket["topic"];
@@ -117,6 +128,19 @@
                         echo "<td>$departamento</td>";
                         echo "<td>$dataAno</td>";
                         echo "<td>$prioridade</td>";
+						if($pew_session->nivel == 1){
+							$fCondition = "id = '$idFranquia'";
+							$totalF = $pew_functions->contar_resultados($tabela_franquias, $fCondition);
+							if($totalF > 0){
+								$queryF = mysqli_query($conexao, "select cidade, estado from $tabela_franquias where $fCondition");
+								$infoF = mysqli_fetch_array($queryF);
+								$cidade = $infoF["cidade"];
+								$estado = $infoF["estado"];
+								echo "<td>$cidade - $estado</td>";
+							}else{
+								echo "<td>Não especificado</td>";
+							}
+						}
                         echo "<td>$status</td>";
                         echo "<td align=center><a href='pew-edita-ticket.php?id_ticket=$ticketID' class='btn-editar'><i class='fa fa-eye' aria-hidden='true'></i></a></td></tr>";
                     }

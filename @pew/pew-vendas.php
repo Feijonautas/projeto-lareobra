@@ -37,7 +37,6 @@
             .box-produto{
                 position: relative;
                 width: calc(25% - 22px);
-                height: 325px;
                 padding: 10px 0px 40px 0px;
                 margin: 0px 20px 30px 0px;
                 background-color: #fff;
@@ -407,7 +406,7 @@
                         </div>
                         <div class="group">
                             <div class="xlarge" style="margin-left: -5px; margin-right: 0px;">
-                                <input type="search" name="busca" placeholder="Busque por CPF, Nome, Pedido, Status" class="label-input" title="Buscar">
+                                <input type="search" name="busca" placeholder="Busque por CPF, Nome, Pedido" class="label-input" title="Buscar">
                             </div>
                             <div class="xsmall" style="margin-left: 0px;">
                                 <button type="submit" class="btn-submit label-input btn-flat" style="margin: 10px;">
@@ -430,19 +429,27 @@
                 <h4 class="subtitulos group clear" align=left style="margin-bottom: 10px">Listagem de pedidos</h4>
                 <?php
                     $tabela_pedidos = $pew_custom_db->tabela_pedidos;
+				
+					$search_string = null;
                     if(isset($_GET["busca"]) && $_GET["busca"] != ""){
-                        $busca = $pew_functions->sqli_format($_GET["busca"]);
-                        $strBusca = "where id like '%".$busca."%' or nome like '%".$busca."%' or marca like '%".$busca."%' or descricao_curta like '%".$busca."%' or descricao_longa like '%".$busca."%'";
-                        echo "<div class='group clear'><h3>Exibindo resultados para: $busca</h3></div>";
-                    }else{
-                        $strBusca = "";
+                        $getSEARCH = $pew_functions->sqli_format($_GET["busca"]);
+                        $search_string = "id like '%".$getSEARCH."%' or nome_cliente like '%".$getSEARCH."%' or cpf_cliente like '%".$getSEARCH."%' or referencia like '%".$getSEARCH."%'";
+						$search_string = str_replace("or", "and id_franquia = '{$pew_session->id_franquia}' or ", $search_string);
+                        echo "<div class='group clear'><h5>Exibindo resultados para: $getSEARCH <a href='pew-vendas.php' class='link-padrao'>Limpar busca</a></h5></div>";
                     }
                 
-                
-                    $condicaoTodosPedidos = "codigo_confirmacao != '0' order by id desc";
-                    $condicaoPagos = "codigo_confirmacao != '0' and status = 3 or status = 4";
-                    $condicaoAguardando = "codigo_confirmacao != '0' and status = 1 or status = 2 or status = 0";    
-                    $condicaoCancelados = "codigo_confirmacao != '0' and status = 5 or status = 6 or status = 7";    
+					$condicaoTodosPedidos = $search_string != null ? $search_string : "codigo_transacao != 0 and id_franquia = '{$pew_session->id_franquia}'";
+					$condicaoPagos = "status = 3 and id_franquia = '{$pew_session->id_franquia}' or status = 4 and id_franquia = '{$pew_session->id_franquia}'";
+					$condicaoAguardando = "status = 1 and id_franquia = '{$pew_session->id_franquia}' or status = 2 and id_franquia = '{$pew_session->id_franquia}' or status = 0 and id_franquia = '{$pew_session->id_franquia}'";    
+					$condicaoCancelados = "status = 5 and id_franquia = '{$pew_session->id_franquia}' or status = 6 and id_franquia = '{$pew_session->id_franquia}' or status = 7 and id_franquia = '{$pew_session->id_franquia}'";
+				
+					if($pew_session->nivel == 1){
+						$remove = "and id_franquia = '{$pew_session->id_franquia}'";
+						$condicaoTodosPedidos = str_replace($remove, "", $condicaoTodosPedidos);
+						$condicaoPagos = str_replace($remove, "", $condicaoPagos);
+						$condicaoAguardando = str_replace($remove, "", $condicaoAguardando);
+						$condicaoCancelados = str_replace($remove, "", $condicaoCancelados);
+					}
                 
                     $totalPedidos = $pew_functions->contar_resultados($tabela_pedidos, $condicaoTodosPedidos);
                     $totalPagos = $pew_functions->contar_resultados($tabela_pedidos, $condicaoPagos);
@@ -463,40 +470,51 @@
                         
                         echo "<div class='multi-tables'>";
                             echo "<div class='top-buttons'>";
-                                echo "<button class='trigger-button trigger-button-selected' mt-target='mtPainel1'>Pagos ($totalPagos)</button>";
-                                echo "<button class='trigger-button' mt-target='mtPainel2'>Aguardando Pagamento ($totalAguardando)</button>";
-                                echo "<button class='trigger-button' mt-target='mtPainel3'>Cancelados ($totalCancelados)</button>";
+								if($search_string == null){
+									echo "<button class='trigger-button trigger-button-selected' mt-target='mtPainel1'>Pagos ($totalPagos)</button>";
+									echo "<button class='trigger-button' mt-target='mtPainel2'>Aguardando Pagamento ($totalAguardando)</button>";
+									echo "<button class='trigger-button' mt-target='mtPainel3'>Cancelados ($totalCancelados)</button>";
+								}else{
+									echo "<button class='trigger-button trigger-button-selected' mt-target='mtPainel1'>Busca ($totalPedidos)</button>";
+								}
                             echo "</div>";
                             echo "<div class='display-paineis'>";
-                                echo "<div class='painel selected-painel' id='mtPainel1'>";
-                                    if($totalPagos > 0){
-                                        $selectedPagos = $cls_pedidos->buscar_pedidos($condicaoPagos);
-                                        $cls_pedidos->listar_pedidos($selectedPagos);
-                                    }else{
-                                        echo "<h3 align='center'>Nenhum resultado</h3>";
-                                    }
-                                echo "</div>";
-                                echo "<div class='painel' id='mtPainel2'>";
-                                    if($totalAguardando > 0){
-                                        $selectedAguardando = $cls_pedidos->buscar_pedidos($condicaoAguardando);
-                                        $cls_pedidos->listar_pedidos($selectedAguardando);
-                                    }else{
-                                        echo "<h3 align='center'>Nenhum resultado</h3>";
-                                    }
-                                echo "</div>";
-                                echo "<div class='painel' id='mtPainel3'>";
-                                    if($totalCancelados > 0){
-                                        $selectedCancelados = $cls_pedidos->buscar_pedidos($condicaoCancelados);
-                                        $cls_pedidos->listar_pedidos($selectedCancelados);
-                                    }else{
-                                        echo "<h3 align='center'>Nenhum resultado</h3>";
-                                    }
-                                echo "</div>";
+							if($search_string == null){
+								echo "<div class='painel selected-painel' id='mtPainel1'>";
+									if($totalPagos > 0){
+										$selectedPagos = $cls_pedidos->buscar_pedidos($condicaoPagos);
+										$cls_pedidos->listar_pedidos($selectedPagos);
+									}else{
+										echo "<h3 align='center'>Nenhum resultado</h3>";
+									}
+								echo "</div>";
+								echo "<div class='painel' id='mtPainel2'>";
+									if($totalAguardando > 0){
+										$selectedAguardando = $cls_pedidos->buscar_pedidos($condicaoAguardando);
+										$cls_pedidos->listar_pedidos($selectedAguardando);
+									}else{
+										echo "<h3 align='center'>Nenhum resultado</h3>";
+									}
+								echo "</div>";
+								echo "<div class='painel' id='mtPainel3'>";
+									if($totalCancelados > 0){
+										$selectedCancelados = $cls_pedidos->buscar_pedidos($condicaoCancelados);
+										$cls_pedidos->listar_pedidos($selectedCancelados);
+									}else{
+										echo "<h3 align='center'>Nenhum resultado</h3>";
+									}
+								echo "</div>";
+							}else{
+								echo "<div class='painel selected-painel' id='mtPainel1'>";
+									$selectedBuscados = $cls_pedidos->buscar_pedidos($search_string);
+									$cls_pedidos->listar_pedidos($selectedBuscados);
+								echo "</div>";
+							}
                             echo "</div>";
                         echo "</div>";
                         
                     }else{
-                        if($strBusca == ""){
+                        if($search_string == ""){
                             echo "<br><h3 align='center'>Nenhum Pedido foi feito ainda.</h3>";
                         }else{
                             echo "<br><h3 align='center'>Nenhum pedido foi encontrado.</h3>";

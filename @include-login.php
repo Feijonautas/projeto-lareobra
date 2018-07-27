@@ -13,7 +13,7 @@
         transition: .4s all ease;
         opacity: .6;
         overflow: hidden;
-        overflow-y: scroll;
+        overflow-y: auto;
     }
     .section-login .display-login{
         width: 40%;
@@ -39,10 +39,10 @@
     }
     .section-login .display-formularios{
         position: relative;
-        width: 80%;
-        height: 55vh;
+		width: 325px;
+        height: 350px;
         margin: 0 auto;
-        margin-top: 40px;
+        margin-top: 30px;
         -webkit-box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.1);
         -moz-box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.1);
         box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.1);
@@ -76,12 +76,7 @@
     /*FORM STYLES*/
     .section-login .display-formularios .formulario-login{
         position: relative;
-        width: 95%;
-        height: 54vh;
-        padding: 5vh 2.5% 1vh 2.5%;
         text-align: left;
-        overflow-y: auto;
-        overflow-x: hidden;
         display: flex;
         flex-flow: row wrap;
     }
@@ -228,13 +223,6 @@
             }      
             .section-login .display-login .titulo{
                 font-size: 24px;
-            }
-            .section-login .display-formularios{
-                height: 75vh;
-                width: 90%;
-            }
-            .section-login .display-formularios .formulario-login{
-                height: 74vh;   
             }
         }
     }

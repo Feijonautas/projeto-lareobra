@@ -1,4 +1,7 @@
 <?php
+	$_POST['controller'] = "get_id_franquia";
+	require_once "@valida-regiao.php";
+
     if(isset($_POST["email"])){
         require_once "@pew/pew-system-config.php";
         $tabela_newsletter = $pew_custom_db->tabela_newsletter;
@@ -12,7 +15,7 @@
             if($totalCadastro > 0){
                 echo "already";
             }else{
-                $save = mysqli_query($conexao, "insert into $tabela_newsletter (nome, email, data) values ('$nome', '$email', '$data')");
+                $save = mysqli_query($conexao, "insert into $tabela_newsletter (id_franquia, nome, email, data) values ('$session_id_franquia' ,'$nome', '$email', '$data')");
                 echo "true";
             }
         }
