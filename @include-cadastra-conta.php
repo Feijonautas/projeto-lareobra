@@ -488,8 +488,8 @@
     $(document).ready(function(){
         /*SET MASCARAS*/
         phone_mask(".mascara-numero");
-        input_mask(".mascara-cpf", "999.999.999.99");
-        input_mask(".mascara-cep", "99999-999");
+        input_mask(".mascara-cpf", "000.000.000-00", {reverse: true});
+        input_mask(".mascara-cep", "00000-000");
         /*END SET MASCARAS*/
         
         // PASSO 1

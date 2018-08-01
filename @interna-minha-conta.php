@@ -38,7 +38,6 @@ if($listar){
     
         $_POST["diretorio"] = "";
         $_POST["diretorio_db"] = "@pew/";
-        $_POST["start_session"] = false;
         require_once "@pew/@classe-pedidos.php";
     
         $cls_pedidos = new Pedidos();
@@ -58,64 +57,72 @@ if($listar){
                 $codigoPagamento = $infoPedido["codigo_pagamento"];
                 $status = $infoPedido["status"];
                 $strStatus = $cls_pedidos->get_status_string($status);
-                $strPagamento = $cls_pedidos->get_pagamento_string($codigoPagamento);
+                $strPagamento = $cls_pedidos->get_pagamento_string($codigoPagamento, true);
                 $strComplemento = $infoPedido["complemento"] == "" ? "" : ", " . $infoPedido["complemento"];
                 $enderecoCompleto = $infoPedido["rua"] . ", " . $infoPedido["numero"] . $strComplemento . " - " . $infoPedido["cep"];
                 $dataPedido = $pew_functions->inverter_data(substr($infoPedido["data_controle"], 0, 10));
                 $horaPedido = substr($infoPedido["data_controle"], 10);
                 
-                $targetPedido = "infoPedido$ctrlPedidos";
-
                 echo "<div class='box-pedido'>";
-                    echo "<div class='right'>";
-                        echo "<h3 class='titulo'>Pedido: $referencia</h3>";
-                        echo "<h5 class='descricao'>Endereço de envio: $enderecoCompleto</h5>";
-                    echo "</div>";
-                    echo "<div class='middle control-info'>";
-                        echo "<h5 class='descricao'>Método de pagamento: $strPagamento</h3>";
-                        echo "<h5 class='descricao'>Total: <b>R$ $totalPedido</b></h3>";
-						if($strPagamento == "Boleto"){
-							echo "<a href='{$infoPedido["payment_link"]}' class='link-padrao' target='_blank' style='margin: 0px;'>Imprimir boleto</a><br>";
-						}
-                        echo "<a class='link-padrao btn-mais-info' data-target-pedido='$targetPedido'>Ver mais informações</a>";
-                    echo "</div>";
-                    echo "<div class='left'>";
-                        echo "<h5 class='descricao'><i class='far fa-calendar-alt'></i> $dataPedido</h3>";
-                        echo "<h5 class='descricao'><i class='far fa-clock'></i> $horaPedido</h3>";
-                        echo "<h5 class='status'>Status: $strStatus</h3>";
-                    echo "</div>";
-                    echo "<div class='display-info-pedido' id='$targetPedido'>";
-                        echo "<h4 class='titulo'>Informações do pedido: $referencia</h4>";
-                        echo "<table class='lista-produtos'>";
-                        echo "<tr><td colspan=3>Produtos</td></tr>";
-                        $selectedProdutos = $cls_pedidos->get_produtos_pedido();
-                        if(is_array($selectedProdutos)){
-                            foreach($selectedProdutos as $infoProduto){
-                                $nome = $infoProduto["nome"];
-                                $quantidade = $infoProduto["quantidade"];
-                                $preco = $infoProduto["preco"];
-                                $subtotal = $preco * $quantidade;
-                                $subtotal = $pew_functions->custom_number_format($subtotal);
-                                echo "<tr>";
-                                    echo "<td style='white-space: nowrap; padding: 5px;'>$quantidade x</td>";
-                                    echo "<td>$nome</td>";
-                                    echo "<td style='white-space: nowrap; padding: 5px;' align=right>R$ $subtotal</td>";
-                                echo "</tr>";
-                            }
-                            echo "<tr>";
-                                echo "<td style='white-space: nowrap; padding: 5px;'>1 x</td>";
-                                echo "<td>" . $cls_pedidos->get_transporte_string() . "</td>";
-                                echo "<td style='white-space: nowrap; padding: 5px;' align=right>R$ " . $cls_pedidos->valor_frete . "</td>";
-                            echo "</tr>";
-                        }
-                        echo "</table>";
-                        echo "<div class='info-frete'>";
-                            switch($infoPedido["status_transporte"]){
+					echo "<div class='line-display'>";
+						echo "<div class='right'>";
+							echo "<h3 class='titulo'>Pedido: $referencia</h3>";
+							echo "<h5 class='descricao'>Endereço de envio: $enderecoCompleto</h5>";
+						echo "</div>";
+						echo "<div class='middle control-info'>";
+							echo "<h3 class='titulo'>Pagamento</h3>";
+							echo "<h5 class='descricao'>Método de pagamento: $strPagamento</h3>";
+							echo "<h5 class='descricao'>Total: <b>R$ $totalPedido</b></h3>";
+							if($strPagamento == "Boleto"){
+								echo "<a href='{$infoPedido["payment_link"]}' class='link-padrao' target='_blank' style='margin: 0px;'>Imprimir boleto</a><br>";
+							}
+						echo "</div>";
+						echo "<div class='left'>";
+							echo "<h3 class='titulo'>Status</h3>";
+							echo "<h5 class='descricao'><i class='far fa-calendar-alt'></i> $dataPedido</h3>";
+							echo "<h5 class='descricao'><i class='far fa-clock'></i> $horaPedido</h3>";
+							echo "<h5 class='status'>$strStatus</h3>";
+						echo "</div>";
+					echo "</div>";
+                	
+					echo "<div class='line-display hidden-line' id='moreInfo$idPedido'>";
+						echo "<div class='right'>";
+							echo "<h3 class='titulo'>Produtos</h3>";
+							echo "<table class='table-list'>";
+							$selectedProdutos = $cls_pedidos->get_produtos_pedido();
+							if(is_array($selectedProdutos)){
+								foreach($selectedProdutos as $infoProduto){
+									$nome = $infoProduto["nome"];
+									$quantidade = $infoProduto["quantidade"];
+									$preco = $infoProduto["preco"];
+									$subtotal = $preco * $quantidade;
+									$subtotal = $pew_functions->custom_number_format($subtotal);
+									echo "<tr>";
+										echo "<td style='padding: 5px;'>$quantidade x</td>";
+										echo "<td>$nome</td>";
+										echo "<td style='padding: 5px;' align=right>R$ $subtotal</td>";
+									echo "</tr>";
+								}
+							}
+							echo "</table>";
+						echo "</div>";
+						echo "<div class='middle control-info'>";
+							echo "<h3 class='titulo'>Transporte</h3>";
+							$tracking_string = $infoPedido['codigo_transporte'] == 7777 ? "Código de retirada" : "Rastreio";
+							$tracking_link = "";
+							switch($infoPedido["status_transporte"]){
                                 case 1:
-                                    $strStatusTransporte = "Código de rastreio ainda não foi inserido";
+                                    $strStatusTransporte = $tracking_string . " ainda não disponível";
                                     break;
                                 case 2:
-                                    $strStatusTransporte = $cls_pedidos->codigo_rastreamento . "<a href='http://www2.correios.com.br/sistemas/rastreamento/' class='link-padrao' target='_blank'>Rastrear</a>";
+									if($infoPedido['codigo_transporte'] == 7777 || $infoPedido['codigo_transporte'] == 8888){
+                                    	$strStatusTransporte = $infoPedido['codigo_rastreamento'];
+										$md5Ref = md5($referencia);
+										$tracking_link = "<a href='codigo-retirada/$md5Ref/' class='link-padrao' target='_blank' style='margin: 0;'>Mostrar cupom de retirada</a>";
+									}else{
+                                    	$strStatusTransporte = $cls_pedidos->codigo_rastreamento;
+										$tracking_link = "<a href='http://www2.correios.com.br/sistemas/rastreamento/' class='link-padrao' target='_blank' style='margin: 0;'>Rastrear</a>";
+									}
                                     break;
                                 case 3:
                                     $strStatusTransporte = "Entregue";
@@ -126,14 +133,28 @@ if($listar){
                                 default:
                                     $strStatusTransporte = "Confirmar pagamento";
                             }
-                            echo "<h4 class='titulo'>Código de rastreamento</h4>";
-                            echo "<h4 class='info'>$strStatusTransporte</h4>";
-                            echo "";
-                        echo "</div>";
-                        echo "<div class='bottom-info'>";
-                            echo "<a class='link-padrao btn-voltar'>Voltar</a>";
-                        echo "</div>";
-                    echo "</div>";
+							$transport_name = $cls_pedidos->get_transporte_string();
+							$vlr_frete = $infoPedido['valor_frete'];
+							echo "<table class='table-list'>";
+								echo "<tr><td>$transport_name: </td><td><b>R$ $vlr_frete</b></td></tr>";
+								echo "<tr><td>$tracking_string</td><td><b>$strStatusTransporte</b></td></tr>";
+								if($tracking_link != ""){
+									echo "<tr><td colspan=2>$tracking_link</td></tr>";
+								}
+							echo "</table>";
+						echo "</div>";
+						echo "<div class='left'>";
+							echo "<h3 class='titulo'>Observações</h3>";
+							echo "<table class='table-list'>";
+								echo "<tr><td>Foi realizada uma tentativa de entrega no dia 30/07 às 18:30</td></tr>";
+							echo "</table>";
+						echo "</div>";
+					echo "</div>";
+					
+					echo "<div class='line-display bottom-line'>";
+						echo "<a class='link-padrao btn-mais-info' data-id-pedido='$idPedido'>Ver mais informações</a>";
+					echo "</div>";
+					
                 echo "</div>";
                 
                 $ctrlPedidos++;

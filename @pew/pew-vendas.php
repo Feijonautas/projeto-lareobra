@@ -433,12 +433,12 @@
 					$search_string = null;
                     if(isset($_GET["busca"]) && $_GET["busca"] != ""){
                         $getSEARCH = $pew_functions->sqli_format($_GET["busca"]);
-                        $search_string = "id like '%".$getSEARCH."%' or nome_cliente like '%".$getSEARCH."%' or cpf_cliente like '%".$getSEARCH."%' or referencia like '%".$getSEARCH."%'";
+                        $search_string = "id like '%".$getSEARCH."%' or nome_cliente like '%".$getSEARCH."%' or cpf_cliente like '%".$getSEARCH."%' or referencia like '%".$getSEARCH."%' or codigo_rastreamento like '%".$getSEARCH."%'";
 						$search_string = str_replace("or", "and id_franquia = '{$pew_session->id_franquia}' or ", $search_string);
                         echo "<div class='group clear'><h5>Exibindo resultados para: $getSEARCH <a href='pew-vendas.php' class='link-padrao'>Limpar busca</a></h5></div>";
                     }
                 
-					$condicaoTodosPedidos = $search_string != null ? $search_string : "codigo_transacao != 0 and id_franquia = '{$pew_session->id_franquia}'";
+					$condicaoTodosPedidos = $search_string != null ? $search_string : "true and id_franquia = '{$pew_session->id_franquia}'";
 					$condicaoPagos = "status = 3 and id_franquia = '{$pew_session->id_franquia}' or status = 4 and id_franquia = '{$pew_session->id_franquia}'";
 					$condicaoAguardando = "status = 1 and id_franquia = '{$pew_session->id_franquia}' or status = 2 and id_franquia = '{$pew_session->id_franquia}' or status = 0 and id_franquia = '{$pew_session->id_franquia}'";    
 					$condicaoCancelados = "status = 5 and id_franquia = '{$pew_session->id_franquia}' or status = 6 and id_franquia = '{$pew_session->id_franquia}' or status = 7 and id_franquia = '{$pew_session->id_franquia}'";

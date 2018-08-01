@@ -360,7 +360,7 @@ class NavLinks{
             <?php
 				$countLinks = 0;
 			
-				$link_nav[$countLinks] = new NavLinks("Banners", "pew-banners.php", null, array(4));
+				$link_nav[$countLinks] = new NavLinks("Banners", "pew-banners.php", null, array(1, 4));
 				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fas fa-images'></i> Listar Banners", "pew-banners.php");
 				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fa fa-plus'></i> Cadastrar novo", "pew-cadastra-banner.php");
 				$countLinks++;
@@ -376,15 +376,16 @@ class NavLinks{
 			
 				$link_nav[$countLinks] = new NavLinks("Vendas", "pew-vendas.php", null, array(5));
 				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fas fa-dollar-sign'></i> Listar Pedidos", "pew-vendas.php");
+				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fas fa-box-open'></i> Retirada na loja", "pew-retirada-loja.php");
 				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fas fa-chart-pie'></i> Relatórios", "pew-relatorios.php");
 				$countLinks++;
 			
-				$link_nav[$countLinks] = new NavLinks("Dicas", "pew-dicas.php", null, array());
+				$link_nav[$countLinks] = new NavLinks("Dicas", "pew-dicas.php", null, array(1));
 				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fas fa-newspaper'></i> Listar dicas", "pew-dicas.php");
 				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fa fa-plus'></i> Cadastrar nova", "pew-cadastra-dica.php");
 				$countLinks++;
 			
-				$link_nav[$countLinks] = new NavLinks("Vitrine", "pew-categorias-vitrine.php", null, array());
+				$link_nav[$countLinks] = new NavLinks("Vitrine", "pew-categorias-vitrine.php", null, array(1));
 				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fa fa-tag'></i> Categorias da vitrine", "pew-categorias-vitrine.php");
 				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fa fa-star'></i> Categorias destaque", "pew-categoria-destaque.php");
 				$countLinks++;

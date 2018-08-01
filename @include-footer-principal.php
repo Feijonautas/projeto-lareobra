@@ -485,7 +485,7 @@
             $countLinks++;
         }
         
-        $link_footer[$countLinks] = new FooterLinks("DICAS", "dicas/");
+        $link_footer[$countLinks] = new FooterLinks("BLOG", "blog/");
         $countLinks++;
         
         $link_footer[$countLinks] = new FooterLinks("PÁGINA INICIAL", "inicio/");

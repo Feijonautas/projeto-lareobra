@@ -11,7 +11,7 @@
         $tabela_usuarios = $pew_db->tabela_usuarios_administrativos;
         
         $default_redirect_page = "pew-banners.php";
-        $max_nivel = 3;
+        $max_nivel = 1;
         $selected_usuario = addslashes($_POST["usuario"]);
         $selected_senha = $_POST["senha"] != "" ? md5($_POST["senha"]) : "";
         

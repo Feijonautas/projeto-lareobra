@@ -1,5 +1,6 @@
 <!--STANDARDS-->
-<script src="js/standard.js" async></script>
+<script src="@pew/jquery-mask/src/jquery.mask.js"></script>
+<script src="js/standard.js?v=2.2" async></script>
 <script src="js/valida-datas.js" async></script>
 <script src="js/valida-cpf.js" async></script>
 <script src="js/valida-cep.js?v=1.2" async></script>

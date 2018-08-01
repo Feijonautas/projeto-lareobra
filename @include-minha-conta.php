@@ -196,17 +196,32 @@
         position: relative;
         width: calc(100% - 20px);
         padding: 10px;
-        display: flex;
-        flex-flow: row wrap;
         border-bottom: 2px solid #eee;
         z-index: 50;
     }
+    .box-pedido .line-display{
+		width: 100%;
+        display: flex;
+        flex-flow: row wrap;
+		margin-top: 20px;
+	}
+    .box-pedido .bottom-line{
+		height: 20px;
+		line-height: 20px;
+	}
+    .box-pedido .bottom-line .link-padrao{
+		cursor: pointer;
+		margin: 0;
+	}
+    .box-pedido .hidden-line{
+		display: none;	
+	}
+    .box-pedido .titulo{
+        font-size: 18px;
+        margin: 10px 0px 5px 0px;
+    }
     .box-pedido .right{
         width: 40%;
-    }
-    .box-pedido .right .titulo{
-        font-size: 18px;
-        margin: 0px 0px 15px 0px;
     }
     .box-pedido .right .descricao{
         font-size: 14px;
@@ -216,11 +231,11 @@
         margin: 0px;
     }
     .box-pedido .middle{
-        width: 40%;
+        width: 35%;
     }
     .box-pedido .middle .descricao{
         font-weight: normal;
-        margin: 0px 0px 10px 0px;
+        margin: 10px 0px 10px 0px;
     }
     .box-pedido .middle .btn-mais-info{
         display: inline-block;
@@ -228,19 +243,23 @@
         cursor: pointer;
     }
     .box-pedido .left{
-        width: 20%;
+        width: 25%;
     }
     .box-pedido .left .descricao{
         width: 100px;
         float: left;
         font-weight: normal;
-        margin: 0px 0px 10px 0px;
+        margin: 10px 0px 10px 0px;
     }
     .box-pedido .left .status{
         clear: both;
         color: limegreen;
         font-weight: normal;
     }
+    .box-pedido .line-display .table-list{
+		font-size: 12px;
+		line-height: 14px;
+	}
     .box-pedido .display-info-pedido{
         position: absolute;
         top: -100%;
@@ -293,6 +312,9 @@
         cursor: pointer;
     }
     @media screen and (max-width: 720px){
+		.box-pedido .line-display{
+			margin: 0;	
+		}
         .section-minha-conta .descricao{
             width: 90%; 
         }
@@ -416,20 +438,18 @@ if($listar){
         // PEDIDOS
         var boxPedidos = $(".box-pedido");
         
-        function toggle_info(objTarget){
-            var is_open = objTarget.css("visibility") == "visible" ? true : false;
+        function toggle_info(objTarget, objButton){
+            var is_open = objTarget.css("display") == "none" ? false : true;
             
             if(!is_open){
+				objButton.text("Esconder informações");
                 objTarget.css({
-                    visibility: "visible",
-                    opacity: "1",
-                    top: "0px"
+                    display: "flex"
                 });
             }else{
-                objTarget.css({
-                    visibility: "hidden",
-                    opacity: "0",
-                    top: "-100%"
+				objButton.text("Ver mais informações");
+				objTarget.css({
+                    display: "none"
                 });
             }
         }
@@ -438,24 +458,12 @@ if($listar){
             boxPedidos = $(".box-pedido");
             boxPedidos.each(function(){
                 var box = $(this);
-                var btnInfo = box.children(".control-info").children(".btn-mais-info");
-                var refTarget = btnInfo.attr('data-target-pedido');
-                var objTarget = $("#"+refTarget);
-                var botaoVoltar = objTarget.children(".bottom-info").children(".btn-voltar");
+                var btnInfo = box.children(".bottom-line").children(".btn-mais-info");
+                var targetID = btnInfo.attr('data-id-pedido');
+                var objTarget = $("#moreInfo"+targetID);
                 
                 btnInfo.off().on("click", function(){
-                    var is_open = objTarget.css("visibility") == "visible" ? true : false;
-                    if(!is_open){
-                        var zIndex = 60 + ctrlIndexPedidos;
-                        box.css("z-index", zIndex);
-                        ctrlIndexPedidos++;
-                    }
-                    toggle_info(objTarget);
-                });
-                
-                botaoVoltar.off().on("click", function(){
-                    toggle_info(objTarget);
-                    box.css("z-index", "50");
+                    toggle_info(objTarget, btnInfo);
                 });
             });
         }, 200);
@@ -547,7 +555,7 @@ if($listar){
             objCidade = $("#cidadeConta");
             
             phone_mask(".mascara-numero-conta");
-            input_mask(".mascara-cpf-conta", "999.999.999.99");
+            input_mask(".mascara-cpf-conta", "999.999.999-99");
             input_mask(".mascara-cep-conta", "99999-999");
             
             /*BUSCA ENDERECO*/

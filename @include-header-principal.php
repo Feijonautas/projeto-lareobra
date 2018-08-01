@@ -1166,7 +1166,7 @@ $session_id_franquia = $cls_franquias->id_franquia;
         }
         
         /*END LINKS ALTERAVEIS*/
-        $link_nav[$countLinks] = new NavLinks("DICAS", "dicas/");
+        $link_nav[$countLinks] = new NavLinks("BLOG", "blog/");
         $countLinks++;
         $link_nav[$countLinks] = new NavLinks("CONTATO", "contato/");
         $link_nav[$countLinks]->add_sublink($countLinks, "Telefones", "contato/");

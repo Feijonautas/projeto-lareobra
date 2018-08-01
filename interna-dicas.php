@@ -115,7 +115,7 @@
                     echo "<div class='box'>";  
                         echo "<img src='$srcImagem' title='' alt=''>";
                         echo "<div class='breadcrumb'>";
-                            echo "<h4><a href='index.php'>Página Inicial > </a><a href='dicas/'>Dicas > </a>$tituloDica</h4>";
+                            echo "<h4><a href='index.php'>Página Inicial > </a><a href='blog/'>Blog > </a>$tituloDica</h4>";
                             echo "<h1>$tituloDica</h1>";
                             echo "<h2>$subtitulo</h2>";
                         echo "</div>";
@@ -125,12 +125,12 @@
                             echo $video;
                         }
                         echo "<article>$descricaoLonga</article>";
-                        echo "<div class='full' align=center><a href='dicas/' class='link-padrao'>Voltar à página de dicas</a></div>";
+                        echo "<div class='full' align=center><a href='blog/' class='link-padrao'>Voltar para o blog</a></div>";
                     echo "</div>";
                     
 				}else{
                     echo "<h3 class='mensagem-no-result'>Nenhum resultado encontrado.</h3>";
-                    echo "<div align=center><a href='dicas/' class='link-padrao'>Voltar à página de dicas</a></div>";
+                    echo "<div align=center><a href='blog/' class='link-padrao'>Voltar para o blog</a></div>";
                 }
             ?>
         </div>

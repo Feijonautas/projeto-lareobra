@@ -26,6 +26,8 @@
 				
 				if(isset($_SESSION['franquia']['id'])){
 					$this->id_franquia = $_SESSION['franquia']['id'];
+					$this->estado = $_SESSION['franquia']['estado'];
+					$this->cidade = $_SESSION['franquia']['cidade'];
 				}else{
 					$_SESSION['franquia'] = isset($_SESSION['franquia']) ? $_SESSION['franquia'] : array();
 					$alterCondition = "status = 1";
@@ -34,14 +36,18 @@
 					}
 					$total = $pew_functions->contar_resultados($tabela_franquias, $alterCondition);
 					if($total > 0){
-						$queryF = mysqli_query($conexao, "select id from $tabela_franquias where $alterCondition order by id asc");
+						$queryF = mysqli_query($conexao, "select id, estado, cidade from $tabela_franquias where $alterCondition order by id asc");
 						$infoF = mysqli_fetch_array($queryF);
 						$this->id_franquia = $infoF['id'];
+						$this->estado = $infoF['estado'];
+						$this->cidade = $infoF['cidade'];
 					}else{
 						$this->id_franquia = 0;
 					}
 				}
 				$_SESSION['franquia']['id'] = $this->id_franquia;
+				$_SESSION['franquia']['estado'] = $this->estado;
+				$_SESSION['franquia']['cidade'] = $this->cidade;
 			}
 
 			function query_franquias($condicao = "true"){

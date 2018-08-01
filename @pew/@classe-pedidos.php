@@ -1,6 +1,5 @@
 <?php
-	$start_session = isset($_POST['start_session']) ? $_POST['start_session'] : true;
-	if($start_session){
+	if(!isset($_SESSION)){
 		session_start();
 		require_once "@valida-sessao.php";
 	}
@@ -30,6 +29,7 @@
         private $valor_sfrete = 0;
         private $valor_total = 0;
         private $data_controle;
+        private $data_modificacao;
         private $status_transporte = 0;
         private $status = 0;
         public $id_franquia = 0;
@@ -73,11 +73,17 @@
                 $this->cidade = $info["cidade"];
                 $this->estado = $info["estado"];
                 $this->data_controle = $info["data_controle"];
+                $this->data_modificacao = $info["data_modificacao"];
                 $this->status_transporte = $info["status_transporte"];
                 $this->status = $info["status"];
                 $this->valor_frete = $info["vlr_frete"];
                 $this->codigo_rastreamento = $info["codigo_rastreamento"];
                 $this->payment_link = $info["payment_link"];
+				
+				$dataPedido = substr($info['data_controle'], 0, 10);
+				$dataPedido = $this->pew_functions->inverter_data($dataPedido);
+				$dataVencimento = date($dataPedido, "+ 7 days");
+				$pagamentoExpirado = strtotime($dataPedido) > strtotime($dataVencimento) ? true : false;
                 
                 $_POST["console"] = false;
                 $_POST["codigo_referencia"] = $info["referencia"];
@@ -86,8 +92,14 @@
                 
                 require "{$diretorioAPI}pagseguro/ws-pagseguro-consulta-referencia.php"; // Retorna o $statusPagseguro
                 
+				if($statusPagseguro == 3 && $this->codigo_rastreamento == 0 || $statusPagseguro == 4 && $this->codigo_rastreamento == 0){
+					$code = $this->random_track_code($info['referencia']);
+					mysqli_query($conexao, "update $tabela_pedidos set codigo_rastreamento = '$code' where id = '{$info['id']}'");
+					$this->codigo_rastreamento = $code;
+					$this->status_transporte = 2;
+				}
                 
-                if(isset($statusPagseguro) && $statusPagseguro != $info["status"]){
+                if(isset($statusPagseguro) && $statusPagseguro != $this->status){
                     switch($statusPagseguro){
                         case 1:
                             $statusTransporte = 0;
@@ -116,11 +128,12 @@
                     
                     $statusTransporte = $this->status_transporte == 0 ? $statusTransporte : $this->status_transporte;
                     
-                    $this->status = $statusPagseguro;
+					$this->status = $statusPagseguro;
+                    $this->status_transporte = $statusTransporte;
+                    
                 }
-                
+				
                 $tokenCarrinho = $info["token_carrinho"];
-                
 
                 $valorTotal = 0;
 
@@ -160,6 +173,7 @@
             $array["cidade"] = $this->cidade;
             $array["estado"] = $this->estado;
             $array["data_controle"] = $this->data_controle;
+            $array["data_modificacao"] = $this->data_modificacao;
             $array["valor_sfrete"] = $this->valor_sfrete;
             $array["valor_total"] = $this->valor_total;
             $array["status"] = $this->status;
@@ -216,7 +230,7 @@
             }
         }
         
-        function get_status_string($status){
+        function get_status_string($status, $client_side = false){
             switch($status){
                 case 1:
                     $str = "Aguardando pagamento";
@@ -228,7 +242,7 @@
                     $str = "Paga";
                     break;
                 case 4:
-                    $str = "Disponível";
+                    $str = $client_side == false ? "Disponível" : "Paga";
                     break;
                 case 5:
                     $str = "Em disputa";
@@ -246,14 +260,17 @@
         }
         
         function get_status_transporte_string($status){
+			$buttonID = "addRastreamento{$this->id}";
+			$buttonClass = "btn-add-rastreamento";
             switch($status){
                 case 1:
-                    //$str = "Pronto para envio";
-                    $str = "<a class='link-padrao btn-add-rastreamento' id='addRastreamento{$this->id}'>Adicionar código de rastreio</a>";
+                    $str = "<a class='link-padrao $buttonClass' id='$buttonID'>Adicionar código de rastreio</a>";
                     break;
                 case 2:
-                    //$str = "Enviado";
-                    $str = "<a class='link-padrao btn-add-rastreamento' id='addRastreamento{$this->id}'>" . $this->codigo_rastreamento . "</a>";
+					if($this->codigo_transporte == 7777){
+						$buttonID = "editRastreamento{$this->id}";
+					}
+                    $str = "<a class='link-padrao $buttonClass' id='$buttonID'>" . $this->codigo_rastreamento . "</a>";
                     break;
                 case 3:
                     $str = "Entregue";
@@ -316,6 +333,17 @@
             }
             return $str;
         }
+		
+		function random_track_code($ref){
+			$tabela_pedidos = $this->global_vars["tabela_pedidos"];
+			$newCode = substr(md5($ref), 0, 6);
+			$ctrl = 1;
+			while($this->pew_functions->contar_resultados($tabela_pedidos, "codigo_rastreamento = '$newCode'") > 0){
+				$newCode = substr(md5($ref.$ctrl), 0, 6);
+				$ctrl++;
+			}
+			return $newCode;
+		}
         
         function listar_pedidos($selectedIDs){
 			global $pew_session;
@@ -377,7 +405,7 @@
                                 echo "<h3 class='descricao'>$transporteStr</h3>";
                             echo "</div>";
                             echo "<div class='half box-info'>";
-                                echo "<h4 class='titulo'><i class='fas fa-parachute-box'></i> Entrega</h4>";
+                                echo "<h4 class='titulo'><i class='fas fa-parachute-box'></i> Rastreio</h4>";
                                 echo "<h3 class='descricao'>$statusTransporteStr</h3>";
                             echo "</div>";
                             echo "<div class='bottom-buttons group clear'>";

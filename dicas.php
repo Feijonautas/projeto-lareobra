@@ -3,7 +3,7 @@
     
     require_once "@classe-paginas.php";
 
-    $cls_paginas->set_titulo("Dicas");
+    $cls_paginas->set_titulo("Blog");
     $cls_paginas->set_descricao("DESCRIÇÃO MODELO ATUALIZAR...");
 ?>
 <!DOCTYPE html>
@@ -167,7 +167,7 @@
 						$titulo = $dicas["titulo"];
 						$refDica = $dicas["ref"];
 						$descricaoCurta = $dicas["descricao_curta"];
-						$urlDica = "dicas/$refDica/$id/";
+						$urlDica = "blog/$refDica/$id/";
 						$max = 155;
 						$descricaoCurta = substr($descricaoCurta, 0, $max)."...";
 						$srcImagem = file_exists($dirImagens."/".$thumb) && $thumb != "" ? $dirImagens."/".$thumb : $dirImagens."/"."thumb-padrao.png";
