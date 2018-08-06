@@ -718,13 +718,15 @@
 							}
 							
                         }
+				
+						$clientCep = isset($_SESSION['franquia']['client_cep']) ? $_SESSION['franquia']['client_cep']: null;
                     ?>
                     <div class="display-comprar">
                         <?php echo $viewBotaoComprar; ?>
                     </div>
                     <div class="calculo-frete">
                         <h5 class="titulo-frete">CALCULAR FRETE</h5>
-                        <input type="text" class="input-frete">
+                        <input type="text" class="input-frete" value="<?= $clientCep; ?>">
                         <button class="botao-calculo-frete"><i class="fas fa-truck"></i></button>
                         <div class='resultado-frete'></div>
                         <div class="display-info-calculo-frete">

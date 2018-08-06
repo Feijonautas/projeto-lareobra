@@ -1,4 +1,7 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 session_start();
 
 $thisPageURL = substr($_SERVER["REQUEST_URI"], strpos($_SERVER["REQUEST_URI"], '@pew'));
@@ -318,8 +321,8 @@ $page_title = "Relatório de vendas";
                                     </div>
                                     <div class="full">
                                         <label class="label-title">
-                                            <input type="checkbox" name="esconder_departamentos" <?php if(isset($_POST["esconder_departamentos"])) echo "checked"; ?> >
-                                            Esconder departamentos
+                                            <input type="checkbox" name="mostrar_departamentos" <?php if(isset($_POST["mostrar_departamentos"])) echo "checked"; ?> >
+                                            Mostrar departamentos
                                         </label>
                                     </div>
                                 </div>
@@ -335,9 +338,9 @@ $page_title = "Relatório de vendas";
                 <thead>
                     <td>Data</td>
                     <td>Cliente</td>
-                    <td>Produtos</td>
+                    <td>QTD</td>
                     <td class='prices'>Total bruto</td>
-                    <td class='prices'>Total compra</td>
+                    <td class='prices'>Compra</td>
                     <?php
                     if(!isset($_POST["somente_pagos"])){
                         echo "<td class='prices'>Total pago</td>";
@@ -347,9 +350,12 @@ $page_title = "Relatório de vendas";
                     <td class='prices'>Frete</td>
                     <td>Pagamento</td>
                     <?php
-                    if(!isset($_POST["esconder_departamentos"])){
+                    if(isset($_POST["mostrar_departamentos"])){
                         echo "<td>Departamentos</td>";
                     }
+					if($pew_session->nivel == 1){
+						echo "<td>Franquia</td>";
+					}
                     ?>
                 </thead>
                 <tbody>
@@ -361,6 +367,7 @@ $page_title = "Relatório de vendas";
 
                     $tabela_produtos = $pew_custom_db->tabela_produtos;
                     $tabela_pedidos = $pew_custom_db->tabela_pedidos;
+                    $tabela_franquias = "franquias_lojas";
 
                     $selectedPedidos = array();
                     function add_pedido($id, $array){
@@ -385,7 +392,7 @@ $page_title = "Relatório de vendas";
 
                     $arrayBuscaPedidos = false;
 
-                    if(isset($_GET["busca"])){
+                    if(isset($_GET['busca']) && $_GET['busca'] != null){
                         $busca = addslashes($_GET["busca"]);
                         $colluns = array("referencia", "nome_cliente", "cpf_cliente");
                         $condicaoBusca = "";
@@ -398,7 +405,7 @@ $page_title = "Relatório de vendas";
                         if(!is_array($arrayBuscaPedidos)){
                             $arrayBuscaPedidos = array();
                         }
-                        echo "<h3 class='no-print'>Exibindo resultados para: $busca</h3>";
+                        echo "<div class='full'><h5 class='no-print'>Exibindo resultados para: $busca &nbsp;&nbsp; <a href='pew-relatorios.php' class='link-padrao'>Limpar busca</a></h5></div>";
                     }
 
                     if(isset($_POST["filtro_relatorios"])){
@@ -465,7 +472,8 @@ $page_title = "Relatório de vendas";
                                 }
                             }
                         }else{
-                            $query = mysqli_query($conexao, "select id from $tabela_pedidos where data_controle between '$dataInicial' and '$dataFinal'");
+							$condicaoPedidos = $pew_session->nivel == 1 ? "cast(data_controle as DATE) >= '$dataInicial' and cast(data_controle as DATE) <= '$dataFinal'" : "cast(data_controle as DATE) >= '$dataInicial' and cast(data_controle as DATE) <= '$dataFinal' and id_franquia = '{$pew_session->id_franquia}'";
+                            $query = mysqli_query($conexao, "select id from $tabela_pedidos where $condicaoPedidos");
                             while($info = mysqli_fetch_array($query)){
                                 $cls_pedidos->montar($info["id"]);
                                 $infoArray = $cls_pedidos->montar_array();
@@ -479,7 +487,8 @@ $page_title = "Relatório de vendas";
                         if(count($selectedProdutos) > 0){
                             $arrayPedidos = $cls_pedidos->get_pedidos_by_produtos($selectedProdutos);
                             foreach($arrayPedidos as $idPedido){
-                                $query = mysqli_query($conexao, "select data_controle from $tabela_pedidos where id = '$idPedido'");
+								$condicaoPedidos = $pew_session->nivel == 1 ? "id = '$idPedido'" : "id = '$idPedido' and id_franquia = '{$pew_session->id_franquia}'";
+                                $query = mysqli_query($conexao, "select data_controle from $tabela_pedidos where $condicaoPedidos");
                                 $cls_pedidos->montar($idPedido);
                                 $infoArray = $cls_pedidos->montar_array();
                                 if(compare("data_inicial", $infoArray["data_controle"]) && compare("data_final", $infoArray["data_controle"]) && compare("preco_inicial", $infoArray["valor_sfrete"]) && compare("preco_final", $infoArray["valor_sfrete"])){
@@ -489,8 +498,8 @@ $page_title = "Relatório de vendas";
                         }
 
                     }else{
-                        $condicao = "true";
-                        $queryPedidos = mysqli_query($conexao, "select id from $tabela_pedidos where $condicao");
+                        $condicaoPedidos = $pew_session->nivel == 1 ? "true" : "id_franquia = '{$pew_session->id_franquia}'";
+                        $queryPedidos = mysqli_query($conexao, "select id from $tabela_pedidos where $condicaoPedidos");
                         while($info = mysqli_fetch_array($queryPedidos)){
                             $cls_pedidos->montar($info["id"]);
                             $infoArray = $cls_pedidos->montar_array();
@@ -552,14 +561,16 @@ $page_title = "Relatório de vendas";
                             echo "<tr><td colspan=10 class='mensagem-table'>Filtro: $strFilterFinal</td></tr>";
                         }
                         // End mensagem filtro
+						array_multisort($selectedPedidos, SORT_DESC);
                         foreach($selectedPedidos as $infoPedido){
                             $idPedido = $infoPedido["id"];
                             $infoArray = $infoPedido["array"];
+                            $idFranquia = $infoArray["id_franquia"];
                             $valorTotal = $infoArray["valor_sfrete"];
                             $valorFrete = $infoArray["valor_frete"];
                             $data = $infoArray["data_controle"];
                             $data = $pew_functions->inverter_data(substr($data, 0, 10));
-                            $infoProdutos = $cls_pedidos->get_produtos_pedido();
+                            $infoProdutos = $cls_pedidos->get_produtos_pedido($infoPedido['array']['token_carrinho']);
                             $totalProdutos = count($infoProdutos);
                             $pagamento = $cls_pedidos->get_pagamento_string($infoArray["codigo_pagamento"]);
                             $pago = $infoArray["status"] == 3 || $infoArray["status"] == 4 ? true : false;
@@ -602,7 +613,7 @@ $page_title = "Relatório de vendas";
                                 $precoBrutoProduto = $infoPreco["preco"];
                                 $valorBruto += $precoBrutoProduto;
 
-                                if(!isset($_POST["esconder_departamentos"])){
+                                if(isset($_POST["mostrar_departamentos"])){
                                     $categoriasProduto = $cls_produtos->get_categorias_produto($infoProduto["id"]);
                                     if(is_array($categoriasProduto)){
                                         foreach($categoriasProduto as $infoCategoria){
@@ -656,7 +667,14 @@ $page_title = "Relatório de vendas";
                                 echo "<td class='prices'>R$ $valorDesconto</td>";
                                 echo "<td class='prices'>R$ $valorFrete</td>";
                                 echo "<td>$pagamento</td>";
-                                if(!isset($_POST["esconder_departamentos"])){
+								if($pew_session->nivel == 1){
+									$queryFranquia = mysqli_query($conexao, "select estado, cidade from $tabela_franquias where id = '$idFranquia'");
+									$infoFranquia = mysqli_fetch_array($queryFranquia);
+									$estado = $infoFranquia['estado'];
+									$cidade = $infoFranquia['cidade'];
+									echo "<td>$estado - $cidade</td>";
+								}
+                                if(isset($_POST["mostrar_departamentos"])){
                                     echo "<td>";
                                     echo "<ul class='seg-tree'>";
                                     foreach($tree as $infoTree){

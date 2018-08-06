@@ -80,7 +80,7 @@
                         echo "<input type='button' class='btn-excluir botao-acao label-input' pew-acao='deletar' pew-id-marca='$idCor' value='Excluir'>";
                     echo "</div>";
                     echo "<div class='small'>";
-                        echo "<input type='submit' class='btn-submit label-input' value='Atualizar'>";
+                        echo "<input type='submit' class='btn-submit label-input js-button-submit' value='Atualizar'>";
                     echo "</div>";
                     echo "</div>";
                 echo "<br class='clear'>";
@@ -108,7 +108,7 @@
     $(document).ready(function(){
         var formUpdate = $("#formUpdate");
         var atualizando = false;
-        formUpdate.off().on("submit", function(){
+        $(".js-button-submit").off().on("click", function(event){
             event.preventDefault();
             if(!atualizando){
                 atualizando = true;

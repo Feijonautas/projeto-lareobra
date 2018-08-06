@@ -70,7 +70,7 @@
             });
         })
         var formCadastra = $("#formCadCategoria");
-        formCadastra.off().on("submit", function(){
+        formCadastra.off().on("submit", function(event){
             event.preventDefault();
             if(cadastrar){
                 var formulario = new FormData($(this)[0]);

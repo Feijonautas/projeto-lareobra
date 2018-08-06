@@ -608,14 +608,16 @@ $session_id_franquia = $cls_franquias->id_franquia;
     .header-principal .nav-header .display-links .sub-menu li{
         position: relative;
         white-space: nowrap;
-        min-width: 250px;
+        min-width: 300px;
+		width: auto;
     }
     .header-principal .nav-header .display-links .sub-menu .sub-link{
-        display: block;
+        display: flex;
         text-decoration: none;
         color: #666;
         width: 85%;
-        padding: 10px;
+		height: 40px;
+		line-height: 40px;
         padding-left: 5%;
         padding-right: 10%;
         -webkit-transition: .2s;
@@ -623,8 +625,12 @@ $session_id_franquia = $cls_franquias->id_franquia;
         transition: .2s;
         font-weight: bold;
     }
+    .header-principal .nav-header .display-links .sub-menu .sub-link .icone{
+		height: 30px;
+		margin: 5px 5px 5px 0;
+	}
     .header-principal .nav-header .display-links .sub-menu li:hover .sub-link{
-        background-color: #303030;
+        background-color: #69bc46;
         color: #fff;
         font-weight: bold;
     }
@@ -964,10 +970,11 @@ $session_id_franquia = $cls_franquias->id_franquia;
                 $this->classe = $classe;
             }
 
-            public function add_sublink($id, $titulo, $url){
+            public function add_sublink($id, $titulo, $url, $icone = null){
                 $this->sublinks[$this->qtd_sublinks] = array();
                 $this->sublinks[$this->qtd_sublinks]["id"] = $id;
                 $this->sublinks[$this->qtd_sublinks]["titulo"] = $titulo;
+                $this->sublinks[$this->qtd_sublinks]["icone"] = $icone;
                 $this->sublinks[$this->qtd_sublinks]["url"] = $url;
                 $this->sublinks[$this->qtd_sublinks]["qtd_sub_sublinks"] = 0;
                 $this->qtd_sublinks++;
@@ -997,6 +1004,7 @@ $session_id_franquia = $cls_franquias->id_franquia;
                 $urlPrincipal = $this->url_link;
                 $subLinks = $this->sublinks;
                 $classe = $this->classe;
+				$dirIcones = "imagens/categorias/categorias/icones/";
                 echo "<li class='first-li'>";
                 echo "<span>";
                     echo "<a href='$urlPrincipal' class='link-principal $classe'>$tituloPrincipal</a>";
@@ -1005,10 +1013,11 @@ $session_id_franquia = $cls_franquias->id_franquia;
                         foreach($subLinks as $subLink){
                             $idSubLink = $subLink["id"];
                             $tituloSubLink = $subLink["titulo"];
+                            $iconeSubLink = $subLink["icone"] != null ? "<img src=".$dirIcones.$subLink['icone']." class='icone'>" : null;
                             $urlSubLink = $subLink["url"];
                             $qtd_sub_subLinks = $subLink["qtd_sub_sublinks"];
                             $sub_subLinks = $this->sub_sublinks;
-                            echo "<li><a href='$urlSubLink' class='sub-link'>$tituloSubLink</a>";
+                            echo "<li><a href='$urlSubLink' class='sub-link'>$iconeSubLink $tituloSubLink</a>";
                             if($qtd_sub_subLinks > 0){
                                 echo "<span class='sub-sub-links-icon'><i class='fa fa-arrow-right' aria-hidden='true'></i></span>";
                                 echo "<ul class='sub-sub-menu'>";
@@ -1093,10 +1102,12 @@ $session_id_franquia = $cls_franquias->id_franquia;
                             $queryCategoria = mysqli_query($conexao, "select * from $tabela_categorias where id = '$idCategoria' and status = 1");
                             $infoCategoria = mysqli_fetch_array($queryCategoria);
                             $tituloCategoria = $infoCategoria["categoria"];
+                            $iconeCategoria = $infoCategoria["icone"];
                             $refCategoria = $infoCategoria["ref"];
                             $urlCategoria = "loja/$refDepartamento/$refCategoria/";
                             $departamentoLinks[$ctrlDepartamentoLinks]["sublinks"][$ctrlSub] = array();
                             $departamentoLinks[$ctrlDepartamentoLinks]["sublinks"][$ctrlSub]["titulo"] = $tituloCategoria;
+                            $departamentoLinks[$ctrlDepartamentoLinks]["sublinks"][$ctrlSub]["icone"] = $iconeCategoria;
                             $departamentoLinks[$ctrlDepartamentoLinks]["sublinks"][$ctrlSub]["url"] = $urlCategoria;
                             $totalSubcategorias = $pew_functions->contar_resultados($tabela_subcategorias, "id_categoria = '$idCategoria'");
                             $ctrlSubsublinks = 0;
@@ -1148,10 +1159,11 @@ $session_id_franquia = $cls_franquias->id_franquia;
                 $ctrl_sub = 0;
                 foreach($sublinks as $indice => $slink){
                     $titulo = $slink["titulo"];
+                    $icone = $slink["icone"];
                     $url = $slink["url"];
                     $subsublinks = isset($slink["subsublinks"]) ? $slink["subsublinks"] : null;
                     $totalSubsub = is_array($subsublinks) ? count($subsublinks) : 0;
-                    $link_nav[$countLinks]->add_sublink($ctrl_sub, $titulo, $url);
+                    $link_nav[$countLinks]->add_sublink($ctrl_sub, $titulo, $url, $icone);
                     if($totalSubsub > 0){
                         foreach($subsublinks as $sublink){
                             $tituloSub = $sublink["titulo"];

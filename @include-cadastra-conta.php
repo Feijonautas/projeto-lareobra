@@ -339,8 +339,8 @@
                 <button class="top-buttons" id="botaoPasso2">ENDEREÇO</button>
             </div>
 			<?php
-			$modalCep = isset($_SESSION['franquia']['cep']) ? $_SESSION['franquia']['cep'] : null;
-			$modalEmail = isset($_SESSION['franquia']['email']) ? $_SESSION['franquia']['email'] : null;
+			$modalCep = isset($_SESSION['franquia']['client_cep']) ? $_SESSION['franquia']['client_cep'] : null;
+			$modalEmail = isset($_SESSION['franquia']['client_email']) ? $_SESSION['franquia']['client_email'] : null;
 			?>
             <form class="formulario-cadastro" name="formulario_cadastro" id="formularioCadastroConta">
                 <div class="background-loading">
@@ -592,19 +592,6 @@
                     mudandoPasso = false;
                 }, 500);
             }
-        }
-        
-        function mensagemConfirmaEmail(email){
-            /*var mensagem = "Foi enviando um e-mail para <b>" + email + "</b>  com um <b>link de confirmação</b>.<br><br>Clique no link para ativar sua conta e começar a aproveitar as ofertas e promoções da nossa loja!<br><br><a href='javascript:window.location.reload()' class='link-padrao'>Recarregar página</a>";
-            displayFormularios.hide();
-            displayConfirmacao.html(mensagem).css({
-                display: "block",
-                opacity: "1"
-            });*/
-            mensagemAlerta("Cadastro feito com sucesso!", false, "limegreen");
-            setTimeout(function(){
-                window.location.reload();
-            }, 400);
         }
         
         /*END DEFAULT FUNCTIONS*/
@@ -1013,6 +1000,7 @@
             }
             
             function lastStep(){
+				var requesting_response = false;
                 lastValidationAtiva = true;
                 function resetValidationStatus(){
                     validacaoPassos.forEach(function(val, ctrl){
@@ -1068,28 +1056,31 @@
                                 var msgErro = "Desculpe, ocorreu um erro ao enviar os dados. Recarregue a página e tente novamente";
                                 var msgSucesso = "Seu cadastro foi feito com sucesso!";
                                 
-                                $.ajax({
-                                    type: "POST",
-                                    data: formData,
-                                    url: "@grava-cadastro-conta.php",
-                                    cache: false,
-                                    contentType: false,
-                                    processData: false,
-                                    error: function(){
-                                        notificacaoPadrao(msgErro);
-                                        finish();
-                                    },
-                                    success: function(resposta){
-                                        console.log("Mensagem: " + resposta);
-                                        if(resposta == "true"){
-                                            mensagemAlerta(msgSucesso, false, "limegreen");
-                                            mensagemConfirmaEmail(objEmail.val());
-                                        }else{
-                                            //mensagemAlerta(msgErro, false, "limegreen");
-                                        }
-                                        finish();
-                                    }
-                                });
+								if(requesting_response == false){
+									requesting_response = true;
+									$.ajax({
+										type: "POST",
+										data: formData,
+										url: "@grava-cadastro-conta.php",
+										cache: false,
+										contentType: false,
+										processData: false,
+										error: function(){
+											notificacaoPadrao(msgErro);
+											finish();
+										},
+										success: function(resposta){
+											console.log("Mensagem: " + resposta);
+											if(resposta == "true"){
+												mensagemAlerta("Cadastro feito com sucesso!", false, "limegreen");
+												setTimeout(function(){
+													window.location.reload();
+												}, 400);
+											}
+											finish();
+										}
+									});
+								}
                             }else{
                                 finish();
                             }

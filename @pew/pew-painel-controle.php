@@ -24,9 +24,6 @@
             require_once "@link-standard-styles.php";
             require_once "@link-standard-scripts.php";
         ?>
-        <style>
-
-        </style>
         <!--FIM THIS PAGE CSS-->
     </head>
     <body>

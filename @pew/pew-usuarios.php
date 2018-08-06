@@ -161,42 +161,45 @@
                         $i = 0;
                         while($usuarios = mysqli_fetch_array($queryUsuarios)){
                             $idUsuario = $usuarios["id"];
-                            $usuario  = $usuarios["usuario"];
-                            $nivel  = $usuarios["nivel"];
-                            switch($nivel){
-                                case 1:
-                                    $nivel = "Franquia Principal";
-                                    break;
-                                case 2:
-                                    $nivel = "Franquia Padrão";
-                                    break;
-								case 3:
-                                    $nivel = "Administrador";
-                                    break;
-								case 4:
-                                    $nivel = "Comercial";
-                                    break;
-                                default:
-                                    $nivel = "Designer";
-                            }
-                            $i++;
-                            echo "<div class='box-usuario'>";
-                                echo "<div class='indice'>$i</div>";
-                                echo "<div class='name-field'>";
-                                    echo "<h3 class='title'>Usuário</h3>";
-                                    echo $usuario;
-                                echo "</div>";
-                                echo "<div class='nivel-field'>";
-                                    echo "<h3 class='title'>Nível</h3>";
-                                    echo $nivel;
-                                echo "</div>";
-                                echo "<div class='control-field'>";
-                                    echo "<h3 class='title'>Editar</h3>";
-                                    echo "<a href='pew-edita-usuario.php?id_usuario=$idUsuario' class='btn-editar'><i class='fas fa-edit'></i> Editar</a>";
-                                echo "</div>";
-                            echo "</div>";
-                        }
-                        echo "</div>";
+                            $idFranquia = $usuarios["id_franquia"];
+							if($pew_session->id_franquia == $idFranquia || $pew_session->nivel == 1){
+								$usuario  = $usuarios["usuario"];
+								$nivel  = $usuarios["nivel"];
+								switch($nivel){
+									case 1:
+										$nivel = "Franquia Principal";
+										break;
+									case 2:
+										$nivel = "Franquia Padrão";
+										break;
+									case 3:
+										$nivel = "Administrador";
+										break;
+									case 4:
+										$nivel = "Comercial";
+										break;
+									default:
+										$nivel = "Designer";
+								}
+								$i++;
+								echo "<div class='box-usuario'>";
+									echo "<div class='indice'>$i</div>";
+									echo "<div class='name-field'>";
+										echo "<h3 class='title'>Usuário</h3>";
+										echo $usuario;
+									echo "</div>";
+									echo "<div class='nivel-field'>";
+										echo "<h3 class='title'>Nível</h3>";
+										echo $nivel;
+									echo "</div>";
+									echo "<div class='control-field'>";
+										echo "<h3 class='title'>Editar</h3>";
+										echo "<a href='pew-edita-usuario.php?id_usuario=$idUsuario' class='btn-editar'><i class='fas fa-edit'></i> Editar</a>";
+									echo "</div>";
+								echo "</div>";
+							}
+						}
+						echo "</div>";
                     }else{
                         echo "<h3 class='subtitulos'>Não foram encontrados usuários.</h3>";
                     }

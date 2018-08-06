@@ -1,8 +1,11 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
     session_start();
     
     require_once "@classe-paginas.php";
-
     $cls_paginas->set_titulo("Loja");
     $cls_paginas->set_descricao("...");
 
@@ -40,24 +43,34 @@
     }
 
     $dirImagensDepartamento = "imagens/departamentos/";
-    $bgPadrao = "background-vitrine-padrao.png";
+    $dirImagensCategoria = "imagens/categorias/categorias/";
+    $dirImagensSubcategoria = "imagens/categorias/subcategorias/";
+
+	$tabela_departamentos = $pew_custom_db->tabela_departamentos;
+	$tabela_categorias = $pew_db->tabela_categorias;
+	$tabela_subcategorias = $pew_db->tabela_subcategorias;
+
+	$backgroundVitrine = null;
+	function change_image_banner($dir, $src){
+		global $dirImagensDepartamento, $backgroundVitrine;
+		if($src != null && file_exists($dir.$src)){
+			$backgroundVitrine = $dir.$src;
+		}else{
+			$backgroundVitrine = $dirImagensDepartamento."background-vitrine-padrao.png";
+		}
+	}
 
     if($getDepartamento != null){
-        $tabela_departamentos = $pew_custom_db->tabela_departamentos;
         $queryImagem = mysqli_query($conexao, "select imagem from $tabela_departamentos where ref = '$getDepartamento'");
         $infoImagem = mysqli_fetch_array($queryImagem);
-        
-        $imagemDepartamento = $infoImagem["imagem"];
-        
-        if(!file_exists($dirImagensDepartamento.$imagemDepartamento) || $imagemDepartamento == ""){
-            $backgroundVitrine = $dirImagensDepartamento.$bgPadrao;
-        }else{
-            $backgroundVitrine = $dirImagensDepartamento.$imagemDepartamento;
-        }
-        
+		
+		$imagemDepartamento = $infoImagem['imagem'];
+		
     }else{
-        $backgroundVitrine = $dirImagensDepartamento.$bgPadrao;
-    }
+		$imagemDepartamento = null;
+	}
+
+	change_image_banner($dirImagensDepartamento, $imagemDepartamento);
 
 ?>
 <!DOCTYPE html>
@@ -225,10 +238,6 @@
             require_once "@classe-vitrine-produtos.php";
         ?>
         <!--THIS PAGE CONTENT-->
-        <div class="background-loja">
-            <img src="<?php echo $backgroundVitrine; ?>">
-        </div>
-        <div class="main-content">
         <?php
             
             $selectedProdutos = array();
@@ -277,11 +286,13 @@
                     
                     $tituloVitrine = $infoVitrine["titulo"];
                     $descricaoVitrine = $infoVitrine["descricao"];
+					
+					$countSubcategorias = $pew_functions->contar_resultados($tabela_subcategorias, "ref = '$getSubcategoria'");
+					$selectedSubcategoria = $cls_produtos->search_subcategorias_produtos("ref = '$getSubcategoria'");
 
                     if($buscarDepartamento && $buscarCategoria){
                         $selectedDepartamento = $cls_produtos->search_departamentos_produtos("ref = '$getDepartamento'");
                         $selectedCategoria = $cls_produtos->search_categorias_produtos("ref = '$getCategoria'");
-                        $selectedSubcategoria = $cls_produtos->search_subcategorias_produtos("ref = '$getSubcategoria'");
                         foreach($selectedCategoria as $idProduto){
                             if(array_search($idProduto, $selectedDepartamento) >= 0 || array_search($idProduto, $selectedDepartamento) != null){
                                 $selected[$ctrlSelected] = $idProduto;
@@ -309,7 +320,6 @@
 
                     }else if($buscarCategoria){
                         $selectedCategoria = $cls_produtos->search_categorias_produtos("ref = '$getCategoria'");
-                        $selectedSubcategoria = $cls_produtos->search_subcategorias_produtos("ref = '$getSubcategoria'");
 
                         foreach($selectedSubcategoria as $idProduto){
                             if(array_search($idProduto, $selectedCategoria) >= 0 || array_search($idProduto, $selectedCategoria) != null){
@@ -326,7 +336,6 @@
                         add_navigation($tituloVitrine, "categoria/$getCategoria/$getSubcategoria/");
                         
                     }else{
-                        $selectedSubcategoria = $cls_produtos->search_subcategorias_produtos("ref = '$getSubcategoria'");
 
                         foreach($selectedSubcategoria as $idProduto){
                             $selectedFinal[$ctrlSelectedFinal] = $idProduto;
@@ -336,9 +345,17 @@
                         add_navigation($tituloVitrine, "subcategoria/$getSubcategoria/");
                     }
                     
-                    foreach($selectedFinal as $id){
-                        add_produto($id);
-                    }
+					if($countSubcategorias > 0){
+						
+						$queryImagem = mysqli_query($conexao, "select imagem from $tabela_subcategorias where ref = '$getSubcategoria'");
+						$infoImagem = mysqli_fetch_array($queryImagem);
+						change_image_banner($dirImagensSubcategoria, $infoImagem['imagem']);
+						
+					}
+					
+					foreach($selectedFinal as $id){
+						add_produto($id);
+					}
                     
                 }
             }else if($buscarCategoria){
@@ -348,10 +365,12 @@
                 $infoVitrine = $cls_produtos->get_referencias("categoria", "ref = '$getCategoria'");
                 $tituloVitrine = $infoVitrine["titulo"];
                 $descricaoVitrine = $infoVitrine["descricao"];
-                
+				
+				$countCategorias = $pew_functions->contar_resultados($tabela_categorias, "ref = '$getCategoria'");
+				$selectedCategoria = $cls_produtos->search_categorias_produtos("ref = '$getCategoria'");
+				
                 if($buscarDepartamento && $buscarCategoria){
                     $selectedDepartamento = $cls_produtos->search_departamentos_produtos("ref = '$getDepartamento'");
-                    $selectedCategoria = $cls_produtos->search_categorias_produtos("ref = '$getCategoria'");
                     
                     foreach($selectedCategoria as $idProduto){
                         if(array_search($idProduto, $selectedDepartamento) >= 0 || array_search($idProduto, $selectedDepartamento) != null){
@@ -368,7 +387,6 @@
                     add_navigation($tituloVitrine, "loja/$getDepartamento/$getCategoria/");
                     
                 }else{
-                    $selectedCategoria = $cls_produtos->search_categorias_produtos("ref = '$getCategoria'");
                     foreach($selectedCategoria as $idProduto){
                         $selectedFinal[$ctrlSelectedFinal] = $idProduto;
                         $ctrlSelectedFinal++;
@@ -376,9 +394,19 @@
                     
                     add_navigation($tituloVitrine, "categoria/$getCategoria/");
                 }
-                foreach($selectedFinal as $id){
-                    add_produto($id);
-                }
+				
+				if($countCategorias > 0){
+						
+					$queryImagem = mysqli_query($conexao, "select imagem from $tabela_categorias where ref = '$getCategoria'");
+					$infoImagem = mysqli_fetch_array($queryImagem);
+					change_image_banner($dirImagensCategoria, $infoImagem['imagem']);
+					
+				}
+				
+				foreach($selectedFinal as $id){
+					add_produto($id);
+				}
+				
             }else if($buscarDepartamento){
                 $selected = array();
                 $ctrlSelected = 0;
@@ -411,32 +439,34 @@
             }
             
             //print_r($selectedProdutos); // Produtos que foram filtrados
-            
-            echo "<div class='navigation-tree'>" . $navigationTree . "</div>";
-            
-            
-            $maxAppend = 20;
-            
-            $vitrineProdutos[0] = new VitrineProdutos("standard", $maxAppend, "<h1 class='titulo-vitrine'>$tituloVitrine</h1>", $descricaoVitrine);
-            $vitrineProdutos[0]->montar_vitrine($selectedProdutos);
-            $selectedExceptions = $vitrineProdutos[0]->get_exceptions();
-            
-            $lastProduct = count($selectedProdutos) == count($selectedExceptions) ? true : false;
-            
-            $jsonProdutos = json_encode($selectedProdutos);
-            $jsonExceptions = json_encode($selectedExceptions);
-            
-            echo "<input type='hidden' value='$jsonProdutos' id='vitrineArrayProdutos'>";
-            echo "<input type='hidden' value='$jsonExceptions' id='vitrineAddedProdutos'>";
-            echo "<input type='hidden' value='$maxAppend' id='vitrineMaxAppend'>";
-            
-            if(!$lastProduct){
-                echo "<div class='btn-show-more js-btn-show-more'><i class='fas fa-plus'></i></div>";
-            }
-        ?>
-        </div>
-        <!--END THIS PAGE CONTENT-->
-        <?php
+		
+			echo "<div class='background-loja'><img src='$backgroundVitrine'></div>";
+			echo "<div class='main-content'>";
+
+				echo "<div class='navigation-tree'>" . $navigationTree . "</div>";
+
+
+				$maxAppend = 20;
+
+				$vitrineProdutos[0] = new VitrineProdutos("standard", $maxAppend, "<h1 class='titulo-vitrine'>$tituloVitrine</h1>", $descricaoVitrine);
+				$vitrineProdutos[0]->montar_vitrine($selectedProdutos);
+				$selectedExceptions = $vitrineProdutos[0]->get_exceptions();
+
+				$lastProduct = count($selectedProdutos) == count($selectedExceptions) ? true : false;
+
+				$jsonProdutos = json_encode($selectedProdutos);
+				$jsonExceptions = json_encode($selectedExceptions);
+
+				echo "<input type='hidden' value='$jsonProdutos' id='vitrineArrayProdutos'>";
+				echo "<input type='hidden' value='$jsonExceptions' id='vitrineAddedProdutos'>";
+				echo "<input type='hidden' value='$maxAppend' id='vitrineMaxAppend'>";
+
+				if(!$lastProduct){
+					echo "<div class='btn-show-more js-btn-show-more'><i class='fas fa-plus'></i></div>";
+				}
+		
+			echo "</div>";
+		
             require_once "@include-footer-principal.php";
         ?>
         <!--END REQUIRES PADRAO-->

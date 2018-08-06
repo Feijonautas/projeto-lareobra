@@ -17,7 +17,7 @@
         <input type="number" class="label-input" name="posicao" id="posicaoDepartamento" placeholder="Posição" style="margin-top: 10px;">
     </div>
     <div class='label small clear'>
-        <input type='submit' class='btn-submit label-input' value='Cadastrar'>
+        <input type='submit' class='btn-submit label-input js-button-submit' value='Cadastrar'>
     </div>
 </form>
 <style>
@@ -37,7 +37,7 @@
         var formCadastra = $("#formCadDepartamento");
         $("#tituloDepartamento").focus();
         var cadastrando = false;
-        formCadastra.off().on("submit", function(){
+        $(".js-button-submit").off().on("click", function(event){
             event.preventDefault();
             if(!cadastrando){
                 cadastrando = true;

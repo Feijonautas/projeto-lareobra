@@ -1,5 +1,4 @@
 <?php
-
     $post_fields = array("nome", "email", "senha", "celular", "telefone", "cpf", "data_nascimento", "cep", "rua", "numero", "complemento", "bairro", "estado", "cidade");
     $invalid_fields = array();
 
@@ -18,11 +17,11 @@
         $celular = addslashes($_POST["celular"]);
         $telefone = addslashes($_POST["telefone"]);
         $cpf = addslashes($_POST["cpf"]);
-        $cpf = str_replace(".", "", $cpf);
+        $cpf = preg_replace('/\D/', '', $cpf);
         $dataNascimento = addslashes($_POST["data_nascimento"]);
         $sexo = addslashes($_POST["sexo"]);
         $cep = addslashes($_POST["cep"]);
-        $cep = str_replace("-", "", $cep);
+        $cep = preg_replace('/\D/', '', $cep);
         $rua = addslashes($_POST["rua"]);
         $numero = addslashes($_POST["numero"]);
         $complemento = addslashes($_POST["complemento"]);
@@ -48,7 +47,7 @@
         
         $minhaConta = new MinhaConta();
         $cadastro = $minhaConta->cadastrar_conta($nome, $email, $senha, $celular, $telefone, $cpf, $sexo, $dataNascimento, $enderecos);
-        if($cadastro == true){
+        if($cadastro === true){
             $bodyEmail = $minhaConta->montar_email_confirmacao($email, $nome);
                         
             $destinatarios = array();
@@ -66,7 +65,7 @@
             echo "false";
         }
     }else{
-        print_r($invalid_fields);
+        //print_r($invalid_fields);
         echo "false";
     }
 

@@ -82,8 +82,6 @@
 				
 				$dataPedido = substr($info['data_controle'], 0, 10);
 				$dataPedido = $this->pew_functions->inverter_data($dataPedido);
-				$dataVencimento = date($dataPedido, "+ 7 days");
-				$pagamentoExpirado = strtotime($dataPedido) > strtotime($dataVencimento) ? true : false;
                 
                 $_POST["console"] = false;
                 $_POST["codigo_referencia"] = $info["referencia"];
@@ -224,10 +222,9 @@
                     $produtos[$ctrl]["preco"] = $info["preco_produto"];
                     $ctrl++;
                 }
-                return $produtos;
-            }else{
-                return false;
             }
+			
+			return $produtos;
         }
         
         function get_status_string($status, $client_side = false){

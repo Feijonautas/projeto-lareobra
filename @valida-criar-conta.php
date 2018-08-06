@@ -20,7 +20,7 @@ if($validar){
             $collun = "email";
             break;
         case "cpf":
-            $data = str_replace(".", "", $data);
+            $data = preg_replace('/\D/', '', $data);
             $collun = "cpf";
             break;
         case "senha_atual":

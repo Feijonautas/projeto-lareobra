@@ -157,7 +157,7 @@
         ?>
         <!--PAGE CONTENT-->
         <h1 class="titulos"><?php echo $page_title; ?><a href="pew-produtos.php" class="btn-voltar"><i class="fa fa-arrow-left" aria-hidden="true"></i> Voltar</a></h1>
-        <section class="conteudo-painel">
+        <section class="conteudo-painel flex-wrap">
             <div class="full label clear">
                 <a class="btn-flat btn-cad-categoria" title="Cadastre um novo departamento"><i class="fas fa-plus"></i> Cadastrar novo</a>
             </div>

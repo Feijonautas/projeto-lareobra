@@ -77,7 +77,7 @@
                         echo "<input type='button' class='btn-excluir botao-acao label-input' pew-acao='deletar' pew-id-marca='$idMarca' value='Excluir'>";
                     echo "</div>";
                     echo "<div class='small'>";
-                        echo "<input type='submit' class='btn-submit label-input' value='Atualizar'>";
+                        echo "<input type='submit' class='btn-submit label-input js-button-submit' value='Atualizar'>";
                     echo "</div>";
                     echo "</div>";
             echo "</form>";
@@ -104,8 +104,8 @@
     $(document).ready(function(){
         var formUpdate = $("#formUpdateMarca");
         var atualizando = false;
-        formUpdate.off().on("submit", function(){
-            event.preventDefault();
+        $(".js-button-submit").off().on("click", function(){
+            event.preventDefault(event);
             if(!atualizando){
                 atualizando = true;
                 var objTitulo = $("#tituloMarca");

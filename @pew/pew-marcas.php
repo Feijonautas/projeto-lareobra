@@ -158,7 +158,7 @@
         ?>
         <!--PAGE CONTENT-->
         <h1 class="titulos"><?php echo $page_title; ?></h1>
-        <section class="conteudo-painel">
+        <section class="conteudo-painel flex-wrap">
             <div class="full label clear">
                 <a class="btn-flat btn-cad-categoria" title="Cadastre uma nova marca"><i class="fas fa-plus"></i> Cadastrar nova marca</a>
             </div>

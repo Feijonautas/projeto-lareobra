@@ -2,17 +2,7 @@ function validarCPF(strCPF) {
     var Soma;
     var Resto;
     
-    String.prototype.replaceAll = String.prototype.replaceAll || function(needle, replacement) {
-        var str = this,
-            i = 0,
-            l = needle.length;
-        while (~(i = str.indexOf(needle, i))) {
-            str = str.substr(0, i) + str.substr(i+l);
-        }
-        return str;
-    };
-    
-    strCPF = strCPF.replaceAll(".", "");
+    strCPF = strCPF.replace(/[^0-9]/g, "");
     
     Soma = 0;
 	if (strCPF == "00000000000") return false;

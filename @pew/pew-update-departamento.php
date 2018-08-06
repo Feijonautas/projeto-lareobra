@@ -52,7 +52,6 @@
         
         $imagem = isset($_FILES["imagem"]) ? $_FILES["imagem"]["name"] : "";
         
-        
         $query = mysqli_query($conexao, "select imagem from $tabela_departamentos where id = '$idDepartamento'");
         $infoImagemAtual = mysqli_fetch_array($query);
         $imagemAtual = $infoImagemAtual["imagem"];

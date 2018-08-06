@@ -16,7 +16,7 @@
         overflow-y: auto;
     }
     .section-minha-conta .titulo{
-        font-size: 32px;   
+        font-size: 32px;
     }
     .section-minha-conta .descricao{
         width: 60%;

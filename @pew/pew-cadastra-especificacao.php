@@ -5,7 +5,7 @@
         <input type='text' class='label-input' placeholder='Título da Especificacao' name='titulo' id='tituloEspecificacao' maxlength='35'>
     </div>
     <div class='label small clear'>
-        <input type='submit' class='btn-submit label-input' value='Cadastrar'>
+        <input type='submit' class='btn-submit label-input js-button-submit' value='Cadastrar'>
     </div>
 </form>
 <style>
@@ -22,7 +22,7 @@
         var formCadastra = $("#formCadEspecificacao");
         $("#tituloEspecificacao").focus();
         var cadastrando = false;
-        formCadastra.off().on("submit", function(){
+        $(".js-button-submit").off().on("click", function(event){
             event.preventDefault();
             var objTitulo = $("#tituloEspecificacao");
             var titulo = objTitulo.val();

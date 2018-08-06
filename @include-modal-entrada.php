@@ -293,7 +293,7 @@
 						mensagemAlerta(errorMessage);
 					},
 					success: function(response){
-						console.log(response)
+						//console.log(response)
 						if(isJson(response) == true){
 							var jsonData = JSON.parse(response);
 							selectedFranquia = jsonData.id_franquia;

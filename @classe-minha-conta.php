@@ -238,6 +238,7 @@
         }
         
         public function update_conta($idConta, $nome, $email, $senha, $celular, $telefone, $cpf, $sexo, $data_nascimento){
+			$cpf = preg_replace('/\D/', '', $cpf);
             $tabela_minha_conta = $this->global_vars["tabela_minha_conta"];
             if($this->montar_minha_conta($idConta) == true){
                 
@@ -276,7 +277,7 @@
             $this->enderecos = $enderecos;
             $this->quantidade_enderecos = 0;
             $this->status = 0;
-            
+			
             $validacao = $this->validar_dados();
             if($validacao == "true"){
             

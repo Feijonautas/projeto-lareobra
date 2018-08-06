@@ -278,8 +278,8 @@
         ?>
         <!--PAGE CONTENT-->
         <h1 class="titulos"><?php echo $page_title; ?></h1>
-        <section class="conteudo-painel">
-            <div class="full label clear">
+        <section class="conteudo-painel flex-wrap">
+            <div class="full">
                 <a class="btn-cad-categoria btn-flat medium" title="Cadastre uma nova categoria"><i class="fas fa-plus"></i> Cadastrar nova categoria</a>
             </div>
             <div class='painel-categorias full clear'>

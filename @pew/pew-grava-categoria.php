@@ -37,11 +37,34 @@
             $finalRef = "$ref-$i";
             $i++;
         }
+		
+		$dirImagens = "../imagens/categorias/categorias/";
+		$dirImagensIcones = "../imagens/categorias/categorias/icones/";
+		
+		$imagem = isset($_FILES["imagem"]) ? $_FILES["imagem"]["name"] : "";
+        if($imagem != ""){
+            $nomeImagem = $finalRef;
+            $ext = pathinfo($imagem, PATHINFO_EXTENSION);
+            $nomeImagem = $nomeImagem."-categoria.".$ext;
+            move_uploaded_file($_FILES["imagem"]["tmp_name"], $dirImagens.$nomeImagem);
+        }else{
+            $nomeImagem = "";
+        }
+		
+		$icone = isset($_FILES["icone"]) ? $_FILES["icone"]["name"] : "";
+        if($icone != ""){
+            $nomeIcone = $finalRef;
+            $ext = pathinfo($icone, PATHINFO_EXTENSION);
+            $nomeIcone = $nomeIcone."-icone.".$ext;
+            move_uploaded_file($_FILES["icone"]["tmp_name"], $dirImagensIcones.$nomeIcone);
+        }else{
+            $nomeIcone = "";
+        }
         
-        mysqli_query($conexao, "insert into $tabela_categorias (categoria, descricao, ref, data_controle, status) values ('$titulo', '$descricao', '$finalRef', '$data', 1)");
+        mysqli_query($conexao, "insert into $tabela_categorias (categoria, descricao, ref, imagem, icone, data_controle, status) values ('$titulo', '$descricao', '$finalRef', '$nomeImagem', '$nomeIcone', '$data', 1)");
         
-        echo "true";
+        echo "<script>window.location.href='pew-categorias.php?focus=$titulo&msg=Categoria cadastrada&msgType=success';</script>";
     }else{
-        echo "false";
+        echo "<script>window.location.href='pew-categorias.php?msg=Ocorreu um erro ao salvar';</script>";
     }
 ?>

@@ -80,7 +80,7 @@
 			}
 			
 			function get_regiao_by_cep($cep){
-				$_SESSION['franquia']['cep'] = $cep;
+				$_SESSION['franquia']['client_cep'] = $cep;
 		
 				$selectedINDEX = -1;
 
@@ -103,7 +103,6 @@
 				}else{
 					return "indisponivel";
 				}
-				
 			}
 			
 			function set_regiao($idFranquia){
@@ -129,8 +128,8 @@
 				$tabela_newsletter_franquias = "franquias_newsletter";
 				$conexao = $this->global_vars["conexao"];
 				$dataAtual = date("Y-m-d h:i:s");
-				$_SESSION["franquia"]["email"] = $email;
-				$_SESSION["franquia"]["cep"] = $cep;
+				$_SESSION["franquia"]["client_email"] = $email;
+				$_SESSION["franquia"]["client_cep"] = $cep;
 				
 				$total = $this->pew_functions->contar_resultados($tabela_newsletter_franquias, "email = '$email'");
 				if($total == 0){

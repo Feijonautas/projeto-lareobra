@@ -114,6 +114,7 @@
         visibility: hidden;
         opacity: 0;
         transition: .2s;
+		font-size: 10px;
     }
     .section-login .display-formularios .formulario-login .input-title{
         font-size: 14px;

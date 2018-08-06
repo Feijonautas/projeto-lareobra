@@ -1,4 +1,7 @@
 <?php
+	ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
     $post_fileds = array("id_subcategoria", "titulo", "descricao", "status");
     $invalid_fileds = array();
     $gravar = true;
@@ -54,10 +57,36 @@
             $finalRef = "$ref-$i";
             $i++;
         }
+		
+		$dirImagens = "../imagens/categorias/subcategorias/";
         
-        mysqli_query($conexao, "update $tabela_subcategorias set subcategoria = '$titulo', descricao = '$descricao', ref = '$finalRef', data_controle = '$data', status = '$status' where id = '$idSubcategoria'");
-        echo "true";
+        $imagem = isset($_FILES["imagem"]) ? $_FILES["imagem"]["name"] : "";
+        
+        $query = mysqli_query($conexao, "select imagem, id_categoria from $tabela_subcategorias where id = '$idSubcategoria'");
+        $infoSubcategoria = mysqli_fetch_array($query);
+        $imagemAtual = $infoSubcategoria["imagem"];
+		
+		$idCategoria = $infoSubcategoria['id_categoria'];
+        
+        if($imagem != ""){
+            
+            if(file_exists($dirImagens.$imagemAtual) && $imagemAtual != ""){
+                unlink($dirImagens.$imagemAtual);
+            }
+            
+            $nomeImagem = $finalRef;
+            $ext = pathinfo($imagem, PATHINFO_EXTENSION);
+            $nomeImagem = $nomeImagem."-subcategoria.".$ext;
+            move_uploaded_file($_FILES["imagem"]["tmp_name"], $dirImagens.$nomeImagem);
+            
+        }else{
+            $nomeImagem = $imagemAtual;
+        }
+        
+        mysqli_query($conexao, "update $tabela_subcategorias set subcategoria = '$titulo', descricao = '$descricao', ref = '$finalRef', imagem = '$nomeImagem', data_controle = '$data', status = '$status' where id = '$idSubcategoria'");
+        
+		echo "<script>window.location.href='pew-categorias.php?subfocus=$titulo&id_categoria=$idCategoria&msg=Subcategoria atualizada&msgType=success';</script>";
     }else{
-        echo "false";
+        echo "<script>window.location.href='pew-categorias.php?msg=Ocorreu um erro ao salvar';</script>";
     }
 ?>

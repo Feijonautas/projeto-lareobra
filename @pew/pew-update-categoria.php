@@ -45,11 +45,52 @@
             $finalRef = "$ref-$i";
             $i++;
         }
+		
+		$dirImagens = "../imagens/categorias/categorias/";
+		$dirImagensIcones = "../imagens/categorias/categorias/icones/";
         
-        mysqli_query($conexao, "update $tabela_categorias set categoria = '$titulo', descricao = '$descricao', ref = '$finalRef', data_controle = '$data', status = '$status' where id = '$idCategoria'");
+        $imagem = isset($_FILES["imagem"]) ? $_FILES["imagem"]["name"] : "";
+        $icone = isset($_FILES["icone"]) ? $_FILES["icone"]["name"] : "";
         
-        echo "true";
+        $query = mysqli_query($conexao, "select imagem, icone from $tabela_categorias where id = '$idCategoria'");
+        $infoImagemAtual = mysqli_fetch_array($query);
+        $imagemAtual = $infoImagemAtual["imagem"];
+        $iconeAtual = $infoImagemAtual["icone"];
+        
+        if($imagem != ""){
+            
+            if(file_exists($dirImagens.$imagemAtual) && $imagemAtual != ""){
+                unlink($dirImagens.$imagemAtual);
+            }
+            
+            $nomeImagem = $finalRef;
+            $ext = pathinfo($imagem, PATHINFO_EXTENSION);
+            $nomeImagem = $nomeImagem."-categoria.".$ext;
+            move_uploaded_file($_FILES["imagem"]["tmp_name"], $dirImagens.$nomeImagem);
+            
+        }else{
+            $nomeImagem = $imagemAtual;
+        }
+		
+		if($icone != ""){
+            
+            if(file_exists($dirImagensIcones.$iconeAtual) && $iconeAtual != ""){
+                unlink($dirImagensIcones.$iconeAtual);
+            }
+            
+            $nomeIcone = $finalRef;
+            $ext = pathinfo($icone, PATHINFO_EXTENSION);
+            $nomeIcone = $nomeIcone."-icone.".$ext;
+            move_uploaded_file($_FILES["icone"]["tmp_name"], $dirImagensIcones.$nomeIcone);
+            
+        }else{
+            $nomeIcone = $iconeAtual;
+        }
+        
+        mysqli_query($conexao, "update $tabela_categorias set categoria = '$titulo', descricao = '$descricao', ref = '$finalRef', imagem = '$nomeImagem', icone = '$nomeIcone', data_controle = '$data', status = '$status' where id = '$idCategoria'");
+        
+        echo "<script>window.location.href='pew-categorias.php?focus=$titulo&msg=Categoria atualizada&msgType=success';</script>";
     }else{
-        echo "false";
+        echo "<script>window.location.href='pew-categorias.php?msg=Ocorreu um erro ao salvar';</script>";
     }
 ?>

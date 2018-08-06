@@ -13,7 +13,7 @@
         <input type='file' class='label-input' name='imagem' accept='image/*'>
     </div>
     <div class='label small clear'>
-        <input type='submit' class='btn-submit label-input' value='Cadastrar'>
+        <input type='submit' class='btn-submit label-input js-button-submit' value='Cadastrar'>
     </div>
 </form>
 <style>
@@ -30,7 +30,7 @@
         var formCadastra = $("#formCadMarca");
         $("#tituloMarca").focus();
         var cadastrando = false;
-        formCadastra.off().on("submit", function(){
+        $(".js-button-submit").off().on("click", function(event){
             event.preventDefault();
             var objTitulo = $("#tituloMarca");
             var titulo = objTitulo.val();

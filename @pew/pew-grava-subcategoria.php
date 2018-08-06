@@ -48,10 +48,23 @@
             $finalRef = "$ref-$i";
             $i++;
         }
+		
+		$dirImagens = "../imagens/categorias/subcategorias/";
+		
+		$imagem = isset($_FILES["imagem"]) ? $_FILES["imagem"]["name"] : "";
+        if($imagem != ""){
+            $nomeImagem = $finalRef;
+            $ext = pathinfo($imagem, PATHINFO_EXTENSION);
+            $nomeImagem = $nomeImagem."-subcategoria.".$ext;
+            move_uploaded_file($_FILES["imagem"]["tmp_name"], $dirImagens.$nomeImagem);
+        }else{
+            $nomeImagem = "";
+        }
         
-        mysqli_query($conexao, "insert into $tabela_subcategorias (subcategoria, id_categoria, descricao, ref, data_controle, status) values ('$titulo', '$idCategoria', '$descricao', '$finalRef', '$data', 1)");
-        echo "true";
+        mysqli_query($conexao, "insert into $tabela_subcategorias (subcategoria, id_categoria, descricao, ref, imagem, data_controle, status) values ('$titulo', '$idCategoria', '$descricao', '$finalRef', '$nomeImagem', '$data', 1)");
+        
+		echo "<script>window.location.href='pew-categorias.php?subfocus=$titulo&id_categoria=$idCategoria&msg=Subcategoria cadastrada&msgType=success';</script>";
     }else{
-        echo "false";
+        echo "<script>window.location.href='pew-categorias.php?msg=Ocorreu um erro ao salvar';</script>";
     }
 ?>

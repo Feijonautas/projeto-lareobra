@@ -24,15 +24,17 @@
         $contarSubcategoria = mysqli_query($conexao, "select count(id) as total_subcategoria from $tabela_subcategorias where id = '$idSubcategoria'");
         $contagem = mysqli_fetch_assoc($contarSubcategoria);
         $totalSubcategoria = $contagem["total_subcategoria"];
+		$dirImagens = "../imagens/categorias/subcategorias";
         if($totalSubcategoria > 0){
             $querySubcategoria = mysqli_query($conexao, "select * from $tabela_subcategorias where id = '$idSubcategoria'");
             $subcategoria = mysqli_fetch_array($querySubcategoria);
             $titulo = $subcategoria["subcategoria"];
             $descricao = $subcategoria["descricao"];
+            $imagem = $subcategoria["imagem"];
             $dataControle = $pew_functions->inverter_data(substr($subcategoria["data_controle"], 0, 10));
             $status = $subcategoria["status"] == 1 ? "Ativa" : "Desativada";
             echo "<h2 class=titulo-edita>Informações da subcategoria</h2>";
-            echo "<form id='formUpdateCategoria'>";
+            echo "<form id='formUpdateCategoria' method='post' action='pew-update-subcategoria.php' enctype='multipart/form-data'>";
                 echo "<input type='hidden' name='id_categoria' id='idCategoria' value='$idCategoria'>";
                 echo "<input type='hidden' name='id_subcategoria' id='idSubcategoria' value='$idSubcategoria'>";
                 echo "<div class='label full'>";
@@ -41,8 +43,20 @@
                 echo "</div>";
                 echo "<div class='label full'>";
                     echo "<h3 class='label-title'>Descrição (opcional, recomendado 156 caracteres)</h3>";
-                    echo "<textarea class='label-input' placeholder='Descrição da subcategoria SEO Google' name='descricao' id='descricaoCategoria'>$descricao</textarea>";
+                    echo "<textarea class='label-textarea' placeholder='Descrição da subcategoria SEO Google' name='descricao' id='descricaoCategoria'>$descricao</textarea>";
                 echo "</div>";
+				echo "<br class='clear'>";
+                if($imagem != "" && file_exists($dirImagens."/".$imagem)){
+                    echo "<div class='medium'>";
+                        echo "<h3 class='label-title'>Imagem atual</h3>";
+                        echo "<img src='$dirImagens/$imagem' style='margin: 0px; width: 100%;'>";
+                    echo "</div>";
+                }
+                echo "<div class='large'>";
+                    echo "<h3 class='label-title'>Atualizar imagem (1280px : 570px)</h3>";
+                    echo "<input type='file' accept='image/*' name='imagem' class='label-input'>";
+                echo "</div>";
+                echo "<br class='clear'>";
                 echo "<div class='label small'>";
                     echo "<h3 class='label-title'>Status</h3>";
                     echo "<select name='status' id='statusCategoria' class='label-input'>";
@@ -62,7 +76,7 @@
                         echo "<input type='button' class='btn-excluir botao-acao label-input' pew-acao='deletar' pew-id-categoria='$idSubcategoria' value='Excluir'>";
                     echo "</div>";
                     echo "<div class='label small'>";
-                        echo "<input type='submit' class='btn-submit label-input' value='Atualizar'>";
+                        echo "<input type='submit' class='btn-submit label-input js-button-submit' value='Atualizar'>";
                     echo "</div>";
                 echo "</div>";
             echo "</form>";
@@ -73,20 +87,11 @@
         loadingError();
     }
 ?>
-<style>
-    .titulo-edita{
-        width: 100%;
-        padding-top: 10px;
-        padding-bottom: 10px;
-        background-color: #eee;
-        color: #f78a14;
-    }
-</style>
 <script>
     $(document).ready(function(){
         var formUpdate = $("#formUpdateCategoria");
         var idCategoria = $("#idCategoria").val();
-        formUpdate.off().on("submit", function(){
+        $(".js-button-submit").off().on("click", function(event){
             event.preventDefault();
             var objId = $("#idSubcategoria");
             var objTitulo = $("#tituloCategoria");
@@ -100,23 +105,7 @@
                 mensagemAlerta("O campo Título deve conter no mínimo 3 caracteres.", objTitulo);
                 return false;
             }
-            var msgErro = "Não foi possível atualizar a subcategoria. Recarregue a página e tente novamente.";
-            var msgSucesso = "A Subcategoria foi atualizada com sucesso!";
-            $.ajax({
-                type: "POST",
-                url: "pew-update-subcategoria.php",
-                data: {id_subcategoria: idSubcategoria, titulo: titulo, descricao: descricao, status: status},
-                error: function(){
-                    mensagemAlerta(msgErro);
-                },
-                success: function(resposta){
-                    if(resposta == "true"){
-                        mensagemAlerta(msgSucesso, false, "#259e25", "pew-categorias.php?subfocus="+titulo+"&id_categoria="+idCategoria);
-                    }else{
-                        mensagemAlerta(msgErro);
-                    }
-                }
-            });
+            formUpdate.submit();
         });
         $(".botao-acao").each(function(){
             var botao = $(this);

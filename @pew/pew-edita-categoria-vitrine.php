@@ -101,7 +101,7 @@
         var formCadastra = $("#formUpdateCategoria");
         $("#tituloCategoria").focus();
         var cadastrando = false;
-        formCadastra.off().on("submit", function(){
+        formCadastra.off().on("submit", function(event){
             event.preventDefault();
             if(!cadastrando){
                 cadastrando = true;
