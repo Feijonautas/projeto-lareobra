@@ -330,6 +330,7 @@
 		height: 0px;
 		opacity: 0;
 		padding: 0px;
+		border: none;
 	}
 	.display-notifications .notifications-list .notf-box .title{
 		margin: 0px 0px 10px 0px;	
@@ -646,6 +647,7 @@ class NavLinks{
 				$cssStyle = "display: none;";
 
 				if($totalListadas > 0){
+					echo "<h5 class='date-info js-new-notifications' js-date-filter='antigo' style='display: none;'>Novas</h5>";
 					echo "<span class='js-span-notifications'>";
 					$cls_notficacoes->listar_notificacoes($selectedNotificacoes);
 					echo "</span>";
@@ -699,22 +701,54 @@ class NavLinks{
 		var notfBackground = $(".notification-background");
 		var totalNotifications = notificationsList.children(".js-total-notifications").val();
 		var lastSpan = notificationsList.children(".js-last-span").val();
+		var newMessagesInfo = notificationsList.children(".js-new-notifications");
 		var refreshDelay = 5000;
 		
 		var loading_notifications = false;
 		
-		function load_messages(exeptions = null){
+		function load_new_messages(){
+			$.ajax({
+				type: "POST",
+				url: "@classe-notificacoes.php",
+				data: {acao: "get_views", status: 0},
+				success: function(response){
+					if(JSON.parse(response) != false){
+						var jsonResponse = JSON.parse(response);
+						var loadArray = [];
+						jsonResponse.forEach(function(dados){
+							loadArray.push(dados.id_notificacao);
+						});
+						if(loadArray.length > 0){
+							var exeptions = get_exeptions();
+							load_messages(exeptions, loadArray, "top");
+						}
+					}
+				},
+				complete: function(){
+					loading_notifications = false;
+				}
+			});
+		}
+		
+		function load_messages(exeptions = null, selected = null, position = "bottom"){
 			buttonLoadMore.html("...");
 			$.ajax({
 				type: "POST",
 				url: "@classe-notificacoes.php",
-				data: {acao: "load_more", exeptions: exeptions, ctrl_span: lastSpan},
+				data: {acao: "load_more", exeptions: exeptions, ctrl_span: lastSpan, selected: selected},
 				error: function(){
 					mensagemAlerta("Ocorreu um erro ao carregar as notificações. Recarregue a página e tente novamente.");
 				},
 				success: function(response){
 					if(response != "no_result"){
-						notificationsSpan.append(response);
+						
+						if(position == "bottom"){
+							notificationsSpan.append(response);
+						}else{
+							newMessagesInfo.addClass("show-after-filter").show();
+							notificationsSpan.prepend(response);
+						}
+						
 						if(count_box_views() == totalNotifications){
 							buttonLoadMore.remove();
 						}else{
@@ -725,7 +759,7 @@ class NavLinks{
 					}
 				},
 				complete: function(){
-					update_box_views();
+					update_box_layout();
 				}
 			});
 		} 
@@ -753,6 +787,7 @@ class NavLinks{
 							loading_notifications = false;	
 						},
 						success: function(response){
+							console.log(response)
 							update_controll_view();
 						},
 					});
@@ -777,7 +812,7 @@ class NavLinks{
 			});
 		}
 		
-		setTimeout(function(){
+		setInterval(function(){
 			update_controll_view();
 		}, refreshDelay);
 		
@@ -790,6 +825,7 @@ class NavLinks{
 		}
 		
 		function toggle_notf_display(){
+			load_new_messages();
 			toggle_notf_background();
 			if(displayNotifications.hasClass("display-notifications-active")){
 				update_controll_view();
@@ -827,24 +863,42 @@ class NavLinks{
 					}
 				});
 				if(remove){
-					console.log("esconder")
 					$(this).hide();
 				}else{
 					$(this).show();
 				}
 			});
 			
+			
+			var showNewMessagesInfo = newMessagesInfo.hasClass("show-after-filter") ? true : false;
+			console.log(showNewMessagesInfo)
+			if(type == "global" && showNewMessagesInfo){
+				newMessagesInfo.show();
+			}else{
+				newMessagesInfo.hide();
+			}
+			
 			if(ctrl == 0){
 				notificationsList.children(".no-results").css("display", "block");
 			}
 		}
 		
-		function update_box_views(){
+		function get_exeptions(){
+			var exeptions = [];
+			notificationsBox.each(function(){
+				var box = $(this);
+				var idNotificacao = box.attr("js-notfy-id");
+				exeptions.push(idNotificacao);
+			});
+			return exeptions;
+		}
+		
+		function update_box_layout(){
 			notificationsBox = notificationsSpan.children(".notf-box");
 		}
 		
 		function count_box_views(){
-			update_box_views();
+			update_box_layout();
 			var count = 0;
 			notificationsBox.each(function(){
 				count++;
@@ -866,17 +920,9 @@ class NavLinks{
 		});
 		
 		buttonLoadMore.off().on("click", function(){
-			update_box_views();
-			var exeptions = [];
-			var ctrl = 0;
-			notificationsBox.each(function(){
-				var box = $(this);
-				var idNotificacao = box.attr("js-notfy-id");
-				exeptions.push(idNotificacao);
-				ctrl++;
-			});
+			update_box_layout();
+			var exeptions = get_exeptions();
 			load_messages(exeptions);
-			console.log(ctrl);
 		});
 		
 		// open/close triggers

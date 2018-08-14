@@ -98,12 +98,12 @@
 					$this->ctrl_span = 1;
 					echo "<h5 class='date-info' js-date-filter='hoje'>Hoje</h5>";
 					
-				}else if($diff->d == 1 && $this->ctrl_span < 2){
+				}else if($diff->d >= 1 && $diff->d <= 7 && $this->ctrl_span < 2){
 					
 					$this->ctrl_span = 2;
-					echo "<h5 class='date-info' js-date-filter='ontem'>Ontem</h5>";
+					echo "<h5 class='date-info' js-date-filter='ontem hoje'>Esta semana</h5>";
 					
-				}else if($diff->d >= 2 && $this->ctrl_span != 3){
+				}else if($diff->d > 7 && $this->ctrl_span != 3){
 					
 					$this->ctrl_span = 3;
 					echo "<h5 class='date-info' js-date-filter='antigo'>Mais antigas</h5>";
@@ -226,12 +226,25 @@
 			break;
 				
 			case "load_more":
-				$loadMoreCondition = $pew_session->nivel == 1 ? "true" : "id_franquia = '{$pew_session->id_franquia}'";
+				$std_condition = $pew_session->nivel == 1 ? "true" : "id_franquia = '{$pew_session->id_franquia}'";
+				
 				$ctrlSpan = isset($_POST['ctrl_span']) ? (int) $_POST['ctrl_span'] : 0;
 				
+				$loadMoreCondition = $std_condition;
 				$exeptions = isset($_POST['exeptions']) ? $_POST['exeptions'] : array();
 				foreach($exeptions as $idN){
 					$loadMoreCondition .= " and id != '$idN'";
+				}
+				
+				$selected = isset($_POST['selected']) ? $_POST['selected'] : array();
+				$clean_selected = array_diff($selected, $exeptions);
+				if(count($clean_selected) > 0){
+					$loadMoreCondition = $std_condition;
+					$ctrl = 0;
+					foreach($clean_selected as $key => $idN){
+						$loadMoreCondition .= $ctrl == 0 ? " and id = '$idN'" : " or id = '$idN'";
+						$ctrl++;
+					}
 				}
 				
 				$total = $pew_functions->contar_resultados($tabela_notificacoes, $loadMoreCondition);
