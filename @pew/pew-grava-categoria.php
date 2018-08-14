@@ -20,7 +20,7 @@
         
         $titulo = addslashes(trim($_POST["titulo"]));
         $descricao = addslashes(trim($_POST["descricao"]));
-        $data = date("Y-m-d h:i:s");
+        $data = date("Y-m-d H:i:s");
         
         function valida_ref($str){
             global $tabela_categorias, $pew_functions;

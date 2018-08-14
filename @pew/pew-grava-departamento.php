@@ -24,7 +24,7 @@
         $titulo = addslashes(trim($_POST["titulo"]));
         $descricao = addslashes(trim($_POST["descricao"]));
         $posicao = (int)$_POST["posicao"];
-        $data = date("Y-m-d h:i:s");
+        $data = date("Y-m-d H:i:s");
         
         function valida_ref($str){
             global $tabela_departamentos, $pew_functions;

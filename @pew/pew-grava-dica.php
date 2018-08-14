@@ -43,7 +43,7 @@
         $status = (int)$_POST["status"] == 1 ? 1 : 0;
         
         $nomeImagem = $pew_functions->url_format($titulo);
-        $data = date("Y-m-d h:i:s");
+        $data = date("Y-m-d H:i:s");
         $dirImagens = "../imagens/dicas/";
          
         if($imagem != ""){

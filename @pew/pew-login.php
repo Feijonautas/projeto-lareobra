@@ -20,11 +20,12 @@
             $totalUsuario = $pew_functions->contar_resultados($tabela_usuarios, $condicao);
             
             if($totalUsuario > 0){
-                $queryNivel = mysqli_query($conexao, "select id_franquia, nivel, empresa from $tabela_usuarios where $condicao");
+                $queryNivel = mysqli_query($conexao, "select id, id_franquia, nivel, empresa from $tabela_usuarios where $condicao");
                 $array = mysqli_fetch_array($queryNivel);
                 
                 $selected_empresa = $array["empresa"];
                 $selected_nivel = $array["nivel"];
+                $selected_id_usuario = $array["id"];
                 $selected_id_franquia = $array["id_franquia"];
                 
                 session_start();
@@ -33,6 +34,7 @@
                 $_SESSION["pew_session"]["senha"] = $selected_senha;
                 $_SESSION["pew_session"]["nivel"] = $selected_nivel;
                 $_SESSION["pew_session"]["empresa"] = $selected_empresa;
+                $_SESSION["pew_session"]["id_usuario"] = $selected_id_usuario;
                 $_SESSION["pew_session"]["id_franquia"] = $selected_id_franquia;
                 
                 $default_redicect_page = $selected_nivel == $max_nivel ? "pew-painel-controle.php" : $default_redirect_page;

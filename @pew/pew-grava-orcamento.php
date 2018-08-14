@@ -26,7 +26,7 @@
         require_once "pew-system-config.php";
         require_once "@classe-orcamentos.php";
         
-        $dataAtual = date("Y-m-d h:i:s");
+        $dataAtual = date("Y-m-d H:i:s");
         /*POST DATA*/
         $nomeCliente = addslashes($_POST["nome_cliente"]);
         $telefoneCliente = addslashes($_POST["telefone_cliente"]);

@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css?family=Montserrat');
 body{
     margin: 0px;
-    color: #df2321;
+    color: #111;
     font-family: 'Montserrat', sans-serif;
     overflow-x: hidden;
     background-color: #fdfdfd;
@@ -504,7 +504,6 @@ input:focus, select:focus, textarea:focus{
 /*TABELAS PADRAO*/
 .table-padrao{
     width: 100%;
-    padding-top: 50px;
 }
 .table-padrao thead td{
     background-color: #f78a14;
@@ -844,4 +843,19 @@ input:focus, select:focus, textarea:focus{
     visibility: visible;
     transform: rotateX(0deg);
     opacity: 1;
+}
+.fixed-controll-div{
+	position: fixed;
+	display: none;
+	background-color: #fff;
+	top: 100px;
+	margin: 0 auto;
+	left: 0;
+	right: 0;
+	width: 430px;
+	padding: 20px;
+	z-index: 300;
+}
+.fixed-controll-div .title{
+	margin: 15px;
 }

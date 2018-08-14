@@ -85,6 +85,7 @@
         color: #999;
     }
     .header-efectus-web .nav-header{
+		position: relative;
         width: 100%;
     }
     .header-efectus-web .nav-header .background-nav{
@@ -227,6 +228,190 @@
         color: #fff;
         right: 0px;
     }
+	.notification-button{
+		position: absolute;
+		top: 0;
+		right: 0;
+		width: 70px;
+		height: 68px;
+		line-height: 68px;
+		text-align: center;
+		cursor: pointer;
+		font-size: 28px;
+		color: #666;
+		transition: .3s;
+		z-index: 100;
+	}
+	.notification-button .count{
+		position: absolute;
+		min-width: 8px;
+		height: 8px;
+		line-height: 10px;
+		top: 30px;
+		right: 15px;
+		padding: 5px;
+		background-color: #f78a14;
+		border-radius: 50%;
+		color: #fff;
+		font-size: 10px;
+		text-align: center;
+	}
+	.notification-button:hover{
+		background-color: #ddd;
+		color: #df2321;
+	}
+	.display-notifications{
+		position: fixed;
+		height: 100%;
+		width: 325px;
+		background-color: #fff;
+		top: 0px;
+		right: -100%;
+		z-index: 200;
+		color: #333;
+		transition: .3s;
+	}
+	.display-notifications-active{
+		right: 0;
+	}
+	.display-notifications header{
+		position: relative;
+	}
+	.display-notifications header .title{
+		height: 50px;
+		line-height: 50px;
+		margin: 0px;
+		padding: 0px 10px;
+		font-size: 18px;
+		background-color: #f78a14;
+		color: #fff;
+	}
+	.display-notifications header .close-notifications{
+		position: absolute;
+		top: 0px;
+		right: 0px;
+		width: 40px;
+		height: 50px;
+		line-height: 50px;
+		text-align: center;
+		font-size: 22px;
+		color: #fff;
+		background-color: transparent;
+		border: none;
+		cursor: pointer;
+	}
+	.display-notifications header .close-notifications-active{
+		right: 0px;	
+	}
+	.display-notifications header .close-notifications:hover{
+		color: #111;	
+	}
+	.display-notifications .notifications-list{
+		padding-bottom: 40px;
+		overflow-y: auto;
+		height: calc(100% - 90px);
+	}
+	.display-notifications .notifications-list .date-info{
+		color: #999;
+		text-align: center;
+		margin: 10px 0 5px 0;
+	}
+	.display-notifications .notifications-list .notf-box{
+		color: #666;
+		padding: 15px;
+		border-bottom: 1px solid #ddd;
+		border-top: 1px solid #ddd;
+		transition: .3s;
+	}
+	.display-notifications .notifications-list .hidden-notfy{
+		position: relative;
+		left: -100%;
+		visibility: hidden;
+		height: 0px;
+		opacity: 0;
+		padding: 0px;
+	}
+	.display-notifications .notifications-list .notf-box .title{
+		margin: 0px 0px 10px 0px;	
+	}
+	.display-notifications .notifications-list .notf-box .description{
+		font-size: 14px;	
+	}
+	.display-notifications .notifications-list .notf-box .description .date{
+		display: block;
+		padding: 5px 1px;
+		font-size: 12px;
+	}
+	.display-notifications .notifications-list .notf-box .description .redirect{
+		display: block;
+		color: #ccc;
+		text-decoration: none;
+	}
+	.display-notifications .notifications-list .notf-box .description .redirect:hover{
+		text-decoration: underline;
+	}
+	.display-notifications .button-load-more{
+		width: 100%;
+		border: none;
+		color: #666;
+		background-color: transparent;
+		height: 40px;
+		line-height: 40px;
+		text-align: center;
+		transition: .2s;
+		font-size: 14px;
+		cursor: pointer;
+	}
+	.display-notifications .button-load-more:hover{
+		background-color: #ddd;
+		font-weight: bold;
+		color: #333;
+	}
+	.display-notifications .bottom-controlls{
+		position: absolute;
+		width: 100%;
+		bottom: 0px;
+		right: 0px;
+		display: flex;
+		height: 40px;
+		align-items: center;
+		justify-content: space-between;
+		background-color: #eee;
+	}
+	.display-notifications .bottom-controlls .button-controll{
+		flex: 1 1 auto;
+		text-align: center;
+		height: 39px;
+		border-top: 1px solid #ccc;
+		line-height: 40px;
+		align-self: center;
+		color: #555;
+		cursor: pointer;
+	}
+	.display-notifications .bottom-controlls .button-controll:hover{
+		border-color: #f78a14;
+		color: #f78a14;
+	}
+	.display-notifications .bottom-controlls .button-controll-active{
+		border-color: #111;
+		color: #111;
+	}
+	.notification-background{
+		position: fixed;
+		z-index: 199;
+		width: 100%;
+		height: 100%;
+		top: 0px;
+		right: 0px;
+		background-color: rgba(0, 0, 0, .5);
+		transition: .3s;
+		visibility: hidden;
+		opacity: 0;
+	}
+	.notification-background-active{
+		visibility: visible;
+		opacity: 1;
+	}
 </style>
 <?php
 class NavLinks{
@@ -356,7 +541,7 @@ class NavLinks{
             </div>
         </div>
         <nav class="nav-header">
-            <div class="logo-header"><a href="pew-banners.php"><img src="imagens/sistema/identidadeVisual/logo-efectus-web.png" alt="Efectus Web - Desenvolvimento de Softwares e Plataformas Web" title="Painel de Controle"></a></div>
+            <div class="logo-header"><a href="pew-painel-controle.php"><img src="imagens/sistema/identidadeVisual/logo-efectus-web.png" alt="Efectus Web - Desenvolvimento de Softwares e Plataformas Web" title="Painel de Controle"></a></div>
             <?php
 				$countLinks = 0;
 			
@@ -378,6 +563,7 @@ class NavLinks{
 				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fas fa-dollar-sign'></i> Listar Pedidos", "pew-vendas.php");
 				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fas fa-box-open'></i> Retirada na loja", "pew-retirada-loja.php");
 				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fas fa-chart-pie'></i> Relatórios", "pew-relatorios.php");
+				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fas fa-truck'></i> Rotas de entrega", "pew-rotas-entrega.php");
 				$countLinks++;
 			
 				$link_nav[$countLinks] = new NavLinks("Dicas", "pew-dicas.php", null, array(1));
@@ -422,9 +608,289 @@ class NavLinks{
 						$link->listar_link();
 					}
                     echo "</ul>";
-                    echo "<br style='clear:both;'>";
                 }
+			
+				require_once "@classe-notificacoes.php";
+				$cls_notficacoes = new Notificacoes();
+				$newNotificacoes = $cls_notficacoes->get_views($pew_session->id_usuario);
+				$ctrlNovas = 0;
+				foreach($newNotificacoes as $infoN){
+					$status = $infoN['status'];
+					if($status == 0){
+						$ctrlNovas++;
+					}
+				}
+				// Button Notificacoes
+				echo "<div class='notification-button'><i class='far fa-bell'></i><span class='count js-notfy-count'>$ctrlNovas</span></div>";
+				echo "<br style='clear:both;'>";
             ?>
         </nav>
+		<!--SISTEMA DE NOTIFICAÇÕES-->
+		<div class="display-notifications">
+			<header>
+				<h3 class="title">Notificações</h3>
+				<button class="close-notifications"><i class="fas fa-times"></i></button>
+			</header>
+			<div class="notifications-list">
+			<?php
+				$condicaoNotificacoes = $pew_session->nivel == 1 ? "true" : "id_franquia = '{$pew_session->id_franquia}'";
+				
+				$queryTodas = $cls_notficacoes->query_id($condicaoNotificacoes);
+				$totalNotificacoes = count($queryTodas);
+					
+				$selectedNotificacoes = $cls_notficacoes->query_id($condicaoNotificacoes, null, 20);
+				$totalListadas = count($selectedNotificacoes);
+				$loadCount = $totalNotificacoes - $totalListadas;
+				$loadCount = $loadCount > 20 ? 20 : $loadCount;
+
+				$cssStyle = "display: none;";
+
+				if($totalListadas > 0){
+					echo "<span class='js-span-notifications'>";
+					$cls_notficacoes->listar_notificacoes($selectedNotificacoes);
+					echo "</span>";
+					echo "<input type='hidden' class='js-total-notifications' value='$totalNotificacoes'>";
+					echo "<input type='hidden' class='js-last-span' value='{$cls_notficacoes->ctrl_span}'>";
+					if($totalNotificacoes > $totalListadas){
+						echo "<button class='button-load-more'>Carregar mais ($loadCount)</button>";
+					}
+				}else{
+					$cssStyle = null;
+				}
+
+				echo "<span class='no-results' style='$cssStyle'>";
+					echo "<h4 align=center>Nenhum resultado encontrado</h4>";
+				echo "</span>";
+			?>
+			</div>
+			<div class="bottom-controlls">
+				<div class="button-controll button-controll-active" title="Todas as notificações" js-notfy-type='global'>
+					<i class="fas fa-globe-americas"></i>
+				</div>
+				<div class="button-controll" title="Financeiro" js-notfy-type='finances'>
+					<i class="fas fa-dollar-sign"></i>
+				</div>
+				<div class="button-controll" title="Contato e Mensagens" js-notfy-type='contact'>
+					<i class="fas fa-comments"></i>
+				</div>
+				<div class="button-controll" title="Mensagens do sistema" js-notfy-type='system'>
+					<i class="fas fa-desktop"></i>
+				</div>
+			</div>
+		</div>
+		<span class="notification-background"></span>
+		<!--END SISTEMA DE NOTIFICAÇÕES-->
     </header>
 </section>
+<script>
+	$(document).ready(function(){
+		// Sistema Notificações
+		var displayNotifications = $(".display-notifications");
+		var headerNotifications = displayNotifications.children("header");
+		var closeNotifications = headerNotifications.children(".close-notifications");
+		var notificationsList = displayNotifications.children(".notifications-list");
+		var notificationsSpan = notificationsList.children(".js-span-notifications");
+		var notificationsBox = notificationsSpan.children(".notf-box");
+		var bottomControlls = displayNotifications.children(".bottom-controlls");
+		var controllButtons = bottomControlls.children(".button-controll");
+		var buttonOpenNotf = $(".notification-button");
+		var buttonLoadMore = notificationsList.children(".button-load-more");
+		var notfCountView = buttonOpenNotf.children(".js-notfy-count");
+		var notfBackground = $(".notification-background");
+		var totalNotifications = notificationsList.children(".js-total-notifications").val();
+		var lastSpan = notificationsList.children(".js-last-span").val();
+		var refreshDelay = 5000;
+		
+		var loading_notifications = false;
+		
+		function load_messages(exeptions = null){
+			buttonLoadMore.html("...");
+			$.ajax({
+				type: "POST",
+				url: "@classe-notificacoes.php",
+				data: {acao: "load_more", exeptions: exeptions, ctrl_span: lastSpan},
+				error: function(){
+					mensagemAlerta("Ocorreu um erro ao carregar as notificações. Recarregue a página e tente novamente.");
+				},
+				success: function(response){
+					if(response != "no_result"){
+						notificationsSpan.append(response);
+						if(count_box_views() == totalNotifications){
+							buttonLoadMore.remove();
+						}else{
+							var loadCount = totalNotifications - count_box_views();
+							loadCount = loadCount > 20 ? 20 : loadCount;
+							buttonLoadMore.html("Carregar mais (" + loadCount + ")");
+						}
+					}
+				},
+				complete: function(){
+					update_box_views();
+				}
+			});
+		} 
+		
+		function update_views(){
+			var array = [];
+			var ctrlUpdate = 0;
+			if(!loading_notifications){
+				loading_notifications = false;
+				notificationsBox.each(function(){
+					var box = $(this);
+					var idNotificacao = box.attr("js-notfy-id");
+					var statusAtual = box.attr("js-notfy-status");
+					if(statusAtual == 0){
+						array.push(idNotificacao);
+						ctrlUpdate++;
+					}
+				});
+				if(ctrlUpdate > 0){
+					$.ajax({
+						type: "POST",
+						url: "@classe-notificacoes.php",
+						data: {acao: "update_views", notificacoes: array, status: 1},
+						complete: function(){
+							loading_notifications = false;	
+						},
+						success: function(response){
+							update_controll_view();
+						},
+					});
+				}
+			}
+		}
+		
+		function update_controll_view(){
+			notfCountView.text("...");
+			$.ajax({
+				type: "POST",
+				url: "@classe-notificacoes.php",
+				data: {acao: "get_views", status: 0},
+				success: function(response){
+					if(JSON.parse(response) != false){
+						var jsonResponse = JSON.parse(response);
+						notfCountView.text(jsonResponse.length);
+					}else{
+						notfCountView.text(0);
+					}
+				},
+			});
+		}
+		
+		setTimeout(function(){
+			update_controll_view();
+		}, refreshDelay);
+		
+		function toggle_notf_background(){
+			if(notfBackground.hasClass("notification-background-active")){
+				notfBackground.removeClass("notification-background-active");
+			}else{
+				notfBackground.addClass("notification-background-active");
+			}
+		}
+		
+		function toggle_notf_display(){
+			toggle_notf_background();
+			if(displayNotifications.hasClass("display-notifications-active")){
+				update_controll_view();
+				$("body").css("overflow-y", "auto");
+				displayNotifications.removeClass("display-notifications-active");
+			}else{
+				update_views();
+				$("body").css("overflow-y", "hidden");
+				displayNotifications.addClass("display-notifications-active");
+			}
+		}
+		
+		function filter_by_type(type){
+			var ctrl = 0;
+			notificationsList.children(".no-results").css("display", "none");
+			notificationsBox.each(function(){
+				var box = $(this);
+				var boxType = box.attr("js-notfy-type");
+				if(boxType == type || type == "global"){
+					box.removeClass("hidden-notfy");
+					ctrl++;
+				}else{
+					box.addClass("hidden-notfy");
+				}
+			});
+			
+			notificationsSpan.children(".date-info").each(function(){
+				var filter = $(this).attr("js-date-filter");
+				var remove = true;
+				notificationsBox.each(function(){
+					var box = $(this);
+					var boxDateFilter = box.attr("js-notfy-date-filter");
+					if(filter == boxDateFilter && box.hasClass("hidden-notfy") == false){
+						remove = false;
+					}
+				});
+				if(remove){
+					console.log("esconder")
+					$(this).hide();
+				}else{
+					$(this).show();
+				}
+			});
+			
+			if(ctrl == 0){
+				notificationsList.children(".no-results").css("display", "block");
+			}
+		}
+		
+		function update_box_views(){
+			notificationsBox = notificationsSpan.children(".notf-box");
+		}
+		
+		function count_box_views(){
+			update_box_views();
+			var count = 0;
+			notificationsBox.each(function(){
+				count++;
+			});
+			return count;
+		} 
+		
+		controllButtons.each(function(){
+			var button = $(this);
+			var type = button.attr("js-notfy-type");
+			type = typeof type != "undefined" && type.length > 0 ? type : "global";
+			button.off().on("click", function(){
+				controllButtons.each(function(){
+					$(this).removeClass("button-controll-active");
+				});
+				button.addClass("button-controll-active");
+				filter_by_type(type);
+			});
+		});
+		
+		buttonLoadMore.off().on("click", function(){
+			update_box_views();
+			var exeptions = [];
+			var ctrl = 0;
+			notificationsBox.each(function(){
+				var box = $(this);
+				var idNotificacao = box.attr("js-notfy-id");
+				exeptions.push(idNotificacao);
+				ctrl++;
+			});
+			load_messages(exeptions);
+			console.log(ctrl);
+		});
+		
+		// open/close triggers
+		buttonOpenNotf.off().on("click", function(){
+			toggle_notf_display();
+		});
+		
+		closeNotifications.off().on("click", function(){
+			toggle_notf_display();
+		});
+		
+		notfBackground.off().on("click", function(){
+			toggle_notf_display();
+		});
+		// END open/close triggers
+	});
+</script>

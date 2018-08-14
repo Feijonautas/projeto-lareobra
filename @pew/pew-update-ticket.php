@@ -7,7 +7,7 @@ $tabela_usuarios = $pew_db->tabela_usuarios_administrativos;
 
 $ticketID = isset($_POST["ticket_id"]) ? addslashes($_POST["ticket_id"]) : null;
 $mensagem = isset($_POST["message_body"]) ? addslashes($_POST["message_body"]) : null;
-$dataAtual = date("Y-m-d h:i:s");
+$dataAtual = date("Y-m-d H:i:s");
 $dirImagens = "../ticket/ticket_images/";
 
 $queryTotal = mysqli_query($conexao, "select count(id) as total from tickets_register where id = '$ticketID'");

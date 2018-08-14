@@ -25,364 +25,9 @@
             require_once "@link-standard-scripts.php";
         ?>
         <script type="text/javascript" src="js/produtos.js"></script>
-        
         <!--THIS PAGE CSS-->
-        <style>
-            .lista-produtos{
-                width: calc(100% - 30px);
-                margin: 40px 15px 40px 15px;
-                padding-top: 50px;
-                vertical-align: bottom;
-            }
-            .box-produto{
-                position: relative;
-                width: calc(25% - 22px);
-                padding: 10px 0px 40px 0px;
-                margin: 0px 20px 30px 0px;
-                background-color: #fff;
-                border: 1px solid #ccc;
-                transition: .2s;
-                color: #666;
-                float: left;
-            }
-            .box-produto:hover{
-                -webkit-box-shadow: 0px 0px 15px 8px rgba(0, 0, 0, .1);
-                -moz-box-shadow: 0px 0px 15px 8px rgba(0, 0, 0, .1);
-                box-shadow: 0px 0px 15px 8px rgba(0, 0, 0, .1); 
-            }
-            .box-produto .informacoes{
-                width: calc(100%);
-                padding: 0px;
-                margin: 0px auto;
-            }
-            .box-produto .informacoes .nome-produto{
-                text-align: left;
-                font-size: 18px;
-                margin: 10px 15px 10px 15px;
-            }
-            .box-produto .informacoes .nome-produto a{
-                text-decoration: none;
-                color: #111;
-            }
-            .box-produto .informacoes .nome-produto a:hover{
-                color: #f78a14;
-            }
-            .box-info{
-                position: relative;
-                text-align: left;
-                margin-bottom: 20px;
-            }
-            .box-info .titulo{
-                font-size: 14px;
-                border-bottom: 1px solid #ccc;
-                padding: 5px 0px 5px 0px;
-                margin: 0px;
-                color: #111;
-            }
-            .box-info .descricao{
-                font-size: 14px; 
-                margin: 5px 0px 5px 0px;
-            }
-            .bottom-buttons{
-                position: absolute;
-                width: 100%;
-                bottom: 0px;
-                display: flex;
-                flex-flow: row wrap;
-                align-items: flex-end;
-                font-size: 12px;
-            }
-            .bottom-buttons .box-button{
-                width: 50%;
-            }
-            .bottom-buttons .btn-status-produto{
-                width: 100%;
-                margin: 0px;
-                padding: 0px;
-                border: none;
-                border-bottom: 2px solid #bf1e1c;
-                border-radius: 0px;
-            }
-            .bottom-buttons .btn-ativar{
-                border-color: #2f912f;
-            }
-            .bottom-buttons .btn-alterar-produto{
-                width: 100%;
-                margin: 0px;
-                padding: 0px;
-                border: none;
-                border-bottom: 2px solid #333;
-                border-radius: 0px;
-            }
-            .display-produtos-pedido{
-                position: absolute;
-                width: 100%;
-                height: 0%;
-                bottom: 0;
-                left: 0;
-                background-color: #fff;
-                transition: .3s;
-                visibility: hidden;
-                opacity: 0;
-            }
-            .display-produtos-pedido .box{
-                width: 100%;
-                margin: 10px 0px 10px 0px;
-                display: flex;
-            }
-            .display-produtos-pedido .box:hover{
-                background-color: #eee;
-                color: #f78a14;
-            }
-            .display-produtos-pedido .box .quantidade{
-                width: 50px;
-                text-align: center;
-            }
-            .display-produtos-pedido .box .nome{
-                width: calc(70% - 50px);
-            }
-            .display-produtos-pedido .box .subtotal{
-                width: 30%;
-                text-align: center;
-            }
-            .bottom-buttons .btn-status-produto:hover, .bottom-buttons .btn-alterar-produto:hover{
-                background-color: #f0f0f0;
-                transform: scale(1);
-            }
-            .display-info-pedido{
-                position: absolute;
-                width: 100%;
-                padding-bottom: 30px;
-                height: 0%;
-                bottom: 0;
-                left: 0;
-                background-color: #fff;
-                transition: .3s;
-                visibility: hidden;
-                opacity: 0;
-            }
-            .display-info-pedido::-webkit-scrollbar-button:hover{
-                background-color: #AAA;
-            }
-            .display-info-pedido::-webkit-scrollbar-thumb{
-                background-color: #ccc;
-            }
-            .display-info-pedido::-webkit-scrollbar-thumb:hover{
-                background-color: #999;
-            }
-            .display-info-pedido::-webkit-scrollbar-track{
-                background-color: #efefef;
-            }
-            .display-info-pedido::-webkit-scrollbar-track:hover{
-                background-color: #efefef;
-            }
-            .display-info-pedido::-webkit-scrollbar{
-                width: 3px;
-                height: 3px;
-            }
-            .titulo-info{
-                font-size: 16px;
-                line-height: 20px;
-                font-weight: normal;
-                margin: 16px;
-            }
-            .btn-voltar{
-                position: absolute;
-                bottom: 10px;
-                right: 10px;
-                width: 50px;
-                padding: 4px;
-                border: none;
-                display: block;
-                text-align: center;
-                cursor: pointer;
-                font-size: 14px;
-            }
-            .btn-voltar:hover{
-                background-color: #dfdfdf;   
-            }
-            .form-add-rastreamento{
-                position: fixed;
-                width: 280px;
-                padding: 10px;
-                top: 200px;
-                margin: 0 auto;
-                left: 0;
-                right: 0;
-                background-color: #fff;
-                z-index: 200;
-                visibility: hidden;
-                opacity: 0;
-            }
-            .form-add-rastreamento .titulo{
-                color: #222;
-                font-weight: normal;
-                margin: 0px;
-                font-size: 16px;
-            }
-            .form-add-rastreamento .btn-adicionar{
-                padding: 5px 15px 5px 15px;
-                font-size: 14px;
-                background-color: #333;
-                color: #fff;
-                cursor: pointer;
-            }
-            .form-add-rastreamento .btn-adicionar:hover{
-                background-color: #111;
-            }
-            /*.display-info-pedido .btn-voltar{
-                position: relative;
-                top: 20px;
-                margin: 0px 0px 0px auto;
-            }*/
-        </style>
+        <style></style>
         <!--FIM THIS PAGE CSS-->
-        <script>
-            $(document).ready(function(){
-                var botaoVerProdutos = $(".botao-ver-produtos");
-                var botaoVerInfo = $(".botao-ver-info");
-                var botaoVoltar = $(".display-produtos-pedido .btn-voltar-produtos");
-                var botaoVoltarInfo = $(".display-info-pedido .btn-voltar-info");
-                var displayPedidos = $(".display-pedido");
-                var rastreamentoOpen = false;
-                var backgroundBlack = $(".background-paineis");
-                var enviandoRastreamento = false;
-                
-                var formAddRastreamento = $(".form-add-rastreamento");
-                
-                formAddRastreamento.off().on("submit", function(){
-                    event.preventDefault(); 
-                    var objCodigo = $("#codigoRastreamento");
-                    var objIdPedido = $("#rastreamentoIdPedido");
-                    var codigo = objCodigo.val();
-                    var idPedido = objIdPedido.val();
-                    if(!enviandoRastreamento){
-                        enviandoRastreamento = true;
-                        
-                        function validar(){
-                            if(codigo.length < 13){
-                                mensagemAlerta("O código de rastreamento deve conter no mínimo 13 caracteres.", objCodigo);
-                                return false;
-                            }
-                            
-                            if(idPedido == 0){
-                                mensagemAlerta("Ocorreu um erro ao cadastrar o código. Recarregue a página e tente novamente.");
-                                return false;
-                            }
-                            
-                            return true;
-                        }
-                        
-                        if(validar() == true){
-                            formAddRastreamento.submit();
-                        }else{
-                            enviandoRastreamento = false;
-                        }
-                        
-                    }
-                });
-                
-                function toggle_add_rastreamento(){
-                    if(!rastreamentoOpen){
-                        rastreamentoOpen = true;
-                        backgroundBlack.css("display", "block");
-                        setTimeout(function(){
-                            backgroundBlack.css("opacity", ".4");
-                            formAddRastreamento.css({
-                                visibility: "visible",
-                                opacity: "1"
-                            });
-                            
-                        }, 100);
-                    }else{
-                        rastreamentoOpen = false;
-                        backgroundBlack.css("opacity", "0");
-                        formAddRastreamento.css({
-                            visibility: "hidden",
-                            opacity: "0"
-                        });
-                        setTimeout(function(){
-                            backgroundBlack.css("display", "none");
-                        }, 100);
-                    }
-                }
-                
-                displayPedidos.each(function(){
-                    var box = $(this);
-                    var idPedido = box.prop("id").substr(10);
-                    var botaoAddRastreamento = $("#addRastreamento"+idPedido);
-                    
-                    botaoAddRastreamento.off().on("click", function(){
-                        $("#rastreamentoIdPedido").val(idPedido);
-                        toggle_add_rastreamento(); 
-                    });
-                });
-                
-                $(".btn-cancelar-add-rastreamento").off().on("click", function(){
-                    toggle_add_rastreamento();
-                });
-
-                function toggleVerProdutos(id){
-                    var obj = $("#"+id);
-
-                    if(obj.css("opacity") == "0"){
-                        obj.css({
-                            visibility: "visible",
-                            opacity: "1",
-                            height: "100%"
-                        });
-                        obj.addClass("active");
-                    }else{
-                        obj.css({
-                            visibility: "hidden",
-                            opacity: "0",
-                            height: "0%"
-                        });
-                        obj.removeClass("active");
-                    }
-                }
-
-                function toggleInfoPedido(id){
-                    var obj = $("#"+id);
-
-                    if(obj.css("opacity") == "0"){
-                        obj.css({
-                            visibility: "visible",
-                            opacity: "1",
-                            height: "calc(100% - 30px)"
-                        });
-                        obj.addClass("active");
-                    }else{
-                        obj.css({
-                            visibility: "hidden",
-                            opacity: "0",
-                            height: "0%"
-                        });
-                        obj.removeClass("active");
-                    }
-                }
-
-                botaoVerProdutos.off().on("click", function(){
-                    var id = $(this).attr("id-pedido");
-                    toggleVerProdutos(id);
-                });
-
-                botaoVerInfo.off().on("click", function(){
-                    var id = $(this).attr("id-pedido");
-                    toggleInfoPedido(id);
-                });
-
-                botaoVoltar.off().on("click", function(){
-                    var id = $(this).attr("id-pedido");
-                    toggleVerProdutos(id);
-                });
-
-                botaoVoltarInfo.off().on("click", function(){
-                    var id = $(this).attr("id-pedido");
-                    toggleInfoPedido(id);
-                });
-            });
-        </script>
     </head>
     <body>
         <?php
@@ -422,6 +67,8 @@
                     </div>
                     <div class="label full">
                         <a href="pew-relatorios.php" class="btn-flat" title="Ver Relatórios"><i class="fas fa-chart-pie"></i> Relatórios</a>
+                        <a href="pew-retirada-loja.php" class="btn-flat" title="Retirada na loja"><i class="fas fa-box-open"></i> Retirada na loja</a>
+                        <a href="pew-rotas-entrega.php" class="btn-flat" title="Rotas de entrega"><i class="fas fa-truck"></i> Rotas de entrega</a>
                     </div>
                 </div>
             </div>
@@ -457,17 +104,30 @@
                     $totalCancelados = $pew_functions->contar_resultados($tabela_pedidos, $condicaoCancelados);
                     
                     $cls_pedidos = new Pedidos();
+				
+					function create_sales_table($selected_list){
+						global $cls_pedidos, $pew_session;
+						echo "<table class='table-padrao' cellspacing=0 style='padding: 0;'>";
+							echo "<thead>";
+								echo "<td>Pedido</td>";
+								if($pew_session->nivel == 1){
+									echo "<td>Franquia</td>";
+								}
+								echo "<td>Data</td>";
+								echo "<td>Cliente</td>";
+								echo "<td>Valor cobrado</td>";
+								echo "<td>Transporte</td>";
+								echo "<td>Status</td>";
+								echo "<td>Info</td>";
+							echo "</thead>";
+							echo "<tbody>";
+								rsort($selected_list);
+								$cls_pedidos->listar_pedidos($selected_list);
+							echo "</tbody>";
+						echo "</table>";
+					}
                 
                     if($totalPedidos > 0){
-                        
-                        echo "<form class='form-add-rastreamento' method='post' action='pew-status-pedido.php'>";
-                            echo "<h3 class='titulo'>Atualizar código de rastreamento</h3>";
-                            echo "<input type='text' class='label-input' placeholder='Código' name='codigo_rastreamento' id='codigoRastreamento'>";
-                            echo "<input type='hidden' name='id_pedido' id='rastreamentoIdPedido' value=0>";
-                            echo "<input type='submit' value='Atualizar' class='btn-adicionar'>";
-                            echo "<a class='link-padrao btn-cancelar-add-rastreamento' style='margin: 0px 0px 0px 20px;'>Cancelar</a>";
-                        echo "</form>";
-                        
                         echo "<div class='multi-tables'>";
                             echo "<div class='top-buttons'>";
 								if($search_string == null){
@@ -483,7 +143,7 @@
 								echo "<div class='painel selected-painel' id='mtPainel1'>";
 									if($totalPagos > 0){
 										$selectedPagos = $cls_pedidos->buscar_pedidos($condicaoPagos);
-										$cls_pedidos->listar_pedidos($selectedPagos);
+										create_sales_table($selectedPagos);
 									}else{
 										echo "<h3 align='center'>Nenhum resultado</h3>";
 									}
@@ -491,7 +151,7 @@
 								echo "<div class='painel' id='mtPainel2'>";
 									if($totalAguardando > 0){
 										$selectedAguardando = $cls_pedidos->buscar_pedidos($condicaoAguardando);
-										$cls_pedidos->listar_pedidos($selectedAguardando);
+										create_sales_table($selectedAguardando);
 									}else{
 										echo "<h3 align='center'>Nenhum resultado</h3>";
 									}
@@ -499,15 +159,15 @@
 								echo "<div class='painel' id='mtPainel3'>";
 									if($totalCancelados > 0){
 										$selectedCancelados = $cls_pedidos->buscar_pedidos($condicaoCancelados);
-										$cls_pedidos->listar_pedidos($selectedCancelados);
+										create_sales_table($selectedCancelados);
 									}else{
 										echo "<h3 align='center'>Nenhum resultado</h3>";
 									}
 								echo "</div>";
 							}else{
 								echo "<div class='painel selected-painel' id='mtPainel1'>";
-									$selectedBuscados = $cls_pedidos->buscar_pedidos($search_string);
-									$cls_pedidos->listar_pedidos($selectedBuscados);
+									$selectedBuscados = $cls_pedidos->buscar_pedidos($condicaoTodosPedidos);
+									create_sales_table($selectedBuscados);
 								echo "</div>";
 							}
                             echo "</div>";

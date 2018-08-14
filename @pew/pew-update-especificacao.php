@@ -23,7 +23,7 @@
         $idEspecificacao = (int)$_POST["id_especificacao"];
         $titulo = addslashes(trim($_POST["titulo"]));
         $status = (int)$_POST["status"];
-        $data = date("Y-m-d h:i:s");
+        $data = date("Y-m-d H:i:s");
 
         mysqli_query($conexao, "update $tabela_especificacoes set titulo = '$titulo', data_controle = '$data', status = '$status' where id = '$idEspecificacao'");
         echo "<script>window.location.href='pew-especificacoes.php?focus=$titulo&msg=A especificação foi atualizada com sucesso!&msgType=success'</script>";

@@ -72,7 +72,7 @@
 					$mainCondition = $mainCondition == null ? "id_franquia = '{$pew_session->id_franquia}'" : str_replace("or", "and id_franquia = '{$pew_session->id_franquia}' or", $mainCondition);
 				}
 				
-                $totalContatos = $pew_functions->contar_resultados($tabela_franquias, $mainCondition);
+                $totalContatos = $pew_functions->contar_resultados($tabela_contatos_servicos, $mainCondition);
                 if($totalContatos > 0){
                     echo "<thead>";
                         echo "<td>Nome</td>";
@@ -131,7 +131,7 @@
                     echo "</tbody></table>";
                 }else{
                     $msg = $mainCondition != "true" ? "Nenhum resultado encontrado. <a href='pew-contatos.php' class='link-padrao'><b>Voltar<b></a>" : "Nenhuma mensagem foi enviada ainda.";
-                    echo "<br><br><br><br><br><h3 align='center'>$msg</h3></td>";
+                    echo "<br><br><br><br><br><h3 align='center'>$msg</h3>";
                 }
             ?>
             </table>

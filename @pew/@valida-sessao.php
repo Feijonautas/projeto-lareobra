@@ -1,4 +1,7 @@
 <?php
+	if(!isset($_SESSION)){
+		session_start();
+	}
     $loginPage = "index.php?msg=Área restrita, faça login para continuar.";
     $nextPage = isset($_POST["next_page"]) ? addslashes($_POST["next_page"]) : null;
     $next = $nextPage != null ? "&next=$nextPage" : null;
@@ -9,8 +12,9 @@
         $sessionSenha = $_SESSION["pew_session"]["senha"];
         $sessionNivel = $_SESSION["pew_session"]["nivel"];
         $sessionEmpresa = $_SESSION["pew_session"]["empresa"];
+        $sessionIdUsuario = $_SESSION["pew_session"]["id_usuario"];
         $sessionIdFranquia = $_SESSION["pew_session"]["id_franquia"];
-        $pew_session = new Pew_Session($sessionUsuario, $sessionSenha, $sessionNivel, $sessionEmpresa, $sessionIdFranquia);
+        $pew_session = new Pew_Session($sessionUsuario, $sessionSenha, $sessionNivel, $sessionEmpresa, $sessionIdUsuario, $sessionIdFranquia);
         if(!$pew_session->auth() == true){
             echo "<script>window.location.href = '$loginPage$next';</script>";
         }else{
@@ -26,6 +30,8 @@
             }
         }
     }else{
-        echo "<script>window.location.href = '$loginPage$next';</script>";
+		if(!isset($_POST['cancel_redirect'])){
+        	echo "<script>window.location.href = '$loginPage$next';</script>";
+		}
     }
 ?>

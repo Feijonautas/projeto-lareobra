@@ -22,7 +22,7 @@
         
         $titulo = addslashes(trim($_POST["titulo"]));
         $descricao = addslashes(trim($_POST["descricao"]));
-        $data = date("Y-m-d h:i:s");
+        $data = date("Y-m-d H:i:s");
         $dirImagens = "../imagens/marcas/";
 
         $refMarca = $pew_functions->url_format($titulo);

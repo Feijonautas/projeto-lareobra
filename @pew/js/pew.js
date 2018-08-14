@@ -366,4 +366,39 @@ $(document).ready(function(){
             });
         });
     }
+	
+	function toggle_painel_background(){
+		var background = $(".background-paineis");
+		if(background.css("display") == "block"){
+			background.css("opacity", "0");
+			setTimeout(function(){
+				background.css("display", "none");
+			}, 300);
+		}else{
+			background.css("display", "block");
+			setTimeout(function(){
+				background.css("opacity", ".7");
+			}, 10);
+		}
+	}
+
+	$(".btn-show-div").each(function(){
+		var button = $(this);
+		var targetID = button.attr("js-target-id");
+		button.off().on("click", function(){
+			var controllDiv = $("#"+targetID);
+			toggle_painel_background();
+			controllDiv.css("display", "block");
+		});
+	});
+
+	$(".btn-exit-div").each(function(){
+		var button = $(this);
+		var targetID = button.attr("js-target-id");
+		button.off().on("click", function(){
+			var controllDiv = $("#"+targetID);
+			toggle_painel_background();
+			controllDiv.css("display", "none");
+		});
+	});
 });

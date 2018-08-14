@@ -284,12 +284,12 @@
                             mensagemAlerta("Ocorreu um erro ao enviar os dados. Recarregue a página e tente novamente.");
                         },
                         success: function(resposta){
+							console.log(resposta);
                             if(resposta == "true"){
                                 mensagemAlerta("Seu email foi cadastrado com sucesso! Logo lhe enviaremos novidades.", false, "limegreen");
                             }else if(resposta == "already"){
                                 mensagemAlerta("Seu email já está cadastrado! Logo lhe enviaremos novidades.", false, "limegreen");
                             }else{
-                                console.log(resposta);
                                 mensagemAlerta("Ocorreu um erro ao enviar os dados. Recarregue a página e tente novamente.");
                             }
                             cadastrando = false;

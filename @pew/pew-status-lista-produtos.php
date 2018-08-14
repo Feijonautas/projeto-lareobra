@@ -4,7 +4,7 @@
 		
 		require_once "pew-system-config.php";
 		
-		$dataAtual = date("Y-m-d h:i:s");
+		$dataAtual = date("Y-m-d H:i:s");
 		
 		$tabela_requisicoes = "franquias_requisicoes";
 		

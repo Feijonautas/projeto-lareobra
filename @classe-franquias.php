@@ -127,7 +127,7 @@
 			function salvar_contato($email, $celular, $estado, $cidade, $cep){
 				$tabela_newsletter_franquias = "franquias_newsletter";
 				$conexao = $this->global_vars["conexao"];
-				$dataAtual = date("Y-m-d h:i:s");
+				$dataAtual = date("Y-m-d H:i:s");
 				$_SESSION["franquia"]["client_email"] = $email;
 				$_SESSION["franquia"]["client_cep"] = $cep;
 				

@@ -130,7 +130,7 @@
                     echo "</tbody></table>";
                 }else{
                     $msg = $mainCondition != "true" ? "Nenhum resultado encontrado. <a href='pew-contatos.php' class='link-padrao'><b>Voltar<b></a>" : "Nenhuma mensagem foi enviada ainda.";
-                    echo "<br><br><br><br><br><h3 align='center'>$msg</h3></td>";
+                    echo "<br><br><br><br><br><h3 align='center'>$msg</h3>";
                 }
             ?>
             </table>

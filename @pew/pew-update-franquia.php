@@ -30,7 +30,7 @@
         require_once "@classe-system-functions.php";
         require_once "../@classe-produtos.php";
         
-        $dataAtual = date("Y-m-d h:i:s");
+        $dataAtual = date("Y-m-d H:i:s");
         /*POST DATA*/
         $nomeProprietario = addslashes($_POST["nome_proprietario"]);
         $telefoneProprietario = addslashes($_POST["telefone_proprietario"]);

@@ -244,7 +244,7 @@
                 
                 $infoConta = $this->montar_array();
                 
-                $dataAtual = date("Y-m-d h:i:s");
+                $dataAtual = date("Y-m-d H:i:s");
                 
                 $email = $email != null && strlen($email) > 0 ? $email : $infoConta["email"];
                 $senha = $senha != null && strlen($senha) > 5 ? $senha : $infoConta["senha"]; // Já em md5
@@ -272,8 +272,8 @@
             $this->cpf = $cpf;
             $this->sexo = $sexo;
             $this->data_nascimento = $data_nascimento;
-            $this->data_cadastro = date("Y-m-d h:i:s");
-            $this->data_controle = date("Y-m-d h:i:s");
+            $this->data_cadastro = date("Y-m-d H:i:s");
+            $this->data_controle = date("Y-m-d H:i:s");
             $this->enderecos = $enderecos;
             $this->quantidade_enderecos = 0;
             $this->status = 0;

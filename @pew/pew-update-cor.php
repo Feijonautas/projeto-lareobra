@@ -23,7 +23,7 @@
         $idCor = (int)$_POST["id_cor"];
         $titulo = addslashes(trim($_POST["titulo"]));
         $status = (int)$_POST["status"];
-        $data = date("Y-m-d h:i:s");
+        $data = date("Y-m-d H:i:s");
         $dirImagens = "../imagens/cores/";
 
         $refMarca = $pew_functions->url_format($titulo);

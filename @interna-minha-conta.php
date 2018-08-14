@@ -126,12 +126,15 @@ if($listar){
                                     break;
                                 case 3:
                                     $strStatusTransporte = "Entregue";
+									$tracking_string = "Status:";
                                     break;
                                 case 4:
                                     $strStatusTransporte = "Cancelado";
+									$tracking_string = "Status:";
                                     break;
                                 default:
                                     $strStatusTransporte = "Confirmar pagamento";
+									$tracking_string = "Status:";
                             }
 							$transport_name = $cls_pedidos->get_transporte_string();
 							$vlr_frete = $infoPedido['valor_frete'];
@@ -143,10 +146,28 @@ if($listar){
 								}
 							echo "</table>";
 						echo "</div>";
+				
+						$observacoesPedido = $cls_pedidos->get_observacoes_pedido($idPedido);
 						echo "<div class='left'>";
 							echo "<h3 class='titulo'>Observações</h3>";
 							echo "<table class='table-list'>";
-								echo "<tr><td>Foi realizada uma tentativa de entrega no dia 30/07 às 18:30</td></tr>";
+							if(count($observacoesPedido) > 0){
+								foreach($observacoesPedido as $infoObservacao){
+									$data = $pew_functions->inverter_data(substr($infoObservacao['data'], 0, 10));
+									$horario = substr($infoObservacao['data'], 10);
+									$mensagem = $infoObservacao['mensagem'];
+									echo "<tr>";
+										echo "<td>$data $horario</td>";
+									echo "</tr>";
+									echo "<tr>";
+										echo "<td style='padding-bottom: 10px;'><b>$mensagem</b></td>";
+									echo "</tr>";
+								}
+							}else{
+								echo "<tr>";
+									echo "<td>Nenhum observação foi enviada</td>";
+								echo "</tr>";
+							}
 							echo "</table>";
 						echo "</div>";
 					echo "</div>";

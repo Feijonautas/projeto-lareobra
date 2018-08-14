@@ -22,6 +22,7 @@
         "tabela_enderecos" => $pew_custom_db->tabela_enderecos,
         "tabela_carrinhos" => $pew_custom_db->tabela_carrinhos,
         "tabela_pedidos" => $pew_custom_db->tabela_pedidos,
+        "tabela_pedidos_observacoes" => $pew_custom_db->tabela_pedidos_observacoes,
         "tabela_orcamentos" => $pew_custom_db->tabela_orcamentos,
     );
     global $globalVars;

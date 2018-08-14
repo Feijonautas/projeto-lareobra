@@ -39,7 +39,7 @@
         }
     }
 
-    $dataAtual = date("Y-m-d h:i:s");
+    $dataAtual = date("Y-m-d H:i:s");
 
     $sendDataForm = json_decode(file_get_contents('php://input'), true);
 
@@ -60,7 +60,7 @@
                     return substr($string, 4);
             }
         }
-        
+		
         require_once "../pagseguro/ws-pagseguro-config.php";
         $pagseguro['token'] = $pagseguro_config->get_token();
         $pagseguro['email'] = $pagseguro_config->get_email();
@@ -200,8 +200,19 @@
                     echo "false";
                     
                 }else{
+					$_POST['cancel_redirect'] = true;
                     require_once "../@pew/pew-system-config.php";
                     require_once "../@classe-system-functions.php";
+                    require_once "../@pew/@classe-notificacoes.php";
+					
+					$cls_notificacoes = new Notificacoes();
+					
+					function get_last_id(){
+						global $conexao;
+						$query = mysqli_query($conexao, "select last_insert_id()");
+						$info = mysqli_fetch_assoc($query);
+						return $info["last_insert_id()"];
+					}
 
                     $tabela_carrinhos = $pew_custom_db->tabela_carrinhos;
                     $tabela_pedidos = $pew_custom_db->tabela_pedidos;
@@ -227,6 +238,9 @@
                     $paymentLink = isset($xml->paymentLink) ? $xml->paymentLink : null;
                     
                     mysqli_query($conexao, "insert into $tabela_pedidos (id_franquia, codigo_confirmacao, codigo_transacao, codigo_transporte, vlr_frete, codigo_pagamento, codigo_rastreamento, payment_link, referencia, token_carrinho, id_cliente, nome_cliente, cpf_cliente, email_cliente, cep, rua, numero, complemento, bairro, cidade, estado, data_controle, status_transporte, status) values ('$session_id_franquia', '$codigoConfirmacao', '$codigoTransacao', '{$sendDataForm["shippingCode"]}', '{$pagseguro["shippingCost"]}', '$codigoPagamento', 0, '$paymentLink', '$referencia', '$tokenCarrinho', '$idConta', '{$pagseguro["senderName"]}', '{$pagseguro["senderCPF"]}', '{$pagseguro["senderEmail"]}', '{$pagseguro["billingAddressPostalCode"]}', '{$pagseguro["billingAddressStreet"]}', '{$pagseguro["billingAddressNumber"]}', '{$pagseguro["billingAddressComplement"]}', '{$pagseguro["billingAddressDistrict"]}', '{$pagseguro["billingAddressCity"]}', '{$pagseguro["billingAddressState"]}', '$dataAtual', '$statusTransporte', '$statusPagamento')");
+					
+					$idPedido = get_last_id();
+					$cls_notificacoes->insert($session_id_franquia, "Nova pedido", "Um cliente finalizou um pedido na loja", "pew-interna-pedido.php?id_pedido=$idPedido", "finances");
                     
                     switch($statusPagamento){
                         case 3:

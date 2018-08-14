@@ -1,7 +1,4 @@
 <?php
-	ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
     $post_fileds = array("id_subcategoria", "titulo", "descricao", "status");
     $invalid_fileds = array();
     $gravar = true;
@@ -22,19 +19,7 @@ error_reporting(E_ALL);
         $titulo = addslashes($_POST["titulo"]);
         $descricao = addslashes($_POST["descricao"]);
         $status = $_POST["status"];
-        $data = date("Y-m-d h:i:s");
-        
-        function url_format($string){
-            $string = str_replace("Ç", "c", $string);
-            $string = str_replace("ç", "c", $string);
-            $string = preg_replace(array("/(á|à|ã|â|ä)/","/(Á|À|Ã|Â|Ä)/","/(é|è|ê|ë)/","/(É|È|Ê|Ë)/","/(í|ì|î|ï)/","/(Í|Ì|Î|Ï)/","/(ó|ò|õ|ô|ö)/","/(Ó|Ò|Õ|Ô|Ö)/","/(ú|ù|û|ü)/","/(Ú|Ù|Û|Ü)/","/(ñ)/","/(Ñ)/"),explode(" ","a A e E i I o O u U n N"), $string);
-            $string = strtolower($string);
-            $string = str_replace("/", "-", $string);
-            $string = str_replace("|", "-", $string);
-            $string = str_replace(" ", "-", $string);
-            $string = str_replace(",", "", $string);
-            return $string;
-        }
+        $data = date("Y-m-d H:i:s");
         
         function valida_ref($str){
             global $tabela_subcategorias, $pew_functions, $idSubcategoria, $conexao;
@@ -49,7 +34,7 @@ error_reporting(E_ALL);
             return $return;
         }
         
-        $ref = url_format($titulo);
+        $ref = $pew_functions->url_format($titulo);
         $finalRef = $ref;
         
         $i = 1;

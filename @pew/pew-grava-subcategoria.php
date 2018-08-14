@@ -19,7 +19,7 @@
         $idCategoria = $_POST["id_categoria"];
         $titulo = addslashes(trim($_POST["titulo"]));
         $descricao = addslashes(trim($_POST["descricao"]));
-        $data = date("Y-m-d h:i:s");
+        $data = date("Y-m-d H:i:s");
         
         function url_format($string){
             $string = str_replace("Ç", "c", $string);

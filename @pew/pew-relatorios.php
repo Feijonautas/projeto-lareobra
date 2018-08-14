@@ -1,7 +1,4 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
 session_start();
 
 $thisPageURL = substr($_SERVER["REQUEST_URI"], strpos($_SERVER["REQUEST_URI"], '@pew'));
@@ -85,41 +82,6 @@ $page_title = "Relatório de vendas";
         }
         .filter-display .label-input{
             margin-top: 5px;   
-        }
-        .seg-tree {
-            padding: 0;
-            margin: 0;
-            list-style-type: none;
-            position: relative;
-        }
-        .seg-tree li {
-            list-style-type: none;
-            border-left: 2px solid #666;
-            margin-left: 0px;
-        }
-        .seg-tree li div {
-            padding-left: 15px;
-            position: relative;
-        }
-        .seg-tree li div::before {
-            content:'';
-            position: absolute;
-            top: 0;
-            left: -2px;
-            bottom: 50%;
-            width: 0.75em;
-            border: 2px solid #666;
-            border-top: 0 none transparent;
-            border-right: 0 none transparent;
-        }
-        .seg-tree > li:last-child {
-            border-left: 2px solid transparent;
-        }
-        .seg-tree ul{
-            padding-left: 20px;
-        }
-        .mensagem-table{
-            font-size: 13px;
         }
         @media print{
             .no-print{
@@ -234,6 +196,10 @@ $page_title = "Relatório de vendas";
                             $_SESSION["start_standard_filter"] = "false";
                             $_POST["somente_pagos"] = "on";
                         }
+						
+						if(!isset($_POST['filtro_relatorios'])){
+							$_POST["somente_pagos"] = "on";
+						}
 
                         $strButtonDepartamentos = count($formD) > 0 ? "Selecionados (" . count($formD) . ")" : "- Qualquer -";
                         $strButtonCategorias = count($formC) > 0 ? "Selecionados (" . count($formC) . ")" : "- Qualquer -";
@@ -419,7 +385,6 @@ $page_title = "Relatório de vendas";
                         $departamentos = isset($_POST["filter_departamentos"]) ? $_POST["filter_departamentos"] : array();
                         $categorias = isset($_POST["filter_categorias"]) ? $_POST["filter_categorias"] : array();
                         $subcategorias = isset($_POST["filter_subcategorias"]) ? $_POST["filter_subcategorias"] : array();
-
 
                         $selectedProdutos = array();
 

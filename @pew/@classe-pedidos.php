@@ -36,6 +36,7 @@
         public $valor_frete = 0;
         public $codigo_rastreamento = 0;
         public $payment_link = null;
+        public $taxa_boleto = 1.00;
         public $global_vars;
         public $pew_functions;
         
@@ -92,9 +93,10 @@
                 
 				if($statusPagseguro == 3 && $this->codigo_rastreamento == 0 || $statusPagseguro == 4 && $this->codigo_rastreamento == 0){
 					$code = $this->random_track_code($info['referencia']);
-					mysqli_query($conexao, "update $tabela_pedidos set codigo_rastreamento = '$code' where id = '{$info['id']}'");
+					$transportStatus = 2;
+					mysqli_query($conexao, "update $tabela_pedidos set codigo_rastreamento = '$code', status_transporte = '$transportStatus' where id = '{$info['id']}'");
 					$this->codigo_rastreamento = $code;
-					$this->status_transporte = 2;
+					$this->status_transporte = $transportStatus;
 				}
                 
                 if(isset($statusPagseguro) && $statusPagseguro != $this->status){
@@ -139,15 +141,36 @@
                 while($info = mysqli_fetch_array($queryValorTotal)){
                     $valorTotal += $info["preco_produto"] * $info["quantidade_produto"];
                 }
+				
+				$taxaBoleto = $this->codigo_pagamento == 2 ? $this->taxa_boleto : 0; // Se pago por boleto adicionar taxa ao total da compra
 
                 $this->valor_sfrete = $valorTotal;
-                $this->valor_total = $valorTotal + $this->valor_frete;
+                $this->valor_total = $valorTotal + $this->valor_frete + $taxaBoleto;
                 
                 return true;
             }else{
                 return false;
             }
         }
+		
+		function get_observacoes_pedido($idPedido = null){
+			$conexao = $this->global_vars["conexao"];
+			$tabela_pedidos_observacoes = $this->global_vars["tabela_pedidos_observacoes"];
+			
+			$idPedido = $idPedido == null ? $this->id : $idPedido;
+			$observacoesPedido = array();
+			$queryObservacoes = mysqli_query($conexao, "select * from $tabela_pedidos_observacoes where id_pedido = '$idPedido' order by id desc");
+			while($infoObservacoes = mysqli_fetch_array($queryObservacoes)){
+				$array = array();
+				$array['id_observacao'] = $infoObservacoes['id'];
+				$array['id_pedido'] = $infoObservacoes['id_pedido'];
+				$array['data'] = $infoObservacoes['data_controle'];
+				$array['mensagem'] = $infoObservacoes['mensagem'];
+				array_push($observacoesPedido, $array);
+			}
+			
+			return $observacoesPedido;
+		}
         
         function montar_array(){
             $array = array();
@@ -227,7 +250,27 @@
 			return $produtos;
         }
         
-        function get_status_string($status, $client_side = false){
+        function get_status_string($status, $client_side = false, $transport_status = false){
+			
+			if(!function_exists('update_by_transport')){
+				function update_by_transport($transport, $default_str){
+					switch($transport){
+						case 1:
+							$return = "Pronto para envio";
+							break;
+						case 2:
+							$return = "Em transporte";
+							break;
+						case 3:
+							$return = "Entregue";
+							break;
+						default:
+							$return = $default_str;
+					}
+					return $return;
+				}
+			}
+			
             switch($status){
                 case 1:
                     $str = "Aguardando pagamento";
@@ -236,10 +279,11 @@
                     $str = "Em análise";
                     break;
                 case 3:
-                    $str = "Paga";
+                    $str = update_by_transport($transport_status, "Paga");
                     break;
                 case 4:
                     $str = $client_side == false ? "Disponível" : "Paga";
+                    $str = update_by_transport($transport_status, $str);
                     break;
                 case 5:
                     $str = "Em disputa";
@@ -256,18 +300,14 @@
             return $str;
         }
         
-        function get_status_transporte_string($status){
-			$buttonID = "addRastreamento{$this->id}";
-			$buttonClass = "btn-add-rastreamento";
+        function get_status_transporte_string($status = null){
+			$status = $status === null ? $this->status_transporte : $status;
             switch($status){
                 case 1:
-                    $str = "<a class='link-padrao $buttonClass' id='$buttonID'>Adicionar código de rastreio</a>";
+                    $str = "Pronto para envio";
                     break;
                 case 2:
-					if($this->codigo_transporte == 7777){
-						$buttonID = "editRastreamento{$this->id}";
-					}
-                    $str = "<a class='link-padrao $buttonClass' id='$buttonID'>" . $this->codigo_rastreamento . "</a>";
+                    $str = "Em transporte";
                     break;
                 case 3:
                     $str = "Entregue";
@@ -308,8 +348,9 @@
             return $str;
         }
         
-        function get_transporte_string(){
-            switch($this->codigo_transporte){
+        function get_transporte_string($codigo = null){
+			$codigo = $codigo == null ? $this->codigo_transporte : $codigo;
+            switch($codigo){
                 case "7777":
                     $str = "Retirada na Loja";
                     break;
@@ -346,126 +387,48 @@
 			global $pew_session;
 			$conexao = $this->global_vars["conexao"];
 			$tabela_franquias = "franquias_lojas";
+			$pew_functions = $this->pew_functions;
             
             foreach($selectedIDs as $id){
                 $listar = $this->montar($id) == true ? true : false;
                 if($listar && !isset($_POST["box_type"])){
                     $infoProduto = $this->montar_array();
+					
+					$idFranquia = $this->id_franquia;
+					$idPedido = $this->id;
                     
                     $statusStr = $this->get_status_string($this->status);
                     $statusTransporteStr = $this->get_status_transporte_string($this->status_transporte);
                     $pagamentoStr = $this->get_pagamento_string($this->codigo_pagamento);
                     $transporteStr = $this->get_transporte_string();
-					$idFranquia = $this->id_franquia;
+					
+					$valorCobrado = $pew_functions->custom_number_format($this->valor_total);
+					
+					$maxCaracteres = 21;
+					$nomeCliente = strlen($this->nome_cliente) > $maxCaracteres ? substr($this->nome_cliente, 0, $maxCaracteres)."..." : $this->nome_cliente;
                     
                     $data = substr($this->data_controle, 0, 10);
                     $data = $this->pew_functions->inverter_data($data);
                     $horario = substr($this->data_controle, 10);
                     
-                    $valor = $this->pew_functions->custom_number_format($this->valor_total);
-                    
                     $txtComplemento = $this->complemento != "" ? ", ".$this->complemento : "";
-                    
-                    $enderecoFinal = $this->rua . ", ". $this->numero . $txtComplemento . " - " . $this->cep . " - " . $this->cidade . " | " . $this->estado;
-                    
-                    echo "<div class='box-produto display-pedido' id='boxProduto$id'>";
-                        echo "<div class='informacoes'>";
-                            echo "<h3 class='nome-produto'><a>{$this->nome_cliente}</a></h3>";
-							if($pew_session->nivel == 1){
-								$queryFranquia = mysqli_query($conexao, "select cidade, estado from $tabela_franquias where id = '$idFranquia'");
-								$infoFranquia = mysqli_fetch_array($queryFranquia);
-								$cidade = $infoFranquia["cidade"];
-								$estado = $infoFranquia["estado"];
-								echo "<div class='full box-info'>";
-									echo "<h4 class='titulo'><i class='fas fa-globe-americas'></i> Franquia</h4>";
-									echo "<h3 class='descricao'>$cidade - $estado</h3>";
-								echo "</div>";
-							}
-                            echo "<div class='half box-info'>";
-                                echo "<h4 class='titulo'><i class='fas fa-clipboard'></i> Status</h4>";
-                                echo "<h3 class='descricao'>$statusStr</h3>";
-                            echo "</div>";
-                            echo "<div class='half box-info'>";
-                                echo "<h4 class='titulo'><i class='fas fa-hashtag'></i> Referencia</h4>";
-                                echo "<h3 class='descricao'>{$this->referencia}</h3>";
-                            echo "</div>";
-                            echo "<div class='half box-info clear'>";
-                                echo "<h4 class='titulo'><i class='far fa-calendar-alt'></i> Data</h4>";
-                                echo "<h3 class='descricao'>$data</h3>";
-                            echo "</div>";
-                            echo "<div class='half box-info'>";
-                                echo "<h4 class='titulo'><i class='fas fa-dollar-sign'></i> Valor</h4>";
-                                echo "<h3 class='descricao'>R$ $valor</h3>";
-                            echo "</div>";
-                            echo "<div class='half box-info clear'>";
-                                echo "<h4 class='titulo'><i class='fas fa-truck'></i> Transporte</h4>";
-                                echo "<h3 class='descricao'>$transporteStr</h3>";
-                            echo "</div>";
-                            echo "<div class='half box-info'>";
-                                echo "<h4 class='titulo'><i class='fas fa-parachute-box'></i> Rastreio</h4>";
-                                echo "<h3 class='descricao'>$statusTransporteStr</h3>";
-                            echo "</div>";
-                            echo "<div class='bottom-buttons group clear'>";
-                                echo "<div class='box-button' style='margin: 0px;'>";
-                                    echo "<a class='btn-alterar btn-alterar-produto botao-ver-produtos' title='Clique para fazer alterações no produto' id-pedido='idPedido$id'>Ver produtos</a>";;
-                                echo "</div>";
-                                echo "<div class='box-button' style='margin: 0px;'>";
-                                    echo "<a class='btn-alterar btn-alterar-produto botao-ver-info' title='Mais informações' id-pedido='infoPedido$id'>Mais informações</a>";
-                                echo "</div>";
-                            echo "</div>";
-                        echo "</div>";
-                        // Produtos da compra
-                        echo "<div class='display-produtos-pedido' id='idPedido$id'>";
-                            echo "<h3 class='titulo-info'>Produtos do pedido: <b>{$this->referencia}</b></h3>";
-                            $selectedProdutos = $this->get_produtos_pedido();
-                            if(is_array($selectedProdutos)){
-                                foreach($selectedProdutos as $infoProduto){
-                                    $nome = $infoProduto["nome"];
-                                    $quantidade = $infoProduto["quantidade"];
-                                    $preco = $infoProduto["preco"];
-                                    $subtotal = $preco * $quantidade;
-                                    $subtotal = $this->pew_functions->custom_number_format($subtotal);
-                                    echo "<div class='box'>";
-                                        echo "<div class='quantidade'>$quantidade x</div>";
-                                        echo "<div class='nome'>$nome</div>";
-                                        echo "<div class='subtotal'>$subtotal</div>";
-                                    echo "</div>";
-                                }
-                                echo "<div class='box'>";
-                                    echo "<div class='quantidade'>1 x</div>";
-                                    echo "<div class='nome'>" . $this->get_transporte_string() . "</div>";
-                                    echo "<div class='subtotal'>" . $this->valor_frete . "</div>";
-                                echo "</div>";
-                                echo "<button class='btn-voltar btn-voltar-produtos' id-pedido='idPedido$id'>Voltar</button>";
-                            }
-                        echo "</div>";
-                        // Informações adicionais
-                        echo "<div class='display-info-pedido' id='infoPedido$id'>";
-                            echo "<div class='informacoes'>";
-                                echo "<div class='half box-info'>";
-                                    echo "<h4 class='titulo'><i class='fas fa-credit-card'></i> Pagamento</h4>";
-                                    echo "<h3 class='descricao'>$pagamentoStr</h3>";
-                                echo "</div>";
-                                echo "<div class='half box-info'>";
-                                    echo "<h4 class='titulo'><i class='fas fa-id-card'></i> CPF</h4>";
-                                    echo "<h3 class='descricao'>{$this->pew_functions->mask($this->cpf_cliente, "###.###.###-##")}</h3>";
-                                echo "</div>";
-                                echo "<div class='full clear box-info'>";
-                                    echo "<h4 class='titulo'><i class='far fa-envelope'></i> E-mail</h4>";
-                                    echo "<h3 class='descricao'>{$this->email_cliente}</h3>";
-                                echo "</div>";
-                                echo "<div class='full box-info'>";
-                                    echo "<h4 class='titulo'><i class='fas fa-map-marker'></i> Endereço entrega</h4>";
-                                    echo "<h3 class='descricao'>$enderecoFinal</h3>";
-                                echo "</div>";
-                                echo "<div class='half box-info'>";
-                                    echo "<h4 class='titulo'><i class='far fa-clock'></i> Hora</h4>";
-                                    echo "<h3 class='descricao'>$horario</h3>";
-                                echo "</div>";
-                            echo "</div>";
-                            echo "<button class='btn-voltar btn-voltar-info' id-pedido='infoPedido$id'>Voltar</button>";
-                        echo "</div>";
-                    echo "</div>";
+					
+					echo "<tr>";
+						echo "<td>$idPedido</td>";
+						if($pew_session->nivel == 1){
+							$queryFranquia = mysqli_query($conexao, "select cidade, estado from $tabela_franquias where id = '$idFranquia'");
+							$infoFranquia = mysqli_fetch_array($queryFranquia);
+							$cidade = $infoFranquia["cidade"];
+							$estado = $infoFranquia["estado"];
+							echo "<td>$estado - $cidade</td>";
+						}
+						echo "<td>$data</td>";
+						echo "<td title='{$this->nome_cliente}' style='white-space: nowrap;'>$nomeCliente</td>";
+						echo "<td class='prices'>R$ $valorCobrado</td>";
+						echo "<td class='prices'>$transporteStr</td>";
+						echo "<td>$statusStr</td>";
+						echo "<td><a href='pew-interna-pedido.php?id_pedido=$idPedido' class='link-padrao'>Exibir</a></td>";
+					echo "<tr>";
                 }
             }
         }

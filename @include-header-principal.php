@@ -562,7 +562,8 @@ $session_id_franquia = $cls_franquias->id_franquia;
     }
     .header-principal .nav-header .display-links .link-principal{
         display: inline-block;
-        height: 60px;
+        height: 58px;
+		border-bottom: 2px solid transparent;
         line-height: 60px;
         padding: 0px 10px 0px 10px;
         -webkit-transition: .2s linear;
@@ -593,7 +594,7 @@ $session_id_franquia = $cls_franquias->id_franquia;
         list-style: none;
     }
     .header-principal .nav-header .display-links .first-li .link-principal:hover{
-        background-color: #f6f6f6;
+        border-color: #6abd45;
     }
     .header-principal .nav-header .display-links .first-li .link-especial:hover{
         background-color: #6abd45;
@@ -1005,11 +1006,19 @@ $session_id_franquia = $cls_franquias->id_franquia;
                 $subLinks = $this->sublinks;
                 $classe = $this->classe;
 				$dirIcones = "imagens/categorias/categorias/icones/";
+				
+				if(!function_exists('cmp')){
+					function cmp($a, $b){
+						return strcmp($a['titulo'], $b['titulo']);
+					}
+				}
+				
                 echo "<li class='first-li'>";
                 echo "<span>";
                     echo "<a href='$urlPrincipal' class='link-principal $classe'>$tituloPrincipal</a>";
                     if($this->qtd_sublinks > 0){
                         echo "<ul class='sub-menu'>";
+						usort($subLinks, "cmp");
                         foreach($subLinks as $subLink){
                             $idSubLink = $subLink["id"];
                             $tituloSubLink = $subLink["titulo"];
@@ -1021,6 +1030,7 @@ $session_id_franquia = $cls_franquias->id_franquia;
                             if($qtd_sub_subLinks > 0){
                                 echo "<span class='sub-sub-links-icon'><i class='fa fa-arrow-right' aria-hidden='true'></i></span>";
                                 echo "<ul class='sub-sub-menu'>";
+								usort($sub_subLinks, "cmp");
                                 foreach($sub_subLinks as $subSubLink){
                                     $getIdSubLink = $subSubLink["id_sublink"];
                                     $titulo = $subSubLink["titulo"];

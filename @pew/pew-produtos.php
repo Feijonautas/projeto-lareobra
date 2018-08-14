@@ -132,59 +132,9 @@
                 background-color: #f0f0f0;
                 transform: scale(1);
             }
-			.controller-produtos{
-				position: fixed;
-				display: none;
-				background-color: #fff;
-				top: 100px;
-				margin: 0 auto;
-				left: 0;
-				right: 0;
-				width: 430px;
-				padding: 20px;
-				z-index: 300;
-			}
-			.controller-produtos .title{
-				margin: 15px;
-			}
         </style>
 		<script>
 			$(document).ready(function(){
-				var background = $(".background-interatividade");
-				
-				function toggle_background(){
-					if(background.css("display") == "block"){
-						background.css("opacity", "0");
-						setTimeout(function(){
-							background.css("display", "none");
-						}, 300);
-					}else{
-						background.css("display", "block");
-						setTimeout(function(){
-							background.css("opacity", ".7");
-						}, 10);
-					}
-				}
-				
-				$(".btn-controll-produto").each(function(){
-					var button = $(this);
-					var idProduto = button.attr("js-target-produto");
-					button.off().on("click", function(){
-						var controllDiv = $("#jsCtrlProduto"+idProduto);
-						toggle_background();
-						controllDiv.css("display", "block");
-					});
-				});
-				
-				$(".btn-back-produtos").each(function(){
-					var button = $(this);
-					var idProduto = button.attr("js-target-produto");
-					button.off().on("click", function(){
-						var controllDiv = $("#jsCtrlProduto"+idProduto);
-						toggle_background();
-						controllDiv.css("display", "none");
-					});
-				});
 				
 				$(".js-active-all").off().on("click", function(){
 					
@@ -373,7 +323,7 @@
 								}else{
 									$image_field = "<img src='$padrao_full_imagem'>";
 									$name_field = $padrao_nome;
-									$alter_product_field = "<a class='btn-alterar btn-alterar-produto btn-controll-produto' js-target-produto='$idProduto' title='Clique para fazer alterações no produto'>Alterar</a>";
+									$alter_product_field = "<a class='btn-alterar btn-alterar-produto btn-show-div' js-target-id='jsCtrlProduto$idProduto' title='Clique para fazer alterações no produto'>Alterar</a>";
 								}
 								
 								$padrao_btn_status = $view_status == 1 ? "<a class='btn-desativar btn-status-produto' data-produto-id='$idProduto' data-acao='desativar' title='Clique para alterar o status do produto'>Desativar</a>" : "<a class='btn-ativar btn-status-produto' data-produto-id='$idProduto' data-acao='ativar' title='Clique para alterar o status do produto'>Ativar</a>";
@@ -445,7 +395,7 @@
 								// APENAS FRANQUIA
 								if($pew_session->nivel != 1){
 
-									$franquias_controll_divs .= "<div class='controller-produtos' id='jsCtrlProduto$idProduto'>
+									$franquias_controll_divs .= "<div class='fixed-controll-div' id='jsCtrlProduto$idProduto'>
 										<h3 class='title'>$padrao_nome</h3>
 										<form class='form-field' method='post' action='pew-update-produto-franquia.php'>
 											<input type='hidden' name='id_produto' value='$idProduto'>
@@ -488,7 +438,7 @@
 									$franquias_controll_divs .= "       </select>
 											</div>
 											<div class='label group jc-right'>
-												<div class='half'><input type='button' value='Voltar' class='label-input btn-back-produtos' style='height: 40px;' js-target-produto='$idProduto'></div>
+												<div class='half'><input type='button' value='Voltar' class='label-input btn-exit-div' style='height: 40px;' js-target-id='jsCtrlProduto$idProduto'></div>
 												<div class='half'><input type='submit' value='Atualizar' class='label-input btn-submit'></div>
 											</div>
 										</form>

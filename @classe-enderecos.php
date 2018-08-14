@@ -189,8 +189,8 @@
             $this->bairro = $bairro;
             $this->estado = $estado;
             $this->cidade = $cidade;
-            $this->data_cadastro = date("Y-m-d h:i:s");
-            $this->data_controle = date("Y-m-d h:i:s");
+            $this->data_cadastro = date("Y-m-d H:i:s");
+            $this->data_controle = date("Y-m-d H:i:s");
             $this->status = 1;
             $validacao = $this->validar_dados(); 
             if($validacao == "true"){
@@ -213,7 +213,7 @@
         
         public function update_endereco($id_endereco, $id_relacionado, $ref_relacionado, $cep, $rua, $numero, $complemento, $bairro, $estado, $cidade){
             $tabela_enderecos = $this->global_vars["tabela_enderecos"];
-            $dataAtual = date("Y-m-d h:i:s");
+            $dataAtual = date("Y-m-d H:i:s");
             
             $ref_relacionado = $this->switch_relacionado($ref_relacionado);
             

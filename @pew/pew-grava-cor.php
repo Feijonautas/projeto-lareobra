@@ -21,7 +21,7 @@
         $tabela_cores = $pew_custom_db->tabela_cores;
         
         $titulo = addslashes(trim($_POST["titulo"]));
-        $data = date("Y-m-d h:i:s");
+        $data = date("Y-m-d H:i:s");
         $dirImagens = "../imagens/cores/";
 
         $ref = $pew_functions->url_format($titulo);

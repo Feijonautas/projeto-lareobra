@@ -36,7 +36,7 @@
         $splitInfo = explode("||", $infoCategoria);
         $idCategoria = (int)$splitInfo[0];
         $tituloCategoria = addslashes(trim($splitInfo[1]));
-        $data = date("Y-m-d h:i:s");
+        $data = date("Y-m-d H:i:s");
         $dirImagens = "../imagens/categorias/destaques/";
 
         $refCategoria = $pew_functions->url_format($tituloCategoria);

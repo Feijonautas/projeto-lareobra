@@ -25,7 +25,7 @@
         require_once "pew-system-config.php";
         require_once "@classe-system-functions.php";
         
-        $dataAtual = date("Y-m-d h:i:s");
+        $dataAtual = date("Y-m-d H:i:s");
         /*POST DATA*/
         $skuProduto = addslashes($_POST["sku"]);
         $nomeProduto = addslashes($_POST["nome"]);

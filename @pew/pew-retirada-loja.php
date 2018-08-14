@@ -1,7 +1,4 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
     session_start();
     
     $thisPageURL = substr($_SERVER["REQUEST_URI"], strpos($_SERVER["REQUEST_URI"], '@pew'));
@@ -126,7 +123,7 @@ error_reporting(E_ALL);
                     </div>
                     <div class="group">
                         <div class="xlarge" style="margin-left: -5px; margin-right: 0px;">
-                            <input type="search" name="busca" placeholder="Busque por código de retirada, nome, cpf..." class="label-input" title="Buscar">
+                            <input type="search" name="busca" placeholder="Busque por código retirada, nome, referência..." class="label-input" title="Buscar">
                         </div>
                         <div class="xsmall" style="margin-left: 0px;">
                             <button type="submit" class="btn-submit label-input btn-flat" style="margin: 10px;">
@@ -158,13 +155,13 @@ error_reporting(E_ALL);
                 if($total > 0){
                     echo "<thead>";
                         echo "<td>Pedido</td>";
+                        echo "<td>Data</td>";
                         echo "<td>Alteração</td>";
 						if($pew_session->nivel == 1){
 							echo "<td>Franquia</td>";
 						}
                         echo "<td>Nome</td>";
                         echo "<td>CPF</td>";
-                        echo "<td>Referencia</td>";
                         echo "<td>Código retirada</td>";
                         echo "<td>Produtos</td>";
                         echo "<td>Status</td>";
@@ -214,6 +211,7 @@ error_reporting(E_ALL);
 						$infoFranquia = $cls_franquias->query_franquias("id = '{$infoPedido['id_franquia']}'");
 						$str_franquia = $infoFranquia[0]['cidade'] ." - ". $infoFranquia[0]['estado'];
 						
+						echo "<tr><td align=center><a href='pew-interna-pedido.php?id_pedido=$idPedido' class='link-padrao' target='_blank' title='Ver informações do pedido #$idPedido'>$idPedido</a></td>";
 						echo "<td>$dataPedido</td>";
 						echo "<td>$dataModificacao</td>";
 						if($pew_session->nivel == 1){
@@ -221,14 +219,13 @@ error_reporting(E_ALL);
 						}
 						echo "<td>{$infoPedido['nome_cliente']}</td>";
 						echo "<td>$cpfCliente</td>";
-						echo "<td>{$infoPedido['referencia']}</td>";
 						echo "<td>{$infoPedido['codigo_rastreamento']}</td>";
 						echo "<td>";
 							echo "<a class='link-padrao toggle-button' target-hash='$hashID'>Exibir produtos</a>";
 							echo "<div class='display-lista-produtos hidden-produtos' id='$hashID'>$div_produtos</div>";
 						echo "</td>";
 						echo "<td>$str_status_transporte</td>";
-						echo "<td><a class='btn-alterar btn-alterar-produto btn-controll-produto' js-target-produto='$idPedido'>Alterar</a></td>";
+						echo "<td><a class='btn-alterar btn-alterar-produto btn-controll-produto' js-target-produto='$idPedido'>Alterar</a></td></tr>";
 						
 						$controll_divs .= "<form class='controller-produtos js-form-retirada' id='jsCtrlProduto$idPedido' action='pew-status-retirada.php' method='post'>";
 							$controll_divs .=	"<h3 class='title'>Retirada na loja: {$infoPedido['codigo_rastreamento']}</h3>";
@@ -271,13 +268,13 @@ error_reporting(E_ALL);
 								<div class='half'><input type='button' value='Voltar' class='label-input btn-back-produtos' style='height: 40px;' js-target-produto='$idPedido'></div>
 								<div class='half'><input type='submit' value='Atualizar' class='label-input btn-submit'></div>
 							</div>";
-						$controll_divs .= "</div>";
+						$controll_divs .= "</form>";
                     }
                     echo "</tbody></table>";
 					echo $controll_divs;
                 }else{
-                    $msg = $mainCondition != "true" ? "Nenhum resultado encontrado. <a href='pew-contatos.php' class='link-padrao'><b>Voltar<b></a>" : "Nenhuma mensagem foi enviada ainda.";
-                    echo "<br><br><br><br><br><h3 align='center'>$msg</h3></td>";
+                    $msg = $mainCondition != "true" ? "Nenhum resultado encontrado. <a href='pew-retirada-loja.php' class='link-padrao'><b>Voltar<b></a>" : "Nenhum pedido de retirada na loja foi feito.";
+                    echo "<br><br><br><br><br><h3 align='center'>$msg</h3>";
                 }
             ?>
             </table>

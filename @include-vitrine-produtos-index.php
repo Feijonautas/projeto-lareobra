@@ -11,8 +11,8 @@
     $tabela_categorias_produto = $pew_custom_db->tabela_categorias_produtos;
     $tabela_categorias_vitrine = $pew_custom_db->tabela_categorias_vitrine;
 
-    $vitrineProdutos[0] = new VitrineProdutos("standard", 5, "Produtos em Promoção");
-    $condicaoPromocao = "promocao_ativa = 1 and preco_promocao < preco_bruto and id_franquia = '$session_id_franquia'";
+    $vitrineProdutos[0] = new VitrineProdutos("standard", 10, "Produtos em Promoção");
+    $condicaoPromocao = "promocao_ativa = 1 and preco_promocao < preco_bruto and id_franquia = '$session_id_franquia' order by rand()";
     $total = $pew_functions->contar_resultados($tabela_produtos_franquia, $condicaoPromocao);
     if($total > 0){
         $selectedPromocao = array();
@@ -25,8 +25,9 @@
         $vitrineProdutos[0]->montar_vitrine($selectedPromocao);
     }
 
-    
 	$condicaoCategorias = "status = 1 and id_franquia = '$session_id_franquia'";
+	$productOrder = "order by rand()";
+    
     $queryCategoriasVitrine = mysqli_query($conexao, "select id_categoria, titulo from $tabela_categorias_vitrine where $condicaoCategorias");
     while($info = mysqli_fetch_array($queryCategoriasVitrine)){
         $selected = array();
@@ -34,7 +35,7 @@
         
         $tituloCategoria = $info["titulo"];
         
-        $queryCategoriasProduto = mysqli_query($conexao, "select id_produto from $tabela_categorias_produto where id_categoria = '{$info["id_categoria"]}'");
+        $queryCategoriasProduto = mysqli_query($conexao, "select id_produto from $tabela_categorias_produto where id_categoria = '{$info["id_categoria"]}' $productOrder");
         while($infoProduto = mysqli_fetch_array($queryCategoriasProduto)){
             if(in_array($infoProduto["id_produto"], $selected) == false){
                 $selected[$count] = $infoProduto["id_produto"];

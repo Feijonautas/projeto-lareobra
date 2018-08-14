@@ -13,7 +13,7 @@
 	
 	$total = $pew_functions->contar_resultados($tabela_requisicoes, $mainCondition);
 
-	$dataAtual = date("Y-m-d h:i:s");
+	$dataAtual = date("Y-m-d H:i:s");
 
 	if($total > 0){
 		

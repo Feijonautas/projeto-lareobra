@@ -9,7 +9,7 @@
 		
 		$tabela_requisicoes = "franquias_requisicoes";
 		
-		$dataAtual = date("Y-m-d h:i:s");
+		$dataAtual = date("Y-m-d H:i:s");
 		
 		$produtos = $_POST["produtos_lista"];
 		$insert_string = "";

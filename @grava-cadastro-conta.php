@@ -1,4 +1,7 @@
 <?php
+	$_POST['controller'] = "get_id_franquia";
+	require_once "@valida-regiao.php";
+
     $post_fields = array("nome", "email", "senha", "celular", "telefone", "cpf", "data_nascimento", "cep", "rua", "numero", "complemento", "bairro", "estado", "cidade");
     $invalid_fields = array();
 
@@ -31,8 +34,11 @@
         // END SET VARS
         
         // REQUIRES
+		$_POST['cancel_redirect'] = true;
         require_once "@classe-minha-conta.php";
         require_once "@classe-system-functions.php";
+        require_once "@pew/@classe-notificacoes.php";
+		$cls_notificacoes = new Notificacoes();
         // END REQUIRES
         
         $enderecos = array();
@@ -58,8 +64,11 @@
             $cls_paginas = new Paginas();
             
             $nomeEmpresa = $cls_paginas->empresa;
-
+			
             $pew_functions->enviar_email("Confirme sua conta - $nomeEmpresa", $bodyEmail, $destinatarios);
+			
+			$cls_notificacoes->insert($session_id_franquia, "Novo cadastro", "$nome se cadastrou na loja", null, "system");
+			
             echo "true";
         }else{
             echo "false";
