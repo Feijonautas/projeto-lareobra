@@ -1,4 +1,7 @@
 <?php
+	ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
     session_start();
     
     $thisPageURL = substr($_SERVER["REQUEST_URI"], strpos($_SERVER["REQUEST_URI"], '@pew'));
@@ -9,7 +12,7 @@
     require_once "@valida-sessao.php";
 
     $navigation_title = "Newsletter - " . $pew_session->empresa;
-    $page_title = "Gerenciamento de e-mails cadastrados";
+    $page_title = "Lista de Newsletter";
 ?>
 <!DOCTYPE html>
 <html>
@@ -30,8 +33,8 @@
             $(".btn-excluir-newsletter").each(function(){
                 var btnExcluir = $(this);
                 var idNewsletter = btnExcluir.attr("data-id-newsletter");
-                var msgSucesso = "O e-mail foi excluido com sucesso!";
-                var msgErro = "Não foi possível excluir o e-mail. Recarregue a página e tente novamente.";
+                var msgSucesso = "O newsletter foi excluido com sucesso!";
+                var msgErro = "Não foi possível excluir o newsletter. Recarregue a página e tente novamente.";
 
                 btnExcluir.off().on("click", function(){
                     function excluir(){
@@ -52,7 +55,7 @@
                         });
                     }
 
-                    mensagemConfirma("Tem certeza que deseja excluir este e-mail?", excluir);
+                    mensagemConfirma("Tem certeza que deseja excluir este newsletter?", excluir);
                 });
             });
         });
@@ -76,7 +79,7 @@
                         </div>
                         <div class="group">
                             <div class="xlarge" style="margin-left: -5px; margin-right: 0px;">
-                                <input type="search" name="busca" placeholder="Busque por nome, email ou data" class="label-input" title="Buscar">
+                                <input type="search" name="busca" placeholder="Busque por nome, email ou celular" class="label-input" title="Buscar">
                             </div>
                             <div class="xsmall" style="margin-left: 0px;">
                                 <button type="submit" class="btn-submit label-input btn-flat" style="margin: 10px;">
@@ -87,70 +90,153 @@
                     </label>
                 </form>
             </div>
-            <table class="table-padrao" cellspacing="0">
             <?php
                 $tabela_newsletter = $pew_custom_db->tabela_newsletter;
 				$tabela_franquias = "franquias_lojas";
-				
+				// Conditions
                 if(isset($_GET["busca"]) && $_GET["busca"] != ""){
                     $getSEARCH = addslashes($_GET["busca"]);
-                    $mainCondition = "nome like '%".$getSEARCH."%' or email like '%".$getSEARCH."%' or data like '%".$getSEARCH."%'";
-                    $getSEARCH = $getSEARCH == "" ? "Todos e-mails" : $getSEARCH;
+                    $searchCondition = "nome like '%".$getSEARCH."%' or email like '%".$getSEARCH."%' or celular like '%".$getSEARCH."%'";
+                    $getSEARCH = $getSEARCH == "" ? "Todos" : $getSEARCH;
                     echo "<br class='clear'><h3>Exibindo resultados para: $getSEARCH</h3>";
                 }else{
-                    $mainCondition = "";
+                    $searchCondition = null;
                 }
 				
 				if($pew_session->nivel == 1){
-					$mainCondition = $mainCondition == null ? "true" : $mainCondition;
+					$searchCondition = $searchCondition == null ? "true" : $searchCondition;
+					$nEmailCondition = "type = 0";
+					$nCelularCondition = "type = 1";
 				}else{
-					$mainCondition = $mainCondition == null ? "id_franquia = '{$pew_session->id_franquia}'" : str_replace("or", "and id_franquia = '{$pew_session->id_franquia}' or", $mainCondition);
+					$searchCondition = $searchCondition == null ? "id_franquia = '{$pew_session->id_franquia}'" : str_replace("or", "and id_franquia = '{$pew_session->id_franquia}' or", $searchCondition);
+					$nEmailCondition = "type = 0 and id_franquia = '{$pew_session->id_franquia}'";
+					$nCelularCondition = "type = 1 and id_franquia = '{$pew_session->id_franquia}'";
 				}
-                
-                $totalNewsletter = $pew_functions->contar_resultados($tabela_newsletter, $mainCondition);
-                if($totalNewsletter > 0){
-                    echo "<thead>";
-                        echo "<td>Data</td>";
-                        echo "<td>Nome</td>";
-                        echo "<td>E-mail</td>";
-						if($pew_session->nivel == 1){
-                        	echo "<td>Franquia</td>";
+				// End Conditions
+				
+				// Functions
+				$selectedBySearch = array();
+				$selectedByEmail = array();
+				$selectedByCelular = array();
+				function update_by_search($array){
+					global $selectedBySearch;
+					foreach($array as $key => $idNewsletter){
+						if(in_array($idNewsletter, $selectedBySearch) == false){
+							unset($array[$key]);
 						}
-                        echo "<td>Excluir</td>";
-                    echo "</thead>";
-                    echo "<tbody>";
-                    $queryNewsletter = mysqli_query($conexao, "select * from $tabela_newsletter where $mainCondition order by data desc");
-                    while($newsletter = mysqli_fetch_array($queryNewsletter)){
-                        $id = $newsletter["id"];
-                        $idFranquia = $newsletter["id_franquia"];
-                        $nome = $newsletter["nome"];
-                        $email = $newsletter["email"];
-                        $data = $pew_functions->inverter_data(substr($newsletter["data"], 0, 10));
-                        echo "<tr><td>$data</td>";
-                        echo "<td>$nome</td>";
-                        echo "<td>$email</td>";
-						if($pew_session->nivel == 1){
-							$fCondition = "id = '$idFranquia'";
-							$totalF = $pew_functions->contar_resultados($tabela_franquias, $fCondition);
-							if($totalF > 0){
-								$queryF = mysqli_query($conexao, "select cidade, estado from $tabela_franquias where $fCondition");
-								$infoF = mysqli_fetch_array($queryF);
-								$cidade = $infoF["cidade"];
-								$estado = $infoF["estado"];
-								echo "<td>$cidade - $estado</td>";
-							}else{
-								echo "<td>Não especificado</td>";
-							}
-						}
-                        echo "<td><a data-id-newsletter='$id' class='btn-editar btn-excluir-newsletter'><i class='fa fa-trash' aria-hidden='true'></i></a></td></tr>";
-                    }
-                    echo "</tbody>";
+					}
+					return $array;
+				}
+				
+				function query_select($condition){
+					global $conexao, $tabela_newsletter;
+					$returnArray = array();
+					$query = mysqli_query($conexao, "select id from $tabela_newsletter where $condition order by id desc");
+					while($info = mysqli_fetch_array($query)){
+						array_push($returnArray, $info['id']);
+					}
+					return $returnArray;
+				}
+				
+				function list_by_email($array){
+					global $conexao, $tabela_newsletter, $pew_functions;
+					$ctrl = 0;
+					$condition = "";
+					foreach($array as $idN){
+						$condition .= $ctrl == 0 ? "id = '$idN'" : " or id = '$idN'";
+						$ctrl++;
+					}
+					$q = mysqli_query($conexao, "select * from $tabela_newsletter where $condition order by id desc");
+					while($i = mysqli_fetch_array($q)){
+						$data = substr($i['data'], 0, 10);
+						$data = $pew_functions->inverter_data($data);
+						$nome = $i['nome'] != null ? $i['nome'] : "Não especificado";
+						$email = $i['email'] != null ? $i['email'] : "Não especificado";
+						echo "<tr>";
+							echo "<td>$data</td>";
+							echo "<td>$nome</td>";
+							echo "<td>$email</td>";
+							echo "<td align=center><a data-id-newsletter='{$i['id']}' class='btn-editar btn-excluir-newsletter'><i class='fa fa-trash' aria-hidden='true'></i></a></td>";
+						echo "</tr>";
+					}
+				}
+			
+				function list_by_celular($array){
+					global $conexao, $tabela_newsletter, $pew_functions;
+					$ctrl = 0;
+					$condition = "";
+					foreach($array as $idN){
+						$condition .= $ctrl == 0 ? "id = '$idN'" : " or id = '$idN'";
+						$ctrl++;
+					}
+					$q = mysqli_query($conexao, "select * from $tabela_newsletter where $condition order by id desc");
+					while($i = mysqli_fetch_array($q)){
+						$data = substr($i['data'], 0, 10);
+						$data = $pew_functions->inverter_data($data);
+						$nome = $i['nome'] != null ? $i['nome'] : "Não especificado";
+						$celular = $i['celular'] != null ? $i['celular'] : "Não especificado";
+						echo "<tr>";
+							echo "<td>$data</td>";
+							echo "<td>$nome</td>";
+							echo "<td>$celular</td>";
+							echo "<td align=center><a data-id-newsletter='{$i['id']}' class='btn-editar btn-excluir-newsletter'><i class='fa fa-trash' aria-hidden='true'></i></a></td>";
+						echo "</tr>";
+					}
+				}
+				// End Functions
+				
+				$selectedBySearch = query_select($searchCondition);
+				$selectedByEmail = query_select($nEmailCondition);
+				$selectedByCelular = query_select($nCelularCondition);
+				
+				// Array update
+				$selectedByEmail = update_by_search($selectedByEmail);
+				$selectedByCelular = update_by_search($selectedByCelular);
+				
+				$totalBySearch = count($selectedBySearch);
+				$totalByEmail = count($selectedByEmail);
+				$totalByCelular = count($selectedByCelular);
+				
+				if($totalBySearch > 0){
+					echo "<div class='multi-tables'>";
+						echo "<div class='top-buttons'>";
+							echo "<button class='trigger-button trigger-button-selected' mt-target='mtPainel1'>E-mail ($totalByEmail)</button>";
+							echo "<button class='trigger-button' mt-target='mtPainel2'>WhatsApp ($totalByCelular)</button>";
+						echo "</div>";
+						echo "<div class='display-paineis'>";
+							echo "<div class='painel selected-painel' id='mtPainel1'>";
+								echo "<table class='table-padrao' cellspacing=0>";
+									echo "<thead>";
+										echo "<td>Data</td>";
+										echo "<td>Nome</td>";
+										echo "<td>E-mail</td>";
+										echo "<td align=center>Remover</td>";
+									echo "</thead>";
+									echo "<tbody>";
+									list_by_email($selectedByEmail);
+									echo "</tbody>";
+								echo "</table>";
+							echo "</div>";
+							echo "<div class='painel' id='mtPainel2'>";
+								echo "<table class='table-padrao' cellspacing=0>";
+									echo "<thead>";
+										echo "<td>Data</td>";
+										echo "<td>Nome</td>";
+										echo "<td>Celular</td>";
+										echo "<td align=center>Remover</td>";
+									echo "</thead>";
+									echo "<tbody>";
+									list_by_celular($selectedByCelular);
+									echo "</tbody>";
+								echo "</table>";
+							echo "</div>";
+						echo "</div>";
+					echo "</div>";
                 }else{
-                    $msg = $mainCondition != "true" ? "Nenhum resultado encontrado." : "Nenhum e-mail foi cadastrado.";
+                    $msg = $searchCondition != "true" ? "Nenhum resultado encontrado." : "Nenhum e-mail foi cadastrado.";
                     echo "<br><br><br><br><br><h3 align='center'>$msg</h3></td>";
                 }
             ?>
-            </table>
         </section>
     </body>
 </html>

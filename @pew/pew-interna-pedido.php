@@ -203,6 +203,9 @@
 								echo "<td>Método pagamento</td>";
 								echo "<td class='info'>$string_pagamento $linkBoleto</td>";
 							echo "</tr>";
+							echo "<tr>";
+								echo "<td colspan=2 class='right'><a href='pew-imprimir-pedido.php?id_pedido=$idPedido' class='link-padrao' target='_blank'>Imprimir folha do pedido</a></td>";
+							echo "</tr>";
 						echo "</tbody>";
 					echo "</table>";
 				echo "</div>";

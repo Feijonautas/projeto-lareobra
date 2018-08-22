@@ -8,12 +8,13 @@
         private $titulo_vitrine;
         private $descricao_vitrine;
         private $quantidade_produtos;
+        private $promocao_especial;
         private $global_vars;
         private $pew_functions;
         private $exceptions = array();
         private $id_franquia;
 
-        function __construct($tipo = "standard", $limiteProdutos = 4, $tituloVitrine = "", $descricaoVitrine = ""){
+        function __construct($tipo = "standard", $limiteProdutos = 5, $tituloVitrine = null, $descricaoVitrine = null, $infoPromocaoEspecial = null){
 			$_POST['controller'] = "get_id_franquia";
 			require_once "@valida-regiao.php"; # set id franquia
 			global $session_id_franquia;
@@ -24,6 +25,7 @@
             $this->titulo_vitrine = $tituloVitrine;
             $this->descricao_vitrine = $descricaoVitrine;
             $this->quantidade_produtos = 0;
+            $this->promocao_especial = $infoPromocaoEspecial;
             global $globalVars, $pew_functions;
             $this->global_vars = $globalVars;
             $this->pew_functions = $pew_functions;
@@ -45,6 +47,8 @@
 			$idFranquia = $this->id_franquia;
 			$nomeLoja = $cls_paginas->empresa;
 			
+			$clockField = null;
+			
             if($idProduto > 0){
                 // Variaveis produto
 				$cls_produto->montar_produto($idProduto);
@@ -65,6 +69,13 @@
 				$franquia_preco = $infoFranquia["preco"];
 				$franquia_preco_promocao = $infoFranquia["preco_promocao"];
 				$franquia_promocao_ativa = $infoFranquia["promocao_ativa"];
+				
+				if(is_array($this->promocao_especial)){
+					$infoPromo = $this->promocao_especial;
+					if(in_array($idProduto, $infoPromo['produtos'])){
+						$clockField = $infoPromo['clock'];
+					}
+				}
 				
                 if(count($selected_imagens_produto) > 0){
                     $imagemPrincipal = $selected_imagens_produto[0];
@@ -93,7 +104,7 @@
 						$discountPercent = $cls_produto->get_promo_percent($franquia_preco, $franquia_preco_promocao);
 						$boxProduto .= "<div class='promo-tag' style='top: 20px; left: 20px;'>$discountPercent%</div>";
 					}
-                    $boxProduto .= "<a href='$padrao_url_produto'><img src='$dirImagensProdutos/$padrao_src_imagem' title='$padrao_nome_produto' alt='$padrao_nome_produto - $nomeLoja'></a>";
+                    $boxProduto .= "<a href='$padrao_url_produto' class='image-head'><img src='$dirImagensProdutos/$padrao_src_imagem' title='$padrao_nome_produto' alt='$padrao_nome_produto - $nomeLoja'>$clockField</a>";
                     $boxProduto .= "<a href='$padrao_url_produto' class='title-link'><h3 class='titulo-produto' title='$padrao_nome_produto'>$short_title</h3></a>";
                     $boxProduto .= "<h4 class='preco-produto'>$priceField ou <span class='view-parcelas'>{$quantidede_parcelas}x R$". number_format($preco_parcelado, 2, ",", ".") ."   </span></h4>";
                     $boxProduto .= "<a href='$padrao_url_produto' class='call-to-action'>COMPRAR</a>";

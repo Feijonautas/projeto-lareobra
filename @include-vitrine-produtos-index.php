@@ -11,6 +11,25 @@
     $tabela_categorias_produto = $pew_custom_db->tabela_categorias_produtos;
     $tabela_categorias_vitrine = $pew_custom_db->tabela_categorias_vitrine;
 
+	require_once "@pew/@classe-promocoes.php";
+
+	$cls_promocoes = new Promocoes();
+	$selectPromocoes = $cls_promocoes->get_promocoes_franquia($session_id_franquia, true);
+	
+	$dataAtual = date("Y-m-d H:i:s");
+	foreach($selectPromocoes as $infoProm){
+		$idPromo = $infoProm["id"];
+		$infoArray = $cls_promocoes->query("id = '$idPromo'");
+		$infoPromocao = $infoArray[0];
+		$produtos = $cls_promocoes->get_produtos($idPromo);
+		$clockTimer = $cls_promocoes->get_clock($dataAtual, $infoPromocao['data_final']);
+		$infoPromocao["produtos"] = $produtos;
+		$infoPromocao["clock"] = $clockTimer;
+		
+		$vitrinePromo = new VitrineProdutos("standard", 20, $infoPromocao['titulo_vitrine'], $infoPromocao['descricao_vitrine'], $infoPromocao);
+		$vitrinePromo->montar_vitrine($produtos);
+	}
+
     $vitrineProdutos[0] = new VitrineProdutos("standard", 10, "Produtos em Promoção");
     $condicaoPromocao = "promocao_ativa = 1 and preco_promocao < preco_bruto and id_franquia = '$session_id_franquia' order by rand()";
     $total = $pew_functions->contar_resultados($tabela_produtos_franquia, $condicaoPromocao);

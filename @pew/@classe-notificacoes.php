@@ -85,25 +85,25 @@
 				
 				$dataCmp = new DateTime(substr($array['data'], 0, 10));
 				
-				$status = 0;
+				$statusNotification = 0;
 				$arrayInfoStatus = $this->get_views($pew_session->id_usuario, $idNotificacao);
 				foreach($arrayInfoStatus as $infoStatus){
-					$status = $infoStatus['status'];
+					$statusNotification = $infoStatus['status'];
 				}
 				$diff = $dataAtual->diff($dataCmp);
 				
 				
-				if($diff->d == 0 && $this->ctrl_span == 0){
+				if($diff->days == 0 && $this->ctrl_span == 0){
 					
 					$this->ctrl_span = 1;
 					echo "<h5 class='date-info' js-date-filter='hoje'>Hoje</h5>";
 					
-				}else if($diff->d >= 1 && $diff->d <= 7 && $this->ctrl_span < 2){
+				}else if($diff->days >= 1 && $diff->days <= 7 && $this->ctrl_span < 2){
 					
 					$this->ctrl_span = 2;
 					echo "<h5 class='date-info' js-date-filter='ontem hoje'>Esta semana</h5>";
 					
-				}else if($diff->d > 7 && $this->ctrl_span != 3){
+				}else if($diff->days > 7 && $this->ctrl_span != 3){
 					
 					$this->ctrl_span = 3;
 					echo "<h5 class='date-info' js-date-filter='antigo'>Mais antigas</h5>";
@@ -122,8 +122,9 @@
 						
 				}
 				
-				echo "<div class='notf-box' js-notfy-type='$type' js-notfy-id='$idNotificacao' js-notfy-status='$status' js-notfy-date-filter=$jsBoxFilter>";
-					echo "<h4 class='title'>$titulo</h4>";
+				$newNotificationTag = $statusNotification == 0 ? "<span class='notification-tag'></span>" : null;
+				echo "<div class='notf-box' js-notfy-type='$type' js-notfy-id='$idNotificacao' js-notfy-status='$statusNotification' js-notfy-date-filter=$jsBoxFilter>";
+					echo "<h4 class='title'>$newNotificationTag $titulo</h4>";
 					echo "<article class='description'>";
 						echo $article;
 						echo "<span class='date'><i class='far fa-calendar-alt'></i> $data $hora</span>";

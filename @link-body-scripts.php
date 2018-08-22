@@ -4,6 +4,7 @@
 <script src="js/valida-datas.js" async></script>
 <script src="js/valida-cpf.js?v=1.1" async></script>
 <script src="js/valida-cep.js?v=1.2" async></script>
+<script src="js/vitrines.js?v=0.1"></script>
 <!--END STANDARDS-->
 <!--SLICK SLIDER-->
 <script src="js/slick-slider/slick.min.js" async></script>
@@ -18,3 +19,6 @@
 <!--MODAL ENTRADA-->
 <?php require_once "@include-modal-entrada.php"; ?>
 <!--END MODAL ENTRADA-->
+<!--MODAL SAIDA-->
+<?php require_once "@include-modal-saida.php"; ?>
+<!--END MODAL SAIDA-->

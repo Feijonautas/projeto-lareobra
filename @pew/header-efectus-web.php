@@ -311,6 +311,16 @@
 		overflow-y: auto;
 		height: calc(100% - 90px);
 	}
+	.display-notifications .notifications-list .notification-tag{
+		position: relative;
+		width: 10px;
+		height: 10px;
+		background-color: #faa84e;
+		margin-right: 5px;
+		float: left;
+		border-radius: 50%;
+		top: 4px;
+	}
 	.display-notifications .notifications-list .date-info{
 		color: #999;
 		text-align: center;
@@ -565,6 +575,7 @@ class NavLinks{
 				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fas fa-box-open'></i> Retirada na loja", "pew-retirada-loja.php");
 				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fas fa-chart-pie'></i> Relatórios", "pew-relatorios.php");
 				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fas fa-truck'></i> Rotas de entrega", "pew-rotas-entrega.php");
+				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fas fa-clock'></i> Promoções", "pew-promocoes.php");
 				$countLinks++;
 			
 				$link_nav[$countLinks] = new NavLinks("Dicas", "pew-dicas.php", null, array(1));
@@ -586,7 +597,7 @@ class NavLinks{
 				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='far fa-comment'></i> Contatos", "pew-contatos.php");
 				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fas fa-question'></i> Atendimento", "pew-tickets.php");
 				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fas fa-briefcase'></i> Contatos Serviços", "pew-contatos-servicos.php");
-				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='far fa-envelope'></i> E-mails newsletter", "pew-newsletter.php");
+				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='far fa-newspaper'></i> Newsletter", "pew-newsletter.php");
 				$countLinks++;
 			
 				$link_nav[$countLinks] = new NavLinks("Categorias", "pew-categorias.php", null, array(5, 4, 3, 2));
@@ -831,6 +842,9 @@ class NavLinks{
 				update_controll_view();
 				$("body").css("overflow-y", "auto");
 				displayNotifications.removeClass("display-notifications-active");
+				$(".notification-tag").each(function(){
+					$(this).remove();
+				});
 			}else{
 				update_views();
 				$("body").css("overflow-y", "hidden");
@@ -871,7 +885,6 @@ class NavLinks{
 			
 			
 			var showNewMessagesInfo = newMessagesInfo.hasClass("show-after-filter") ? true : false;
-			console.log(showNewMessagesInfo)
 			if(type == "global" && showNewMessagesInfo){
 				newMessagesInfo.show();
 			}else{

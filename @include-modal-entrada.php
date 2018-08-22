@@ -187,6 +187,7 @@
 	</span>
 </div>
 <script>
+	var is_open_start_modal = false;
 	$(document).ready(function(){
 		var background = $(".background-paineis");
 		var modal = $(".js-modal-entrada");
@@ -228,6 +229,7 @@
 		function toggle_modal(){
 			toggle_background();
 			if(modal.css("visibility") == "hidden"){
+				is_open_start_modal = true;
 				modalOpen = true;
 				modal.css({
 					visibility: "visible",
@@ -239,6 +241,7 @@
 					visibility: "hidden",
 					opacity: "0"
 				});
+				is_open_start_modal = false;
 			}
 		}
 		

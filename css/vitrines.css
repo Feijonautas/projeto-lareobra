@@ -53,6 +53,33 @@
     -moz-box-shadow: 0px 0px 18px 6px rgba(0, 0, 0, .1);
     box-shadow: 0px 0px 18px 6px rgba(0, 0, 0, .1);
 }
+.vitrine-standard .display-produtos .box-produto .image-head{
+	position: relative;
+	display: block;
+}
+.vitrine-standard .display-produtos .box-produto .image-head .js-clock{
+	position: absolute;
+	margin: 0 auto;
+	left: 0;
+	right: 0;
+	bottom: 0px;
+	text-decoration: none;
+	font-size: 22px;
+	text-align: center;
+	font-weight: bold;
+	color: #fff;
+	background-color: #6abd45;
+	height: 28px;
+	border-radius: 4px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+.vitrine-standard .display-produtos .box-produto .image-head .js-clock .info{
+	font-size: 12px;
+	font-weight: normal;
+	margin-right: 5px;
+}
 .vitrine-standard .display-produtos .box-produto img{
     width: 100%;
 }
