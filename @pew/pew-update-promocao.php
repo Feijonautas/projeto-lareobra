@@ -3,20 +3,22 @@
 	session_start();
 	require_once "@valida-sessao.php";
 
-	$post_fields = array("titulo_vitrine", "descricao_vitrine", "type", "discount_type", "discount_value", "data_inicio", "hora_inicio", "data_final", "hora_final", "status");
-    $invalid_fields = array();
-    $gravar = true;
-    foreach($post_fields as $post_name){
-        if(!isset($_POST[$post_name])){
-            $gravar = false;
+	$post_fields = array("id_promocao", "titulo_vitrine", "descricao_vitrine", "type", "discount_type", "discount_value", "data_inicio", "hora_inicio", "data_final", "hora_final", "status");
+	$invalid_fields = array();
+	$gravar = true;
+	foreach($post_fields as $post_name){
+		if(!isset($_POST[$post_name])){
+			$gravar = false;
 			array_push($invalid_fields, $post_name);
-        }
-    }
+		}
+	}
 
 	if($gravar){
 		require_once "pew-system-config.php";
 		$tabela_promocoes = "franquias_promocoes";
-		
+
+		$idPromocao = (int) $_POST["id_promocao"];
+
 		$tituloVitrine = $_POST['titulo_vitrine'];
 		$descricaoVitrine = $_POST['descricao_vitrine'];
 		$type = $_POST['type'];
@@ -27,16 +29,14 @@
 		$dataInicio = $_POST['data_inicio'];
 		$horaInicio = $_POST['hora_inicio'];
 		$dataInicioF = $dataInicio." ".$horaInicio;
-		
+
 		$dataFinal = $_POST['data_final'];
 		$horaFinal = $_POST['hora_final'];
 		$dataFinalF = $dataFinal." ".$horaFinal;
 
 		$setProdutos = null;
 		$cupomCode = null;
-		
-		$idFranquia = $pew_session->id_franquia;
-		
+
 		switch($type){
 			case 0:
 				$setProdutos = isset($_POST['departamento']) ? (int) $_POST['departamento'] : null;
@@ -60,11 +60,11 @@
 				break;
 		}
 
-		mysqli_query($conexao, "insert into $tabela_promocoes (id_franquia, titulo_vitrine, descricao_vitrine, type, discount_type, discount_value, set_produtos, cupom_code, data_inicio, data_final, status) values ('$idFranquia', '$tituloVitrine', '$descricaoVitrine', '$type', '$discountType', '$discountValue', '$setProdutos', '$cupomCode', '$dataInicioF', '$dataFinalF', '$status')");
-		
-		echo "<script>window.location.href = 'pew-promocoes.php?msg=Promoção cadastrada&msgType=success';</script>";
-		
+		mysqli_query($conexao, "update $tabela_promocoes set titulo_vitrine = '$tituloVitrine', descricao_vitrine = '$descricaoVitrine', type = '$type', discount_type = '$discountType', discount_value = '$discountValue', set_produtos = '$setProdutos', cupom_code = '$cupomCode', data_inicio = '$dataInicioF', data_final = '$dataFinalF', status = '$status' where id = '$idPromocao'");
+
+		echo "<script>window.location.href = 'pew-edita-promocao.php?id_promocao={$idPromocao}msg=Promoção atualizada&msgType=success';</script>";
+
 	}else{
-		echo "<script>window.location.href = 'pew-promocoes.php?msg=Ocorreu um erro ao cadastrar a promoção';</script>";
+		echo "<script>window.location.href = 'pew-promocoes.php?msg=Ocorreu um erro ao atualizar a promoção';</script>";
 		//print_r($invalid_fields);
 	}

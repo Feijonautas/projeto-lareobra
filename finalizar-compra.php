@@ -800,6 +800,7 @@
             require_once "@classe-system-functions.php";
             require_once "@include-header-principal.php";
             require_once "@include-interatividade.php";
+            require_once "@classe-produtos.php";
         ?>
         <!--THIS PAGE CONTENT-->
         <div class="main-content">
@@ -811,7 +812,10 @@
                 <?php
                     require_once "@classe-carrinho-compras.php";
                     require_once "@classe-franquias.php";
+				
                     $cls_carrinho = new Carrinho();
+                    $cls_produtos = new Produtos();
+				
                     $tabela_imagens_produtos = $pew_custom_db->tabela_imagens_produtos;
 				
                     $cls_franquias = new Franquias();
@@ -856,11 +860,16 @@
                             $largura = $item_carrinho["largura"];
                             $altura = $item_carrinho["altura"];
                             $peso = $item_carrinho["peso"];
-                            $porcentDesconto = isset($item_carrinho["desconto"]) ? ($item_carrinho["desconto"] * 100) / 100 : 0;
+							
+							$promoAtiva = isset($item_carrinho['promocao_ativa']) && $item_carrinho['promocao_ativa'] == 1 ? true : false;
+							$lastPrice = isset($item_carrinho['last_price']) ? $item_carrinho['last_price'] : null;
+							
+							
                             echo "<div class='item-carrinho'>";
-                                if(isset($item_carrinho["desconto"]) && $item_carrinho["desconto"] > 0){
+								if($promoAtiva && $lastPrice != null){
+									$porcentDesconto = $cls_produtos->get_promo_percent($lastPrice, $preco);
                                     echo "<div class='promo-tag'>-$porcentDesconto%</div>";
-                                }
+								}
                                 echo "<div class='box-imagem'><img class='imagem' src='$dirImagens/$imagem'></div>";
                                 echo "<div class='information'>";
                                     echo "<a href='$padrao_url_produto'><h2 class='titulo'>$nome</h2></a>";

@@ -436,7 +436,7 @@
 		
 		function get_promo_percent($price, $promo_price){
 			$percent = ($promo_price * 100) / $price;
-			$percent = 100 - (int) $percent;
+			$percent = 100 - round($percent);
 			return $percent;
 		}
 		

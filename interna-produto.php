@@ -158,6 +158,7 @@
                 border-color: #fff;   
             }
             .section-produto .display-imagem-principal{
+				position: relative;
                 width: 50%;
                 text-align: center;
             }
@@ -167,7 +168,29 @@
             .section-produto .display-info-produto{
                 width: 30%;
                 text-align: right;
+				display: flex;
+				flex-direction: column;
+				align-items: flex-end;
             }
+			.section-produto .display-info-produto .js-clock{
+				text-decoration: none;
+				font-size: 22px;
+				text-align: center;
+				font-weight: bold;
+				color: #fff;
+				background-color: #6abd45;
+				height: 28px;
+				border-radius: 4px;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				padding: 0 10px;
+			}
+			.section-produto .display-info-produto .js-clock .info{
+				font-size: 12px;
+				font-weight: normal;
+				margin-right: 5px;
+			}
             .section-produto .display-info-produto .titulo-produto{
                 font-size: 28px;
                 margin: 10px 0px 10px 0px;
@@ -361,6 +384,7 @@
                     .section-produto .display-info-produto{
                         width: 100%;
                         text-align: left;
+						display: block;
                     }
                     .section-produto .display-info-produto .display-cores{
                         justify-content: flex-start;
@@ -561,12 +585,17 @@
         <div class="main-content">
             <?php
 			require_once "@classe-franquias.php";
+			require_once "@pew/@classe-promocoes.php";
+			
+			$dataAtual = date("Y-m-d H:i:s");
 
             if($infoProduto != null){
                
             /*INFO PRODUTO*/
 			$cls_produtos = new Produtos();
 			$cls_franquias = new Franquias();
+			$cls_promocoes = new Promocoes();
+				
 			$session_id_franquia = $cls_franquias->id_franquia;
 				
 				
@@ -576,6 +605,25 @@
 			$franquia_preco_promocao = $infoFranquia["preco_promocao"];
 			$franquia_promocao_ativa = $infoFranquia["promocao_ativa"];
 			$franquia_estoque = $infoFranquia["estoque"];
+				
+			$especialPromoPriority = $cls_promocoes->priority;
+			$clockField = null;
+				
+			if($especialPromoPriority == true && $cls_promocoes->check_promo_produto($session_id_franquia, $idInternaProduto) == true){
+				$get_id_promocao = $cls_promocoes->get_promo_by_product($session_id_franquia, $idInternaProduto);
+				
+				$queryArray = $cls_promocoes->query("id = '$get_id_promocao'");
+				$infoPromocao = $queryArray[0];
+				
+				$rules = array();
+				$rules['discount_type'] = $infoPromocao['discount_type'];
+				$rules['discount_value'] = $infoPromocao['discount_value'];
+				
+				$franquia_promocao_ativa = true;
+				$franquia_preco_promocao = $cls_promocoes->get_price($franquia_preco, $rules);
+				
+				$clockField = $cls_promocoes->get_clock($dataAtual, $infoPromocao['data_final']);
+			}
 				
             $promocaoAtiva = $franquia_promocao_ativa == 1 && $franquia_preco_promocao > 0 && $franquia_preco_promocao < $franquia_preco ? true : false;
             $precoFinal = $promocaoAtiva == true ? $franquia_preco_promocao : $franquia_preco;
@@ -663,7 +711,6 @@
                             $imagemPrincipal = "produto-padrao.png";
                         }
                         echo "<img src='$dirImagensProduto/$imagemPrincipal' alt='{$cls_paginas->empresa} - $nomeProduto - Imagem principal' class='imagem-principal'>";
-                        
                     ?>
                 </div>
                 <div class="display-info-produto">
@@ -674,6 +721,7 @@
 							$discountPercent = $cls_produtos->get_promo_percent($franquia_preco, $franquia_preco_promocao);
 							echo "<h4>Desconto de $discountPercent%</h4>";
 						}
+						echo $clockField;  // Relógio promocao
                         echo $viewParcelasField;
                         echo $viewDisponibilidadadeField;
                 

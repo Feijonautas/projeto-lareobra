@@ -10,13 +10,13 @@
 }
 .vitrine-standard .titulo-vitrine{
     width: 100%;
-    text-align: center;
+    text-align: left;
     font-size: 32px;
-    margin: 0px 0px 30px 0px;
+    margin: 0px 0px 10px 0px;
     color: #00be36;
 }
 .vitrine-standard .descricao-vitrine{
-    margin: 20px 0px 20px 0px;
+    margin: 10px 0px 30px 0px;
     font-size: 16px;
     text-align: justify;
 }

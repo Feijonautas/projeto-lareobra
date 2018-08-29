@@ -16,6 +16,7 @@
 		private $data_inicio;
 		private $data_final;
 		private $status;
+		public  $priority = true;
 		
 		function query($condicao = null, $select = null, $order = null, $limit = null, $exeptions = null){
 			global $conexao, $pew_db, $pew_custom_db, $pew_functions;
@@ -54,7 +55,6 @@
 		
 		function get_promocoes_franquia($idFranquia, $not_expired = false){
 			$condicao = "id_franquia = '$idFranquia'";
-			
 			if($not_expired == true){
 				$condicao = $condicao . " and " . $this->build_expire_query();
 			}
@@ -63,10 +63,10 @@
 			return $array;
 		}
 		
-		function get_clock($data_inicio, $data_final){
-			$dataInicio = new DateTime($data_inicio);
+		function get_clock($data_atual, $data_final, $text = true){
+			$dataAtual = new DateTime($data_atual);
 			$dataFinal = new DateTime($data_final);
-			$diff = $dataInicio->diff($dataFinal);
+			$diff = $dataAtual->diff($dataFinal);
 			$totalSeconds = 0;
 			$clock = null;
 			
@@ -98,7 +98,9 @@
 				$mField = "<span class='js-minutes'>$minutes</span>";
 				$sField = "<span class='js-seconds'>$seconds</span>";
 
-				$clock = "<div class='js-clock' js-total-seconds='$totalSeconds'><div class='info'>Faltam</div>".$dField.$hField.":".$mField.":".$sField."</div>";
+				$str_text = $text == true ? "Faltam" : null;
+				
+				$clock = "<div class='js-clock' js-total-seconds='$totalSeconds'><div class='info'>$str_text</div>".$dField.$hField.":".$mField.":".$sField."</div>";
 			}else{
 				$clock = "<div class='js-clock'>Expirado</div>";
 			}
@@ -119,6 +121,7 @@
 			$select = $this->query("id = '$idPromocao'", "type, set_produtos");
 			$infoP = $select[0];
 			$setProdutos = $infoP['set_produtos'];
+			//print_r($select);
 			$selected_produtos = array();
 			$cls_departamentos = new Departamentos();
 			switch($infoP['type']){
@@ -148,5 +151,71 @@
 					
 			}
 			return $selected_produtos;
+		}
+		
+		function get_promo_percent($price, $promo_price){
+			$percent = ($promo_price * 100) / $price;
+			$percent = 100 - round($percent);
+			return $percent;
+		}
+		
+		function get_price($preco_bruto, $rules = array()){
+			global $pew_functions;
+			$discountType = $rules['discount_type'];
+			$discountValue = $rules['discount_value'];
+			
+			$returnPrice = 0;
+			
+			if($discountType == 0){
+				$finalPercent = 1 - ($discountValue / 100);
+				$returnPrice = $preco_bruto * $finalPercent;
+			}else{
+				
+				$maxPercent = 70;
+				$alterPercent = 0.75; //25%
+				
+				$returnPrice = $preco_bruto - $discountValue;
+				if($discountValue >= $preco_bruto || $this->get_promo_percent($preco_bruto, $returnPrice) >= $maxPercent){
+					$returnPrice = $preco_bruto * $alterPercent;
+				}
+			}
+			
+			$returnPrice = $pew_functions->custom_number_format($returnPrice);
+			
+			return $returnPrice;
+		}
+		
+		function check_promo_produto($idFranquia, $idProduto){
+			$promoAtivas = $this->get_promocoes_franquia($idFranquia, true);
+			
+			$return = false;
+			foreach($promoAtivas as $infoProm){
+				$idPromo = $infoProm['id'];
+				$produtosPromo = $this->get_produtos($idPromo);
+				if(in_array($idProduto, $produtosPromo)){
+					$return = true;
+				}
+			}
+			
+			return $return;
+		}
+		
+		function get_promo_by_product($idFranquia, $idProduto){
+			$return = false;
+			
+			if($this->check_promo_produto($idFranquia, $idProduto)){
+				
+				$promoAtivas = $this->get_promocoes_franquia($idFranquia, true);
+				foreach($promoAtivas as $infoProm){
+					$idPromo = $infoProm['id'];
+					$produtosPromo = $this->get_produtos($idPromo);
+					if(in_array($idProduto, $produtosPromo)){
+						$return = $idPromo;
+					}
+				}
+				
+			}
+			
+			return $return;
 		}
 	}

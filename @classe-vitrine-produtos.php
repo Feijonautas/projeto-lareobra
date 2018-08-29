@@ -1,6 +1,7 @@
 <?php
     require_once "@include-global-vars.php";
     require_once "@classe-produtos.php";
+    require_once "@pew/@classe-promocoes.php";
 
     class VitrineProdutos{
         private $tipo;
@@ -9,9 +10,9 @@
         private $descricao_vitrine;
         private $quantidade_produtos;
         private $promocao_especial;
+        public  $exceptions = array();
         private $global_vars;
         private $pew_functions;
-        private $exceptions = array();
         private $id_franquia;
 
         function __construct($tipo = "standard", $limiteProdutos = 5, $tituloVitrine = null, $descricaoVitrine = null, $infoPromocaoEspecial = null){
@@ -26,6 +27,7 @@
             $this->descricao_vitrine = $descricaoVitrine;
             $this->quantidade_produtos = 0;
             $this->promocao_especial = $infoPromocaoEspecial;
+			
             global $globalVars, $pew_functions;
             $this->global_vars = $globalVars;
             $this->pew_functions = $pew_functions;
@@ -71,8 +73,25 @@
 				$franquia_promocao_ativa = $infoFranquia["promocao_ativa"];
 				
 				if(is_array($this->promocao_especial)){
+					$cls_promocoes = new Promocoes();
+					$priority = $cls_promocoes->priority;
+					$clock = true;
 					$infoPromo = $this->promocao_especial;
-					if(in_array($idProduto, $infoPromo['produtos'])){
+					$discountType = $infoPromo['discount_type'];
+					$discountValue = $infoPromo['discount_value'];
+					
+					$rules = array();
+					$rules['discount_type'] = $discountType;
+					$rules['discount_value'] = $discountValue;
+					
+					$preco_w_discount = $cls_promocoes->get_price($franquia_preco, $rules);
+					
+					if($priority == true || $franquia_promocao_ativa == false && $franquia_preco_promocao <= $preco_w_discount){
+						$franquia_promocao_ativa = true;
+						$franquia_preco_promocao = $preco_w_discount;
+					}
+					
+					if($clock == true && in_array($idProduto, $infoPromo['produtos'])){
 						$clockField = $infoPromo['clock'];
 					}
 				}
@@ -84,7 +103,6 @@
                         $padrao_src_imagem = "produto-padrao.png";
                     }
                 }
-				
 				
                 $promocao_ativa = $franquia_promocao_ativa == 1 && $franquia_preco_promocao > 0 && $franquia_preco_promocao < $franquia_preco ? true : false;
 				// END Variaveis produto
@@ -112,13 +130,14 @@
 					if(is_array($selected_cores_relacionadas) and count($selected_cores_relacionadas) > 0){
 						foreach($selected_cores_relacionadas as $infoRelacionado){
 							$produto_relacionado = new Produtos();
-							$produto_relacionado->montar_produto($info['id_relacao']);
+							$idRelacionado = $infoRelacionado['id_relacao'];
+							$produto_relacionado->montar_produto($idRelacionado);
 							$infoRelacionado = $produto_relacionado->montar_array();
 							$idCor = $infoRelacionado["id_cor"];
 							$titulo_url = $pew_functions->url_format($infoRelacionado["nome"]);
 							$condicaoCores = "id = '$idCor'";
 							$totalCores = $pew_functions->contar_resultados($tabela_cores, $condicaoCores);
-							$urlProdutoRelacao = "$titulo_url/{$infoRelacionado['id_relacao']}/";
+							$urlProdutoRelacao = "$titulo_url/{$idRelacionado}/";
 							if($totalCores > 0){
 								$queryCor = mysqli_query($this->conexao(), "select * from $tabela_cores where $condicaoCores");
 								while($infoCor = mysqli_fetch_assoc($queryCor)){
@@ -140,10 +159,6 @@
             }else{
                 return false;
             }
-        }
-        
-        function get_exceptions(){
-            return $this->exceptions;
         }
 
         private function vitrine_standard($arrayProdutos = null){
@@ -176,7 +191,7 @@
                     foreach($arrayProdutos as $idProduto){
                         if($ctrlProdutos < $this->limite_produtos){
                             $produto = new Produtos();
-                            $this->exceptions[count($this->exceptions)] = $idProduto;
+							$this->add_exception($idProduto);
                             
                             $idProduto = $produto->query_produto("status = 1 and id = '$idProduto'");
                             if($idProduto != false){
@@ -296,6 +311,7 @@
 										$discountPercent = $cls_produtos->get_promo_percent($franquia_preco, $franquia_preco_promocao);
 										
 										if(isset($arrayProduto["imagens"])){
+											$this->add_exception($idProduto);
 											$imagemProduto = $arrayProduto["imagens"][0]["src"];
 											echo "<div class='product-box'>";
 												if($franquia_preco_final < $franquia_preco){
@@ -337,7 +353,6 @@
                 
                 if(count($arrayProdutos) > 0){
                     foreach($arrayProdutos as $idProduto){
-                        //listar_produto($idProduto, $tabela_cores);
 						echo $this->create_box_produto($idProduto);
 						$ctrlProdutos++;
                     }
@@ -355,9 +370,38 @@
             echo "</section>";
             /*END DISPLAY TODOS PRODUTO DA VITRINE*/
         }
+		
+		function add_exception($idProduto){
+			if(in_array($idProduto ,$this->exceptions) == false){
+				array_push($this->exceptions, $idProduto);
+			}
+		}
+		
+		function build_exceptions_array($final_array, $adding_array){
+			foreach($adding_array as $idProduto){
+				if(in_array($idProduto ,$final_array) == false){
+					array_push($final_array, $idProduto);
+				}
+			}
+			return $final_array;
+		}
+        
+        function get_exceptions(){
+            return $this->exceptions;
+        }
 
-        public function montar_vitrine($arrayProdutos = ""){
+        public function montar_vitrine($arrayProdutos = "", $exceptions = array()){
             $tipoVitrine = $this->tipo;
+			
+			if(is_array($arrayProdutos)){ // Previnindo produtos duplicados nas vitrines
+				foreach($exceptions as $idEx){
+					$index = array_search($idEx, $arrayProdutos);
+					if($index !== null){
+						unset($arrayProdutos[$index]);
+					}
+				}
+			}
+			
             switch($tipoVitrine){
                 case "categorias":
                     $this->vitrine_categorias($arrayProdutos); # sql query, não array

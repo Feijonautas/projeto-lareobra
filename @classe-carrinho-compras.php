@@ -5,6 +5,7 @@
     require_once "@classe-system-functions.php";
     require_once "@classe-produtos.php";
     require_once "@classe-franquias.php";
+    require_once "@pew/@classe-promocoes.php";
     class Carrinho{
         private $produtos = array();
         private $ctrl_produtos = 0;
@@ -61,13 +62,42 @@
 		
 		function set_info_franquia($info){
 			$cls_produtos = new Produtos();
-			$infoFranquia = $cls_produtos->produto_franquia($info['id'], $this->id_franquia);
+			
+			$idProd = $info['id'];
+			
+			$infoFranquia = $cls_produtos->produto_franquia($idProd, $this->id_franquia);
 			$franquia_preco = $infoFranquia["preco"];
 			$franquia_preco_promocao = $infoFranquia["preco_promocao"];
 			$franquia_promocao_ativa = $infoFranquia["promocao_ativa"];
 			$franquia_estoque = $infoFranquia["estoque"];
 			$franquia_status = $infoFranquia["status"];
-			$precoFinal = $franquia_promocao_ativa == 1 && $franquia_preco_promocao < $franquia_preco && $franquia_preco_promocao > 0 ? $franquia_preco_promocao : $franquia_preco;
+			$precoFinal = $franquia_preco;
+			
+			if($franquia_promocao_ativa == 1 && $franquia_preco_promocao < $franquia_preco && $franquia_preco_promocao > 0){
+				$precoFinal = $franquia_preco_promocao;
+				$info["promocao_ativa"] = true;
+				$info["last_price"] = $franquia_preco;
+			}
+			
+			$cls_promocoes = new Promocoes();
+			$especialPromoPriority = $cls_promocoes->priority;
+
+			if($especialPromoPriority == true && $cls_promocoes->check_promo_produto($this->id_franquia, $idProd) == true){
+				$get_id_promocao = $cls_promocoes->get_promo_by_product($this->id_franquia, $idProd);
+
+				$queryArray = $cls_promocoes->query("id = '$get_id_promocao'");
+				$infoPromocao = $queryArray[0];
+
+				$rules = array();
+				$rules['discount_type'] = $infoPromocao['discount_type'];
+				$rules['discount_value'] = $infoPromocao['discount_value'];
+
+				$precoFinal = $cls_promocoes->get_price($franquia_preco, $rules);
+				
+				$info["promocao_ativa"] = true;
+				$info["last_price"] = $franquia_preco;
+			}
+			
 			$info["preco"] = $precoFinal;
 			$info["estoque"] = $franquia_estoque;
 			$info["status"] = $franquia_status;
@@ -114,8 +144,7 @@
                         $indice_item = $indice;
                     }
                 }
-                
-                
+				
                 if($franquia_estoque > 0 && $quantidade <= $franquia_estoque && $is_adicionado == false){
                     set_produto($infoProduto["id"], $infoProduto["nome"], $precoFinal, $franquia_estoque, $quantidade, $infoProduto["comprimento"], $infoProduto["largura"], $infoProduto["altura"], $infoProduto["peso"], $this->ctrl_produtos);
                     $this->ctrl_produtos++;
@@ -170,7 +199,7 @@
                 
                 $carrinho["itens"][$ctrl] = $this->set_info_franquia($itens);
                 
-                if(is_array($selectedRelacionados)){
+                /*if(is_array($selectedRelacionados)){
                     $selected = array();
                     $ctrlInterno = 0;
                     
@@ -195,7 +224,7 @@
                     $infoPrecoRelacionado = $this->classe_produtos->get_preco_relacionado($idProduto);
                     $carrinho["itens"][$ctrl]["preco"] = $this->pew_functions->custom_number_format($infoPrecoRelacionado["valor"]);
                     $carrinho["itens"][$ctrl]["desconto"] = $infoPrecoRelacionado["desconto"];
-                }
+                }*/
                     
                 $ctrl++;
             }
@@ -310,12 +339,13 @@
                     foreach($carrinho["itens"] as $item){
                         $id = $item["id"];
                         $titulo = $item["nome"];
+						$urlTituloProd = $pew_functions->url_format($titulo);
                         $preco = $item["preco"];
                         $quantidade = $item["quantidade"];
                         $total = $preco * $quantidade;
                         $total = $pew_functions->custom_number_format($total);
                         $totalCarrinho += $total;
-                        $url = "interna-produto.php?id_produto=$id";
+                        $url = "$urlTituloProd/$id/";
                         echo "<div class='cart-item'>";
                             echo "<span class='item-quantity'>{$quantidade}x</span>";
                             echo "<a href='$url' class='item-name'>$titulo</a>";

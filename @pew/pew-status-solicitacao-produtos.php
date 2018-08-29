@@ -1,5 +1,4 @@
 <?php
-
 	require_once "pew-system-config.php";
 	require_once "@classe-system-functions.php";
 
@@ -44,7 +43,6 @@
 					$newEstoque = $acao == "adicionar" ? $estoqueAtual + $addQuantidade : $estoqueAtual - $addQuantidade;
 					
 					$newEstoque = $newEstoque < 0 ? 0 : $newEstoque;
-					
 					$update = true;
 					if($acao == "adicionar" && $estoqueAdicionado == true || $acao == "remover" && $estoqueAdicionado == false){
 						$update = false;
@@ -76,7 +74,8 @@
 							$padrao_preco_promocao = $infoProduto["preco_promocao"];
 							$padrao_promocao_ativa = $infoProduto["promocao_ativa"];
 							
-							mysqli_query($conexao, "insert into $tabela_produtos_franquia (id_franquia, id_produto, preco_bruto, preco_promocao, promocao_ativa, estoque, status) values ('$idProduto', '$padrao_preco', '$padrao_preco_promocao', '$padrao_promocao_ativa', '$addQuantidade', 1)");	
+							
+							mysqli_query($conexao, "insert into $tabela_produtos_franquia (id_franquia, id_produto, preco_bruto, preco_promocao, promocao_ativa, estoque, status) values ('$idFranquia', '$idProduto', '$padrao_preco', '$padrao_preco_promocao', '$padrao_promocao_ativa', '$addQuantidade', 1)");	
 						}
 						
 						mysqli_query($conexao, "update $tabela_requisicoes set estoque_adicionado = '$newEstoqueAdicionado' where $mainCondition");

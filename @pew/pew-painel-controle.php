@@ -39,6 +39,15 @@
         <section class="conteudo-painel">
             <h3 align='center'>Seja bem vindo!</h3>
             <h3 align='center'>Caso esteja com alguma dúvida em relação às funcionalidades entre em contato com a Efectus Digital!</h3>
+			
+			<!--
+
+			CRIAR DEPARTAMENTOS PEW
+			CLASSE -> LINKS DO MENU + BOX PAINEL DE CONTROLE
+			
+
+			-->
+			
         </section>
     </body>
 </html>

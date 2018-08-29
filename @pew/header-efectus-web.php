@@ -546,6 +546,7 @@ class NavLinks{
                 ?>
                 <?php echo $pew_session->usuario." | ".$pew_nivel; ?>
                 <div class="menu-field">
+                    <a href="../" target="blank"><li><i class="fas fa-external-link-alt"></i> Ir para a loja</li></a>
                     <a href="pew-configurar-conta.php"><li>Configurar conta</li></a>
                     <a href="deslogar.php"><li>Sair</li></a>
                 </div>
