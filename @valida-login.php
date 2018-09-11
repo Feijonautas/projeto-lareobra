@@ -1,4 +1,5 @@
 <?php
+session_start();
 
 require_once "@classe-system-functions.php";
 require_once "@classe-minha-conta.php";
@@ -38,8 +39,29 @@ if($validar){
     if($loginValidado){
         
         if($iniciarLogin){
-            $minhaConta = new MinhaConta();
-            $return = $minhaConta->logar(addslashes($_POST["email"]), addslashes($_POST["senha"])) == true ? "true" : "senha_email_incorretos";
+            $cls_minha_conta = new MinhaConta();
+            $return = $cls_minha_conta->logar(addslashes($_POST["email"]), addslashes($_POST["senha"])) == true ? "true" : "senha_email_incorretos";
+			
+			if($return == "true"){
+				
+				if(isset($_SESSION['clube_invite_code'])){
+					$idConta = $cls_minha_conta->query_minha_conta("email = '{$_POST['email']}'");
+					
+					$_POST['diretorio'] = "";
+					$_POST["diretorio_db"] = "@pew/";
+					$_POST['cancel_redirect'] = true;
+					
+					require_once "@classe-clube-descontos.php";
+					
+					$cls_clube = new ClubeDescontos();
+					
+					$inviteCode = addslashes($_SESSION['clube_invite_code']);
+					
+					$cls_clube->cadastrar($idConta, $inviteCode);
+				}
+				
+			}
+			
         }
         
     }else if($confirmacaoPendente){

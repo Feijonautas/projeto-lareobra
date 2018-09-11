@@ -63,8 +63,10 @@
             public $tabela_notificacoes;
             public $tabela_views_notificacoes;
             public $tabela_promocoes;
+            public $tabela_clube_descontos;
+            public $tabela_clube_descontos_pontos;
 
-            function __construct($tb_produtos, $tb_marcas, $tb_marcas_produtos, $tb_cores, $tb_imagens_produtos, $tb_departamentos, $tb_departamentos_produtos, $tb_categorias_produtos, $tb_subcategorias_produtos, $tb_orcamentos, $tb_config_orcamentos, $tb_categorias_vitrine, $tb_categoria_destaque, $tb_especificacoes, $tb_especificacoes_produtos, $tb_produtos_relacionados, $tb_cores_relacionadas, $tb_newsletter, $tb_minha_conta, $tb_enderecos, $tb_links_menu, $tb_dicas, $tb_carrinhos, $tb_pedidos, $tb_pedidos_observacoes, $tb_contatos_servicos, $tb_notificacoes, $tb_views_notificacoes, $tb_promocoes){
+            function __construct($tb_produtos, $tb_marcas, $tb_marcas_produtos, $tb_cores, $tb_imagens_produtos, $tb_departamentos, $tb_departamentos_produtos, $tb_categorias_produtos, $tb_subcategorias_produtos, $tb_orcamentos, $tb_config_orcamentos, $tb_categorias_vitrine, $tb_categoria_destaque, $tb_especificacoes, $tb_especificacoes_produtos, $tb_produtos_relacionados, $tb_cores_relacionadas, $tb_newsletter, $tb_minha_conta, $tb_enderecos, $tb_links_menu, $tb_dicas, $tb_carrinhos, $tb_pedidos, $tb_pedidos_observacoes, $tb_contatos_servicos, $tb_notificacoes, $tb_views_notificacoes, $tb_promocoes, $tb_clube_descontos, $tb_clube_descontos_pontos){
                 $this->tabela_produtos = $tb_produtos;
                 $this->tabela_marcas = $tb_marcas;
                 $this->tabela_marcas_produtos = $tb_marcas_produtos;
@@ -94,10 +96,12 @@
 				$this->tabela_notificacoes = $tb_notificacoes;
 				$this->tabela_views_notificacoes = $tb_views_notificacoes;
 				$this->tabela_promocoes = $tb_promocoes;
+				$this->tabela_clube_descontos = $tb_clube_descontos;
+				$this->tabela_clube_descontos_pontos = $tb_clube_descontos_pontos;
 			}
         }
     }
-    $pew_custom_db = new Pew_Custom_Data_Base("pew_produtos", "pew_marcas", "pew_marcas_produtos", "pew_cores", "pew_imagens_produtos", "pew_departamentos", "pew_departamentos_produtos", "pew_categorias_produtos", "pew_subcategorias_produtos", "pew_orcamentos", "pew_config_orcamentos", "pew_categorias_vitrine", "pew_categoria_destaque", "pew_especificacoes_tecnicas", "pew_especificacoes_produtos", "pew_produtos_relacionados", "pew_cores_relacionadas", "pew_newsletter", "pew_minha_conta", "pew_enderecos", "pew_links_menu", "pew_dicas", "pew_carrinhos", "pew_pedidos", "pew_pedidos_observacoes", "pew_contatos_servicos", "pew_notificacoes",  "pew_views_notificacoes", "franquias_promocoes");
+    $pew_custom_db = new Pew_Custom_Data_Base("pew_produtos", "pew_marcas", "pew_marcas_produtos", "pew_cores", "pew_imagens_produtos", "pew_departamentos", "pew_departamentos_produtos", "pew_categorias_produtos", "pew_subcategorias_produtos", "pew_orcamentos", "pew_config_orcamentos", "pew_categorias_vitrine", "pew_categoria_destaque", "pew_especificacoes_tecnicas", "pew_especificacoes_produtos", "pew_produtos_relacionados", "pew_cores_relacionadas", "pew_newsletter", "pew_minha_conta", "pew_enderecos", "pew_links_menu", "pew_dicas", "pew_carrinhos", "pew_pedidos", "pew_pedidos_observacoes", "pew_contatos_servicos", "pew_notificacoes",  "pew_views_notificacoes", "franquias_promocoes", "clube_descontos", "clube_descontos_pontos");
     /*FIM TABELAS CUSTOMIZADAS ADICIONAIS*/
 
     /*END GLOBAL VARS*/

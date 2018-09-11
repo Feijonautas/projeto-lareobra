@@ -4,6 +4,14 @@
     require_once "@classe-produtos.php";
     require_once "@classe-enderecos.php";
 
+	# Verificar o diretorio
+	# Exemplo 
+	# $_POST['diretorio'] = "";
+	# $_POST["diretorio_db"] = "@pew/";
+	# $_POST['cancel_redirect'] = true;
+	# Adicionar antes do require "@classe-minha-conta.php";
+	require_once "@pew/@classe-pedidos.php";
+
     class MinhaConta{
         private $id;
         private $usuario;
@@ -79,6 +87,26 @@
                 return false;
             }
         }
+		
+		function get_info_logado(){
+			$returnInfo = null;
+			
+			if(isset($_SESSION["minha_conta"])){
+				$sessao_conta = $_SESSION["minha_conta"];
+				$email = $sessao_conta["email"];
+				$senha = $sessao_conta["senha"];
+				
+				if($this->auth($email, $senha) == true){
+					$idConta = $this->query_minha_conta("md5(email) = '$email' and senha = '$senha'");
+					$this->montar_minha_conta($idConta);
+					$infoConta = $this->montar_array();
+					$returnInfo = $infoConta;
+				}
+
+			}
+			
+			return $returnInfo;
+		}
         
         public function get_id(){
             return $this->id;
@@ -368,6 +396,296 @@
                 unset($_SESSION["minha_conta"]); // Caso já houvesse alguma sessão iniciada
             }
         }
+		
+		function get_view_dados($infoConta){
+			$idConta = $infoConta["id"];
+			$nome = $infoConta["usuario"];
+			$email = $infoConta["email"];
+			$celular = $infoConta["celular"];
+			$telefone = $infoConta["telefone"];
+			$cpf = $infoConta["cpf"];
+			$sexo = $infoConta["sexo"];
+			$dataNascimento = $infoConta["data_nascimento"];
+			
+			echo "<form class='formulario-atualiza-conta'>
+				<div class='half label'>
+					<input type='hidden' name='id_conta' id='idConta' value='$idConta'>
+					<input type='hidden' name='acao_conta' value='update_conta'>
+					<h4 class='input-title'>Nome Completo</h4>
+					<input type='text' class='input-standard' placeholder='Nome Completo' name='nome' id='nome' value='$nome'>
+					<h6 class='msg-input'></h6>
+				</div>
+				<div class='small label'>
+					<h4 class='input-title'>E-mail</h4>
+					<input type='text' class='input-standard' placeholder='contato@bolsasemcouro.com.br' name='email' id='email' value='$email'>
+					<h6 class='msg-input'></h6>
+				</div>
+				<div class='small label'>
+					<h4 class='input-title'>CPF</h4>
+					<input type='text' class='input-standard mascara-cpf-conta' placeholder='000.000.000.00' name='cpf' id='cpf' value='$cpf'>
+					<h6 class='msg-input'></h6>
+				</div>
+				<div class='small label'>
+					<h4 class='input-title'>Celular</h4>
+					<input type='text' class='input-standard mascara-numero-conta' placeholder='(41) 9999-9999' name='celular' id='celular' value='$celular'>
+					<h6 class='msg-input'></h6>
+				</div>
+				<div class='small label'>
+					<h4 class='input-title'>Telefone</h4>
+					<input type='text' class='input-standard mascara-numero-conta' placeholder='(41) 3030-3030' name='telefone' id='telefone' value='$telefone'>
+					<h6 class='msg-input'></h6>
+				</div>
+				<div class='small label'>
+					<h4 class='input-title'>Sexo</h4>
+					<select name='sexo' id='sexo' class='input-standard'>
+						<option value=''>- Selecione -</option>";
+					
+						$options_sexo = array();
+			
+						$options_sexo[0] = array();
+						$options_sexo[0]['titulo'] = "Masculino";
+						$options_sexo[0]['valor'] = "masculino";
+			
+						$options_sexo[1] = array();
+						$options_sexo[1]['titulo'] = "Feminino";
+						$options_sexo[1]['valor'] = "feminino";
+			
+						foreach($options_sexo as $infoOption){
+							echo $infoOption['valor'] == $sexo;
+							$selected = $infoOption['valor'] == $sexo ? "selected" : null;
+							echo "<option value='{$infoOption['valor']}' $selected>{$infoOption['titulo']}</option>";
+						}
+					echo "</select>
+					<h6 class='msg-input msg-input-sexo'></h6>
+				</div>
+				<div class='small label'>
+					<h4 class='input-title'>Data de nascimento</h4>
+					<input type='date' name='data_nascimento' id='dataNascimento' class='input-standard' value='$dataNascimento'>
+					<h6 class='msg-input'></h6>
+				</div>
+				<br class='clear'>
+				<div class='small label'>
+					<h4 class='input-title'>Senha atual</h4>
+					<input type='password' class='input-standard' placeholder='Senha' name='senha_atual' id='senhaAtual'>
+					<h6 class='msg-input'></h6>
+				</div>
+				<div class='small label'>
+					<h4 class='input-title'>Nova senha</h4>
+					<input type='password' class='input-standard' placeholder='Senha' name='senha_nova' id='senhaNova'>
+					<h6 class='msg-input'></h6>
+				</div>
+				<div class='small label'>
+					<h4 class='input-title'>Confirmar nova senha</h4>
+					<input type='password' class='input-standard' placeholder='Senha' name='confirma_senha_nova' id='confirmaSenhaNova'>
+					<h6 class='msg-input'></h6>
+				</div>
+				<div class='small label'>
+					<button class='botao-continuar' type='button' id='botaoAtualizarConta'>ATUALIZAR <i class='fas fa-check icone'></i></button>
+				</div>
+			</form>";
+		}
+		
+		function get_view_endereco($infoConta){
+			$idConta = $infoConta['id'];
+			$infoEndeco = $infoConta['enderecos'];
+
+			$idEndereco = $infoEndeco['id'];
+			$cep = $infoEndeco['cep'];
+			$rua = $infoEndeco['rua'];
+			$numero = $infoEndeco['numero'];
+			$complemento = $infoEndeco['complemento'];
+			$bairro = $infoEndeco['bairro'];
+			$cidade = $infoEndeco['cidade'];
+			$estado = $infoEndeco['estado'];
+			$cidade = $infoEndeco['cidade'];
+
+			echo "<form class='formulario-atualiza-endereco'>
+				<input type='hidden' name='id_endereco' value='$idEndereco' id='idEnderecoConta'>
+				<input type='hidden' name='id_relacionado' value='$idConta'>
+				<div class='small label'>
+					<h4 class='input-title'>CEP</h4>
+					<input class='input-standard mascara-cep-conta' type='text' placeholder='00000-000' name='cep' id='cepConta' tabindex='1' value='$cep'>
+					<h6 class='msg-input'></h6>
+				</div>
+				<div class='xlarge label'>
+					<h4 class='input-title'>Rua</h4>
+					<input class='input-standard input-nochange' type='text' placeholder='Rua' name='rua' id='ruaConta' value='$rua' readonly>
+					<h6 class='msg-input'></h6>
+				</div>
+				<div class='xsmall label'>
+					<h4 class='input-title'>Número</h4>
+					<input class='input-standard' type='text' placeholder='Numero' name='numero' id='numeroConta' value='$numero' tabindex='2'>
+					<h6 class='msg-input'></h6>
+				</div>
+				<div class='medium label'>
+					<h4 class='input-title'>Complemento</h4>
+					<input class='input-standard' type='text' placeholder='Complemento' name='complemento' id='complementoConta' value='$complemento' tabindex='3'>
+					<h6 class='msg-input'></h6>
+				</div>
+				<div class='xsmall label'>
+					<h4 class='input-title'>Bairro</h4>
+					<input class='input-standard input-nochange' type='text' placeholder='Bairro' name='bairro' id='bairroConta' value='$bairro' readonly>
+				</div>
+				<div class='xsmall label'>
+					<h4 class='input-title'>Estado</h4>
+					<input class='input-standard input-nochange' type='text' placeholder='Estado' name='estado' id='estadoConta' value='$estado' readonly>
+				</div>
+				<div class='xsmall label'>
+					<h4 class='input-title'>Cidade</h4>
+					<input class='input-standard input-nochange' type='text' placeholder='Cidade' name='cidade' id='cidadeConta' value='$cidade' readonly>
+				</div>
+				<div class='clear full label'>
+					<button class='botao-continuar' id='botaoAtualizarEndereco' type='button'>ATUALIZAR <i class='fas fa-check icone'></i></button>
+				</div>
+			</form>";
+		}
+		
+		function get_view_pedidos($idConta){
+			global $pew_functions;
+			$cls_pedidos = new Pedidos();
+			$getPedidos = $cls_pedidos->get_pedidos_conta($idConta);
+			$totalPedidos = is_array($getPedidos) ? count($getPedidos) : 0;
+
+			if($totalPedidos > 0){
+				$ctrlPedidos = 0;
+				foreach($getPedidos as $idPedido){
+					$cls_pedidos->montar($idPedido);
+					$infoPedido = $cls_pedidos->montar_array();
+					$produtosPedido = $cls_pedidos->get_produtos_pedido($idPedido);
+
+					$referencia = $infoPedido["referencia"];
+					$token = $infoPedido["token_carrinho"];
+					$totalPedido = $pew_functions->custom_number_format($infoPedido["valor_total"]);
+					$codigoPagamento = $infoPedido["codigo_pagamento"];
+					$status = $infoPedido["status"];
+					$strStatus = $cls_pedidos->get_status_string($status);
+					$strPagamento = $cls_pedidos->get_pagamento_string($codigoPagamento, true);
+					$strComplemento = $infoPedido["complemento"] == "" ? "" : ", " . $infoPedido["complemento"];
+					$enderecoCompleto = $infoPedido["rua"] . ", " . $infoPedido["numero"] . $strComplemento . " - " . $infoPedido["cep"];
+					$dataPedido = $pew_functions->inverter_data(substr($infoPedido["data_controle"], 0, 10));
+					$horaPedido = substr($infoPedido["data_controle"], 10);
+
+					echo "<div class='box-pedido'>";
+						echo "<div class='line-display'>";
+							echo "<div class='right'>";
+								echo "<h3 class='titulo'>Pedido: $referencia</h3>";
+								echo "<h5 class='descricao'>Endereço de envio: $enderecoCompleto</h5>";
+							echo "</div>";
+							echo "<div class='middle control-info'>";
+								echo "<h3 class='titulo'>Pagamento</h3>";
+								echo "<h5 class='descricao'>Método de pagamento: $strPagamento</h3>";
+								echo "<h5 class='descricao'>Total: <b>R$ $totalPedido</b></h3>";
+								if($strPagamento == "Boleto"){
+									echo "<a href='{$infoPedido["payment_link"]}' class='link-padrao' target='_blank' style='margin: 0px;'>Imprimir boleto</a><br>";
+								}
+							echo "</div>";
+							echo "<div class='left'>";
+								echo "<h3 class='titulo'>Status</h3>";
+								echo "<h5 class='descricao'><i class='far fa-calendar-alt'></i> $dataPedido</h3>";
+								echo "<h5 class='descricao'><i class='far fa-clock'></i> $horaPedido</h3>";
+								echo "<h5 class='status'>$strStatus</h3>";
+							echo "</div>";
+						echo "</div>";
+
+						echo "<div class='line-display hidden-line' id='moreInfo$idPedido'>";
+							echo "<div class='right'>";
+								echo "<h3 class='titulo'>Produtos</h3>";
+								echo "<table class='table-list'>";
+								$selectedProdutos = $cls_pedidos->get_produtos_pedido();
+								if(is_array($selectedProdutos)){
+									foreach($selectedProdutos as $infoProduto){
+										$nome = $infoProduto["nome"];
+										$quantidade = $infoProduto["quantidade"];
+										$preco = $infoProduto["preco"];
+										$subtotal = $preco * $quantidade;
+										$subtotal = $pew_functions->custom_number_format($subtotal);
+										echo "<tr>";
+											echo "<td style='padding: 5px;'>$quantidade x</td>";
+											echo "<td>$nome</td>";
+											echo "<td style='padding: 5px;' align=right>R$ $subtotal</td>";
+										echo "</tr>";
+									}
+								}
+								echo "</table>";
+							echo "</div>";
+							echo "<div class='middle control-info'>";
+								echo "<h3 class='titulo'>Transporte</h3>";
+								$tracking_string = $infoPedido['codigo_transporte'] == 7777 ? "Código de retirada" : "Rastreio";
+								$tracking_link = "";
+								switch($infoPedido["status_transporte"]){
+									case 1:
+										$strStatusTransporte = $tracking_string . " ainda não disponível";
+										break;
+									case 2:
+										if($infoPedido['codigo_transporte'] == 7777 || $infoPedido['codigo_transporte'] == 8888){
+											$strStatusTransporte = $infoPedido['codigo_rastreamento'];
+											$md5Ref = md5($referencia);
+											$tracking_link = "<a href='codigo-retirada/$md5Ref/' class='link-padrao' target='_blank' style='margin: 0;'>Mostrar cupom de retirada</a>";
+										}else{
+											$strStatusTransporte = $cls_pedidos->codigo_rastreamento;
+											$tracking_link = "<a href='http://www2.correios.com.br/sistemas/rastreamento/' class='link-padrao' target='_blank' style='margin: 0;'>Rastrear</a>";
+										}
+										break;
+									case 3:
+										$strStatusTransporte = "Entregue";
+										$tracking_string = "Status:";
+										break;
+									case 4:
+										$strStatusTransporte = "Cancelado";
+										$tracking_string = "Status:";
+										break;
+									default:
+										$strStatusTransporte = "Confirmar pagamento";
+										$tracking_string = "Status:";
+								}
+								$transport_name = $cls_pedidos->get_transporte_string();
+								$vlr_frete = $infoPedido['valor_frete'];
+								echo "<table class='table-list'>";
+									echo "<tr><td>$transport_name: </td><td><b>R$ $vlr_frete</b></td></tr>";
+									echo "<tr><td>$tracking_string</td><td><b>$strStatusTransporte</b></td></tr>";
+									if($tracking_link != ""){
+										echo "<tr><td colspan=2>$tracking_link</td></tr>";
+									}
+								echo "</table>";
+							echo "</div>";
+
+							$observacoesPedido = $cls_pedidos->get_observacoes_pedido($idPedido);
+							echo "<div class='left'>";
+								echo "<h3 class='titulo'>Observações</h3>";
+								echo "<table class='table-list'>";
+								if(count($observacoesPedido) > 0){
+									foreach($observacoesPedido as $infoObservacao){
+										$data = $pew_functions->inverter_data(substr($infoObservacao['data'], 0, 10));
+										$horario = substr($infoObservacao['data'], 10);
+										$mensagem = $infoObservacao['mensagem'];
+										echo "<tr>";
+											echo "<td>$data $horario</td>";
+										echo "</tr>";
+										echo "<tr>";
+											echo "<td style='padding-bottom: 10px;'><b>$mensagem</b></td>";
+										echo "</tr>";
+									}
+								}else{
+									echo "<tr>";
+										echo "<td>Nenhum observação foi enviada</td>";
+									echo "</tr>";
+								}
+								echo "</table>";
+							echo "</div>";
+						echo "</div>";
+
+						echo "<div class='line-display bottom-line'>";
+							echo "<a class='link-padrao btn-mais-info' data-id-pedido='$idPedido'>Ver mais informações</a>";
+						echo "</div>";
+
+					echo "</div>";
+
+					$ctrlPedidos++;
+				}
+			}else{
+				echo "Você não finalizou nenhuma compra ainda.";
+			}
+		}
     }
 
 
@@ -460,8 +778,12 @@
                     }else{
                         echo "false";
                     }
-                }
-            }
+                }else{
+					echo "false";
+				}
+            }else{
+				echo "false_id";
+			}
             
         }else{
             echo "false";

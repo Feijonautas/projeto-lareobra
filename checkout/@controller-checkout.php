@@ -1,8 +1,20 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
     session_start();
 
 	$_POST['controller'] = "get_id_franquia";
 	require_once "../@valida-regiao.php";
+
+	$_POST['diretorio'] = "";
+	$_POST["diretorio_db"] = "@pew/";
+	$_POST['cancel_redirect'] = true;
+	require_once "../@classe-minha-conta.php";
+	require_once "../@classe-clube-descontos.php";
+
+	$cls_conta = new MinhaConta();
+	$cls_clube = new ClubeDescontos();
 
     if(isset($_POST["acao"])){
         
@@ -108,6 +120,7 @@
         }
         
         // Dados cliente
+		$idConta = 0;
         if(isset($_SESSION["minha_conta"])){
             require_once "../@classe-minha-conta.php";
             $sessaoConta = $_SESSION["minha_conta"];
@@ -218,6 +231,7 @@
                     $tabela_pedidos = $pew_custom_db->tabela_pedidos;
                     $tabela_produtos = $pew_custom_db->tabela_produtos;
                     
+					$somaProdutos = 0;
                     foreach($sendDataForm["jsonProdutos"] as $infoProduto){
                         $idProduto = $infoProduto["id"];
                         $tituloProduto = $infoProduto["titulo"];
@@ -225,6 +239,8 @@
                         $precoProduto = $infoProduto["preco"];
                         
                         mysqli_query($conexao, "insert into $tabela_carrinhos (token_carrinho, id_produto, nome_produto, quantidade_produto, preco_produto, data_controle, status) values ('$tokenCarrinho', '$idProduto', '$tituloProduto', '$quantidadeProduto', '$precoProduto', '$dataAtual', 1)");
+						
+						$somaProdutos += $quantidadeProduto * $precoProduto;
                     }
                     
                     $codigoTransacao = $xml->code;
@@ -262,6 +278,27 @@
                     if($paymentLink != null){
                         $resposta = '{"paymentLink": "'.$paymentLink.'"}';
                     }
+					
+					# Clube de Descontos
+					$queryClube = $cls_clube->query("id_usuario = '$idConta'");
+					if(count($queryClube) > 0){
+						$infoClube = $queryClube[0];
+						$refCode = $infoClube['ref_code'];
+						
+						$getSalesPoints = $cls_clube->get_sales_point($somaProdutos, "normal");
+						
+						$cls_clube->add_pontos_clube($idConta, 1, $getSalesPoints, "Você finalizou uma compra", true);
+						
+						$queryInviter = $cls_clube->query("uniq_code = '$refCode'");
+						if(count($queryInviter) > 0){
+							$infoInvite = $queryInviter[0];
+							$idInvite = $infoInvite['id_usuario'];
+						
+							$getInvitePoints = $cls_clube->get_sales_point($somaProdutos, "invited");
+							
+							$cls_clube->add_pontos_clube($idInvite, 1, $getInvitePoints, "Um amigo finalizou uma compra", true);
+						}
+					}
                     
                     //print_r($xml); exit;
                     echo $resposta;

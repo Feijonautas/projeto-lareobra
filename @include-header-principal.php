@@ -463,6 +463,7 @@ $session_id_franquia = $cls_franquias->id_franquia;
         z-index: 80;
     }
     .header-principal .nav-header .display-links{
+		position: relative;
         display: -webkit-box;
         display: -ms-flexbox;
         display: flex;
@@ -566,9 +567,9 @@ $session_id_franquia = $cls_franquias->id_franquia;
 		border-bottom: 2px solid transparent;
         line-height: 60px;
         padding: 0px 10px 0px 10px;
-        -webkit-transition: .2s linear;
-        -o-transition: .2s linear;
-        transition: .2s linear;
+        -webkit-transition: .2s;
+        -o-transition: .2s;
+        transition: .2s;
         text-decoration: none;
         color: #6abd45;
         font-weight: bold;
@@ -584,11 +585,12 @@ $session_id_franquia = $cls_franquias->id_franquia;
         top: 60px;
         left: 0px;
         list-style: none;
-        -webkit-transition: .2s;
-        -o-transition: .2s;
-        transition: .2s;
-        visibility: hidden;
+        transition: 0s;
         opacity: 0;
+		display: none;
+		-webkit-box-shadow: 0px 3px 5px 0px rgba(0, 0, 0, .4);
+		-moz-box-shadow: 0px 3px 5px 0px rgba(0, 0, 0, .4);
+		box-shadow: 0px 3px 5px 0px rgba(0, 0, 0, .4);
     }
     .header-principal .nav-header .display-links .sub-menu ul{
         list-style: none;
@@ -599,12 +601,9 @@ $session_id_franquia = $cls_franquias->id_franquia;
     .header-principal .nav-header .display-links .first-li .link-especial:hover{
         background-color: #6abd45;
     }   
-    .header-principal .nav-header .display-links .first-li:hover .sub-menu{
+    .header-principal .nav-header .display-links span:hover .sub-menu{
         opacity: 1;
-        visibility: visible;
-        -webkit-transition: visibility 0s, opacity .2s;
-        -o-transition: visibility 0s, opacity .2s;
-        transition: visibility 0s, opacity .2s;
+        display: block;
     }
     .header-principal .nav-header .display-links .sub-menu li{
         position: relative;
@@ -640,10 +639,13 @@ $session_id_franquia = $cls_franquias->id_franquia;
         top: 0px;
         left: 96%;
         z-index: -1;
-        background-color: #f2f2f2;
+        background-color: #fefefe;
         padding: 0px;
         opacity: 0;
         visibility: hidden;
+		-webkit-box-shadow: 2px 3px 5px 0px rgba(0, 0, 0, .2);
+		-moz-box-shadow: 2px 3px 5px 0px rgba(0, 0, 0, .2);
+		box-shadow: 2px 3px 5px 0px rgba(0, 0, 0, .2);
     }
     .header-principal .nav-header .display-links .sub-menu li:hover .sub-sub-menu{
         visibility: visible;
@@ -916,7 +918,7 @@ $session_id_franquia = $cls_franquias->id_franquia;
                         echo "<div class='display-header-conta'>";
                             echo "<a class='link-padrao botao-minha-conta'><i class='far fa-user'></i> Olá, $splitNome[0]</a>";
                             echo "<ul class='box-header-conta'>";
-                                echo "<li class='link-conta'><a class='btn-open-minha-conta'>Minha conta</a></li>";
+                                echo "<li class='link-conta'><a href='minha-conta/'>Minha conta</a></li>";
                                 echo "<li class='link-conta'><a href='ticket/'>Central de atendimento</a></li>";
                                 echo "<li class='link-conta'><a href='deslogar-conta.php'>Sair</a></li>";
                             echo "</ul>";
@@ -1195,9 +1197,8 @@ $session_id_franquia = $cls_franquias->id_franquia;
         $link_nav[$countLinks]->add_sublink($countLinks, "Central de Atendimento", "ticket/");
         $countLinks++;
         $link_nav[$countLinks] = new NavLinks("<i class='fas fa-star'></i> CLUBE DE DESCONTOS", "clube-de-descontos/", "link-especial");
-        $link_nav[$countLinks]->add_sublink($countLinks, "Ofertas", "clube-de-descontos/");
-        $link_nav[$countLinks]->add_sublink($countLinks, "Cupons", "clube-de-descontos/");
-        $link_nav[$countLinks]->add_sublink($countLinks, "Como funciona", "clube-de-descontos/");
+        $link_nav[$countLinks]->add_sublink($countLinks, "Como funciona?", "clube-de-descontos/");
+        $link_nav[$countLinks]->add_sublink($countLinks, "Acessar Clube", "minha-conta/clube-de-descontos");
         $countLinks++;
         
         /*END LINKS*/
@@ -1303,12 +1304,14 @@ $session_id_franquia = $cls_franquias->id_franquia;
                         botaoNavMobile.removeClass("active-botao");
                     }
                     $(".link-principal").css("transition", ".4s");
-                    $(".display-links .sub-menu").css("transition", ".2s");
                     if(navHeader.hasClass("nav-header-mobile")){
-                        $(".display-links .sub-menu").css("transition", "0s");
+						displayLinks.css("pointer-events", "none");
                         $(".link-principal").css("transition", "0s");
                         navHeader.removeClass("nav-header-mobile");
                         topNav.css("margin-bottom", "0px");
+						setTimeout(function(){
+							displayLinks.css("pointer-events", "all");
+						}, 300);
                     }
                 }
             }
@@ -1325,10 +1328,9 @@ $session_id_franquia = $cls_franquias->id_franquia;
     });
 </script>
 <?php
-    if(isset($_SESSION["minha_conta"])){
-        require_once "@include-minha-conta.php";
-    }else{
+    if(!isset($_SESSION["minha_conta"])){
         require_once "@include-cadastra-conta.php";
         require_once "@include-login.php";
+    }else{
     }
 ?>

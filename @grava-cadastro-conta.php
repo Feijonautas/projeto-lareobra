@@ -1,4 +1,10 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+	session_start();
+
 	$_POST['controller'] = "get_id_franquia";
 	require_once "@valida-regiao.php";
 
@@ -51,10 +57,10 @@
         $enderecos[0]["cidade"] = $cidade;
         $enderecos[0]["estado"] = $estado;
         
-        $minhaConta = new MinhaConta();
-        $cadastro = $minhaConta->cadastrar_conta($nome, $email, $senha, $celular, $telefone, $cpf, $sexo, $dataNascimento, $enderecos);
+        $cls_minha_conta = new MinhaConta();
+        $cadastro = $cls_minha_conta->cadastrar_conta($nome, $email, $senha, $celular, $telefone, $cpf, $sexo, $dataNascimento, $enderecos);
         if($cadastro === true){
-            $bodyEmail = $minhaConta->montar_email_confirmacao($email, $nome);
+            $bodyEmail = $cls_minha_conta->montar_email_confirmacao($email, $nome);
                         
             $destinatarios = array();
             $destinatarios[0] = array();
@@ -67,7 +73,25 @@
 			
             $pew_functions->enviar_email("Confirme sua conta - $nomeEmpresa", $bodyEmail, $destinatarios);
 			
+			
 			$cls_notificacoes->insert($session_id_franquia, "Novo cadastro", "$nome se cadastrou na loja", null, "system");
+			
+			# Clube de Descontos
+			if(isset($_SESSION['clube_invite_code'])){
+				$idConta = $cls_minha_conta->query_minha_conta("email = '$email'");
+				
+				$_POST['diretorio'] = "";
+				$_POST["diretorio_db"] = "@pew/";
+				$_POST['cancel_redirect'] = true;
+
+				require_once "@classe-clube-descontos.php";
+
+				$cls_clube = new ClubeDescontos();
+
+				$inviteCode = addslashes($_SESSION['clube_invite_code']);
+
+				$cls_clube->cadastrar($idConta, $inviteCode);
+			}
 			
             echo "true";
         }else{

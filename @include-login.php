@@ -400,7 +400,13 @@
                 if(errors > 0){
                     setInputMessages(errorFields);
                 }else{
-                    window.location.reload();
+					var customLogin = $(".js-custom-login").val();
+					
+					if(typeof customLogin != "undefined"){
+						window.location.href = customLogin;
+					}else{
+                    	window.location.reload();
+					}
                 }
                 
                 if(closeLoading){

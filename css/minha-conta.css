@@ -1,0 +1,184 @@
+.botao-continuar{
+	position: relative;
+	background-color: #6abd45;
+	color: #fff;
+	border: none;
+	width: 120px;
+	height: 30px;
+	line-height: 32px;
+	text-align: left;
+	margin: 23px 0px 0px 0px;
+	padding: 0px 15px 0px 10px;
+	font-weight: bold;
+	display: flex;
+	align-items: center;
+	transition: .2s;
+	cursor: pointer;
+	outline: none;
+}
+.botao-continuar .icone{
+	font-size: 18px;
+	position: absolute;
+	top: 0px;
+	height: 30px;
+	line-height: 30px;
+	right: 10px;
+	transition: .2s;
+}
+.botao-continuar:hover{
+	background-color: #518f35;
+}
+.botao-continuar:hover .icone{
+	right: 5px;
+}
+.msg-input{
+	position: absolute;
+	left: 2px;
+	top: 30px;
+	visibility: hidden;
+	opacity: 0;
+	transition: .2s;
+}
+.box-pedido{
+	position: relative;
+	width: calc(100% - 20px);
+	padding: 10px;
+	border-bottom: 2px solid #eee;
+	z-index: 50;
+}
+.box-pedido .line-display{
+	width: 100%;
+	display: flex;
+	flex-flow: row wrap;
+	margin-top: 20px;
+}
+.box-pedido .bottom-line{
+	height: 20px;
+	line-height: 20px;
+}
+.box-pedido .bottom-line .link-padrao{
+	cursor: pointer;
+	margin: 0;
+}
+.box-pedido .hidden-line{
+	display: none;	
+}
+.box-pedido .titulo{
+	font-size: 18px;
+	margin: 10px 0px 5px 0px;
+}
+.box-pedido .right{
+	width: 40%;
+}
+.box-pedido .right .descricao{
+	font-size: 14px;
+	color: #666;
+	font-weight: normal;
+	text-align: left;
+	margin: 0px;
+}
+.box-pedido .middle{
+	width: 35%;
+}
+.box-pedido .middle .descricao{
+	font-weight: normal;
+	margin: 10px 0px 10px 0px;
+}
+.box-pedido .middle .btn-mais-info{
+	display: inline-block;
+	margin: 5px 0px 0px 0px;
+	cursor: pointer;
+}
+.box-pedido .left{
+	width: 25%;
+}
+.box-pedido .left .descricao{
+	width: 100px;
+	float: left;
+	font-weight: normal;
+	margin: 10px 0px 10px 0px;
+}
+.box-pedido .left .status{
+	clear: both;
+	color: limegreen;
+	font-weight: normal;
+}
+.box-pedido .line-display .table-list{
+	font-size: 12px;
+	line-height: 14px;
+}
+.box-pedido .display-info-pedido{
+	position: absolute;
+	top: -100%;
+	left: 0;
+	width: calc(100% - 20px);
+	min-height: 100%;
+	padding: 10px;
+	border-bottom: 2px solid #eee;
+	background-color: #fff;
+	display: flex;
+	flex-flow: row wrap;
+	visibility: hidden;
+	opacity: 0;
+	transition: .3s;
+	-webkit-box-shadow: 0px 4px 20px 0px rgba(0, 0, 0, .4);
+	-moz-box-shadow: 0px 4px 20px 0px rgba(0, 0, 0, .4);
+	box-shadow: 0px 4px 20px 0px rgba(0, 0, 0, .4);
+}
+.box-pedido .display-info-pedido .titulo{
+	font-size: 18px;
+	margin: 0px 0px 15px 0px;
+	width: 100%;
+}
+.box-pedido .display-info-pedido .lista-produtos{
+	width: calc(50% - 41px);
+	margin: 0px 20px 0px 20px;
+	border-right: 1px solid #eee;
+}
+.box-pedido .display-info-pedido .info-frete{
+	width: calc(50% - 40px);
+	margin: 0px 20px 0px 20px;
+}
+.box-pedido .display-info-pedido .info-frete .titulo{
+	font-size: 18px;
+	margin: 0px 0px 5px 0px;
+	font-weight: bold;
+	color: #666;
+}
+.box-pedido .display-info-pedido .info-frete .info{
+	font-size: 16px;
+	font-weight: normal;
+	margin: 0px;
+}
+.box-pedido .display-info-pedido .bottom-info{
+	text-align: left;
+	width: 100%;
+	padding: 10px 0px 10px 0px;
+}
+.box-pedido .display-info-pedido .bottom-info .btn-voltar{
+	cursor: pointer;
+}
+.background-loading{
+	position: fixed;
+	width: 100vw;
+	height: 100vh;
+	background-color: rgba(255, 255, 255, .5);
+	top: 0px;
+	left: 0;
+	margin: 0px;
+	opacity: 0;
+	transition: .3s;
+	visibility: hidden;
+	z-index: 150;
+	text-align: center;
+	display: flex;
+	overflow: hidden;
+}
+.background-loading .icone-loading{
+	position: absolute;
+	font-size: 46px;
+	color: #6abd45;
+	top: 50vh;
+	align-self: center;
+	width: 100%;
+}

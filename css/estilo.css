@@ -15,6 +15,7 @@ body{
     font-size: 12px;
     font-weight: normal;
     display: inline-block;
+	cursor: pointer;
 }
 .link-padrao:hover{
     border-bottom: 1px solid #5583fe;
@@ -47,6 +48,9 @@ body{
 }
 .navigation-tree .icon{
     margin-right: 10px;
+}
+input, article, button, select, textarea{
+	font-family: 'Montserrat', sans-serif;
 }
 input[type=number]::-webkit-inner-spin-button, input[type=date]::-webkit-inner-spin-button{ 
     -webkit-appearance: none;

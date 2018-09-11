@@ -334,6 +334,7 @@ $(document).ready(function(){
                 mensagemAlerta("Ocorreu um erro ao processar a compra. O Pagamento NÃO foi efetuado. Recarregue a página e tente novamente.");
             },
             success: function(response){
+				console.log(response);
                 switch(sendDataForm.paymentMethod){
                     case "creditCard":
                         var buttonCheckout = btnCheckoutCreditCard;
