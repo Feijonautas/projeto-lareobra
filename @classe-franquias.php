@@ -81,6 +81,8 @@
 			
 			function get_regiao_by_cep($cep){
 				$_SESSION['franquia']['client_cep'] = $cep;
+				
+				setcookie("session_cep", $cep, time() + (86400 * 30), "/");
 		
 				$selectedINDEX = -1;
 

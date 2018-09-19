@@ -134,7 +134,10 @@
 	<div class="content">
 		<article class="description">Digite seu CEP e selecionarmos a loja mais próxima para seu atendimento</article>
 		<div class="input-group">
-			<input type="text" class="modal-input js-enter-cep" placeholder="CEP">
+			<?php
+			$clientCep = isset($_SESSION['franquia']['client_cep']) ? $_SESSION['franquia']['client_cep']: null;
+			?>
+			<input type="text" class="modal-input js-enter-cep" placeholder="CEP" value='<?= $clientCep; ?>'>
 			<button class="modal-submit js-check-cep js-check-icon"><i class="fas fa-check"></i></button>
 		</div>
 		<div class="address-field">

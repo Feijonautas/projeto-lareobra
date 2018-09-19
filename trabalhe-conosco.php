@@ -5,6 +5,7 @@
 
     $cls_paginas->set_titulo("Trabalhe Conosco");
     $cls_paginas->set_descricao("DESCRIÇÃO MODELO ATUALIZAR...");
+	$cls_paginas->require_dependences();
 ?>
 <!DOCTYPE html>
 <html>

@@ -47,9 +47,7 @@ if($validar){
 				if(isset($_SESSION['clube_invite_code'])){
 					$idConta = $cls_minha_conta->query_minha_conta("email = '{$_POST['email']}'");
 					
-					$_POST['diretorio'] = "";
-					$_POST["diretorio_db"] = "@pew/";
-					$_POST['cancel_redirect'] = true;
+					$_POST['user_side'] = true;
 					
 					require_once "@classe-clube-descontos.php";
 					
@@ -59,13 +57,11 @@ if($validar){
 					
 					$cls_clube->cadastrar($idConta, $inviteCode);
 				}
-				
 			}
-			
         }
         
     }else if($confirmacaoPendente){
-        $return = "true"; // Era "confirmar_email"
+        $return = $loginValidado == true ? "true" : "senha_incorreta"; // Era "confirmar_email"
     }else if($totalEmail > 0){
         $return = "senha_incorreta";
     }

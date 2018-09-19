@@ -5,10 +5,11 @@
 
     $cls_paginas->set_titulo("Página inicial");
     $cls_paginas->set_descricao("DESCRIÇÃO MODELO ATUALIZAR...");
+	$cls_paginas->require_dependences();
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+	ini_set('display_errors', 1);
+	ini_set('display_startup_errors', 1);
+	error_reporting(E_ALL);
 
 ?>
 <!DOCTYPE html>

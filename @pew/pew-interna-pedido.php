@@ -376,7 +376,7 @@
 								}
 							}else{
 								echo "<tr>";
-									echo "<td colspan=2>Nenhum adicionada</td>";
+									echo "<td colspan=2>Nenhuma adicionada</td>";
 								echo "</tr>";
 							}
 							echo "<tr>";

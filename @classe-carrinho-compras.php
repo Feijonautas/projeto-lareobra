@@ -1,4 +1,11 @@
 <?php
+	ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+	if(!isset($_SESSION)){
+		session_start();
+	}
+
     ini_set('memory_limit', '-1');
 
     require_once "@include-global-vars.php";
@@ -6,6 +13,10 @@
     require_once "@classe-produtos.php";
     require_once "@classe-franquias.php";
     require_once "@pew/@classe-promocoes.php";
+	
+	$_POST['user_side'] = true;
+	require_once "@classe-clube-descontos.php";
+
     class Carrinho{
         private $produtos = array();
         private $ctrl_produtos = 0;
@@ -42,9 +53,7 @@
         }
         
         function set_token(){
-            if(!isset($_SESSION["carrinho"]["token"]) || $_SESSION["carrinho"]["token"] == null){
-                $_SESSION["carrinho"]["token"] = $this->rand_token();
-            }
+			$_SESSION["carrinho"]["token"] = $this->rand_token();
         }
         
         function verify_session(){
@@ -183,6 +192,16 @@
             $this->verify_session();
             return $_SESSION["token"];
         }
+		
+		function get_percent_diff($first_value, $second_value){
+			# f = maior_valor, s = menor_valor
+			$percent = 0;
+			if($first_value > 0){
+				$percent = ($second_value * 100) / $first_value;
+				$percent = 100 - $percent;
+			}
+			return $percent;
+		}
         
         function get_carrinho(){
             $this->verify_session();
@@ -191,6 +210,7 @@
             $carrinho["token"] = $_SESSION["carrinho"]["token"];
             
             $ctrl = 0;
+			$subtotal = 0;
             
             foreach($_SESSION["carrinho"]["itens"] as $itens){
                 $idProduto = $itens["id"];
@@ -198,6 +218,10 @@
                 $is_compre_junto = false;
                 
                 $carrinho["itens"][$ctrl] = $this->set_info_franquia($itens);
+				
+				$subtotalProduto = $carrinho['itens'][$ctrl]['preco'] * $carrinho['itens'][$ctrl]['quantidade'];
+				
+				$subtotal += $subtotalProduto;
                 
                 /*if(is_array($selectedRelacionados)){
                     $selected = array();
@@ -228,7 +252,46 @@
                     
                 $ctrl++;
             }
-            
+			
+			if(isset($_SESSION["carrinho"]["points_discount"])){
+				$cls_clube = new ClubeDescontos();
+				$get_pontos = (int) $_SESSION['carrinho']['points_discount'];
+				$brl_value = $cls_clube->converter_pontos("reais", $get_pontos);
+				
+				$subtotal_diff = $subtotal - $brl_value;
+				$percent_diff = $this->get_percent_diff($subtotal, $subtotal_diff);
+				$percent_mutiplier = $percent_diff / 100;
+				
+				$_SESSION['percent_diff'] = $percent_diff;
+				
+				$newSubtotal = 0;
+				foreach($carrinho["itens"] as $index => $item_info){
+					$precoAtual = $item_info['preco'];
+					$discount = $precoAtual * $percent_mutiplier;
+					$newPreco = number_format($precoAtual - $discount, 2, ".", "");
+					$carrinho['itens'][$index]['preco'] = $newPreco;
+					$newSubtotal += $newPreco * $carrinho['itens'][$index]['quantidade'];
+				}
+				
+				if($subtotal_diff > $newSubtotal){
+					# Se passar alguns centavos
+					$sum = number_format($subtotal_diff - $newSubtotal, 2, ".", "");
+					
+					foreach($carrinho["itens"] as $index => $item_info){
+						$precoAtual = $item_info['preco'];
+						$sum_produto = $sum / $item_info['quantidade'];
+						if($sum_produto >= 0.01){
+							$carrinho['itens'][$index]['preco'] = $precoAtual + $sum_produto;
+							break;
+						}
+					}
+				}
+			}
+			
+			if(count($carrinho["itens"]) == 0){
+				unset($_SESSION["carrinho"]);
+			}
+			
             return $carrinho;
         }
         
@@ -297,6 +360,41 @@
                 return false;
             }
         }
+		
+		function add_pontos_clube($get_pontos){
+			$cls_conta = new MinhaConta();
+			$cls_clube = new ClubeDescontos();
+			
+			$this->verify_session();
+			
+			$get_pontos = (int) $get_pontos;
+			$infoConta = $cls_conta->get_info_logado();
+			$idConta = $infoConta['id'];
+			
+			$queryClube = $cls_clube->query("id_usuario = '$idConta'", "id");
+			if(count($queryClube) > 0){
+				$totalPontos = 0;
+				$arrayPontos = $cls_clube->query_pontos($idConta);
+				foreach($arrayPontos as $infoPonto){
+					$valor = $infoPonto['value'];
+					if($infoPonto['type'] == 1){
+						$totalPontos += $valor;
+					}else{
+						$totalPontos -= $valor;
+					}
+				}
+				if($get_pontos <= $totalPontos){
+					$brl_value = $cls_clube->converter_pontos("reais", $get_pontos);
+					$_SESSION["carrinho"]["brl_discount"] = $brl_value;
+					$_SESSION["carrinho"]["points_discount"] = $get_pontos;
+					return true;
+				}else{
+					return false;
+				}
+			}else{
+				return false;
+			}
+		}
     }
 
     if(isset($_POST["acao_carrinho"])){
@@ -379,7 +477,15 @@
                 $total += $produto["quantidade"];
             }
             echo $total;
-        }
+        }else if($acao == "set_pontos_clube"){
+			$points = isset($_POST['points_value']) ? $_POST['points_value'] : null;
+			if($points != null){
+				$addPontos = $cls_carrinho->add_pontos_clube($points);
+				echo $addPontos == true ? "true" : "false";
+			}else{
+				echo "false";
+			}
+		}
     }
 
     // session_destroy();

@@ -5,7 +5,7 @@
 
     $cls_paginas->set_titulo("Código de retirada");
     $cls_paginas->set_descricao("");
-
+	$cls_paginas->require_dependences();
 ?>
 <!DOCTYPE html>
 <html>

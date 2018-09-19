@@ -5,6 +5,7 @@
 
     $cls_paginas->set_titulo("Frete grátis");
     $cls_paginas->set_descricao("DESCRIÇÃO MODELO ATUALIZAR...");
+	$cls_paginas->require_dependences();
 ?>
 <!DOCTYPE html>
 <html>

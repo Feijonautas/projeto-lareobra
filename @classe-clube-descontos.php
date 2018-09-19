@@ -1,22 +1,40 @@
 <?php
+	if(!isset($_SESSION)){
+		session_start();
+	}
+
+	if(isset($_POST['acao'])){
+		$_POST['cancel_redirect'] = true;
+	}
+
+	if(isset($_POST['user_side'])){
+		$_POST['diretorio'] = "";
+		$_POST["diretorio_db"] = "@pew/";
+		$_POST['cancel_redirect'] = true;
+	}
 	
 	require_once "@classe-minha-conta.php";
 	require_once "@pew/pew-system-config.php";
 
 	class ClubeDescontos{
 		private $activation_invites = 5;
+		private $activation_sales = 1;
 		private $brl_per_point = 0.5;
 		private $sale_percent_point = 5;
 		private $f_sale_percent_point = 2;
 		private $ref_bonus_points = 5;
 		private $welcome_bonus_points = 10;
 		private $base_route = "minha-conta/clube-de-descontos";
+		public $min_points_sale = 15;
+		public $max_percent_sale = 60;
 		
 		function query($condicao = null, $select = null, $order = null, $limit = null, $exeptions = null){
 			global $conexao, $pew_db, $pew_custom_db, $pew_functions;
 			$tabela_clube_descontos = $pew_custom_db->tabela_clube_descontos;
 			$condicao = $condicao != null ? str_replace("where", "", $condicao) : "true";
 			$array = array();
+			
+			$dataAtual = new DateTime(date("Y-m-d H:i:s"));
 			
 			if(is_array($exeptions) && count($exeptions) > 0){
 				foreach($exeptions as $idEx){
@@ -26,11 +44,31 @@
 			
 			$total = $pew_functions->contar_resultados($tabela_clube_descontos, $condicao);
 			if($total > 0){
-				$select = $select == null ? 'id, id_usuario, uniq_code, ref_code, data_cadastro, data_ativacao, status' : $select;
+				$select = $select == null ? 'id, id_usuario, uniq_code, ref_code, data_cadastro, data_ativacao, last_update, status' : $select;
 				$order  = $order == null ? 'order by id desc' : $order;
 				$limit  = $limit == null ? null : "limit ". (int) $limit;
 				$query = mysqli_query($conexao, "select $select from $tabela_clube_descontos where $condicao $order $limit");
 				while($info = mysqli_fetch_array($query)){
+					
+					if(isset($info['last_update'])){
+						$lastUpdate = new DateTime($info['last_update']);
+						$diff = $dataAtual->diff($lastUpdate);
+
+						$str_last_update = $diff->days > 0 ? $diff->days." dias atrás" : $diff->h." horas atrás";
+						
+						if($diff->days > 30){
+							$str_last_update =  $diff->days > 365 ? "não atualizado" : $diff->m." meses atrás";
+						}else if($diff->days == 0 && $diff->h == 0){
+							$str_last_update = $diff->i <= 1 ? "1 minuto atrás" : $diff->i." minutos atrás";
+						}
+						
+						if($diff->days > 30){
+							$this->account_update($info['id_usuario']);
+						}
+						
+						$info['str_last_update'] = $str_last_update;
+					}
+					
 					array_push($array, $info);
 				}
 			}
@@ -72,32 +110,35 @@
 			if($total == 0){
 				$uniqCode  = $this->create_hash();
 				
-				mysqli_query($conexao, "insert into $tabela_clube_descontos (id_usuario, uniq_code, ref_code, data_cadastro, status) values ('$idUsuario', '$uniqCode', '$refCode', '$dataAtual', 0)");
+				mysqli_query($conexao, "insert into $tabela_clube_descontos (id_usuario, uniq_code, ref_code, data_cadastro, last_update, status) values ('$idUsuario', '$uniqCode', '$refCode', '$dataAtual', '$dataAtual', 0)");
 				
 				if($this->welcome_bonus_points > 0){
 					$this->add_pontos_clube($idUsuario, 1, $this->welcome_bonus_points, "Bem vindo ao Clube de Descontos");
 				}
-			}
-			
-			if($refCode != null){
-				$contagem = $pew_functions->contar_resultados($tabela_clube_descontos, "uniq_code = '$refCode'");
-				if($contagem > 0){
-					$queryIndicationID = $this->query("uniq_code = '$refCode'");
-					$infoIndicacao = $queryIndicationID[0];
-					$indication_user_id = $infoIndicacao['id_usuario'];
-					
-					if($this->ref_bonus_points > 0){
-						$this->add_pontos_clube($indication_user_id, 1, $this->ref_bonus_points, "Um amigo se juntou ao Clube");
+				
+				if($refCode != null){
+					$contagem = $pew_functions->contar_resultados($tabela_clube_descontos, "uniq_code = '$refCode'");
+					if($contagem > 0){
+						$queryIndicationID = $this->query("uniq_code = '$refCode'");
+						$infoIndicacao = $queryIndicationID[0];
+						$indication_user_id = $infoIndicacao['id_usuario'];
+
+						if($this->ref_bonus_points > 0){
+							$this->add_pontos_clube($indication_user_id, 1, $this->ref_bonus_points, "Um amigo se juntou ao Clube");
+						}
 					}
 				}
 			}
+			
 		}
 		
-		function query_pontos($id_usuario){
+		function query_pontos($id_usuario, $select = null, $condition = null){
 			global $conexao, $pew_custom_db, $pew_functions;
 			$tabela_clube_descontos_pontos = $pew_custom_db->tabela_clube_descontos_pontos;
-			$select = "id, id_usuario, type, value, descricao, data_controle";
-			$condition = "id_usuario = '$id_usuario'";
+			
+			$select = $select == null ? "id, id_usuario, type, value, descricao, ref_token, data_controle" : $select;
+			
+			$condition = $condition == null ? "id_usuario = '$id_usuario'" : $condition;
 			$total = $pew_functions->contar_resultados($tabela_clube_descontos_pontos, $condition);
 			
 			$array_pontos = array();
@@ -111,12 +152,21 @@
 			return $array_pontos;
 		}
 		
-		function query_indicados($uniq_code){
-			$queryIndicados = $this->query("ref_code = '$uniq_code'");
+		function query_indicados($uniq_code, $select = null){
+			$queryIndicados = $this->query("ref_code = '$uniq_code'", $select);
 			return $queryIndicados;
 		}
 		
-		function add_pontos_clube($id_usuario, $type, $value, $descricao, $activation_required = false){
+		function get_total_pontos($id_usuario){
+			$totalPontos = 0;
+			$queryPontos = $this->query_pontos($id_usuario, "value, type");
+			foreach($queryPontos as $infoPonto){
+				$totalPontos = $infoPonto['type'] == 1 ? $totalPontos + $infoPonto['value'] : $totalPontos - $infoPonto['value'];
+			}
+			return $totalPontos;
+		}
+		
+		function add_pontos_clube($id_usuario, $type, $value, $descricao, $ref_token = null, $activation_required = false){
 			global $conexao, $pew_custom_db, $pew_functions;
 			
 			# Type 0 = Gastou
@@ -128,15 +178,15 @@
 			$dataAtual = date("Y-m-d H:i:s");
 			$totalUsuario = $pew_functions->contar_resultados($tabela_clube_descontos, "id_usuario = '$id_usuario'");
 			
-			if($totalUsuario > 0){
+			if($totalUsuario > 0 && $value > 0){
 				$add = true;
 				
 				if($activation_required){
-					$add = $cls_clube->get_status_conta($idConta) == "ativo" ? true : false;
+					$add = $this->get_status_conta($idConta) == 1 ? true : false;
 				}
 				
-				if($add && $value > 0){
-					mysqli_query($conexao, "insert into $tabela_clube_descontos_pontos (id_usuario, type, value, descricao, data_controle) values ('$id_usuario', '$type', '$value', '$descricao', '$dataAtual')");
+				if($add){
+					mysqli_query($conexao, "insert into $tabela_clube_descontos_pontos (id_usuario, type, value, descricao, ref_token, data_controle) values ('$id_usuario', '$type', '$value', '$descricao', '$ref_token', '$dataAtual')");
 				}
 				
 				return true;
@@ -155,7 +205,7 @@
 					$returnVal = $value * $this->brl_per_point;
 					$returnVal = $pew_functions->custom_number_format($returnVal);
 				}else{
-					$returnVal = intval($value * $this->brl_per_point);
+					$returnVal = intval($value / $this->brl_per_point);
 				}
 			}else{
 				$returnVal = 0;
@@ -164,24 +214,64 @@
 			return $returnVal;
 		}
 		
+		function get_total_orders($id_usuario){
+			global $pew_custom_db, $pew_functions;
+			$tabela_pedidos = $pew_custom_db->tabela_pedidos;
+			
+			$paid_orders_condition = "id_cliente = '$id_usuario' and status = 3 or id_cliente = '$id_usuario' and status = 4";
+			
+			return $pew_functions->contar_resultados($tabela_pedidos, $paid_orders_condition);
+		}
+		
 		function get_status_conta($id_usuario){
-			$query = $this->query("id_usuario = '$id_usuario'");
+			global $conexao, $pew_custom_db;
+			$tabela_clube_descontos = $pew_custom_db->tabela_clube_descontos;
 			
-			$returnStatus = "nao_cadastrado";
+			$returnStatus = 0;
+			# status 0 = inativo
+			# status 1 = ativo
 			
+			$query = $this->query("id_usuario = '$id_usuario'", "uniq_code, status");
 			if(count($query) > 0){
 				$infoConta = $query[0];
 				$uniqCode = $infoConta['uniq_code'];
+				$actualStatus = $infoConta['status'];
 				
-				$totalConvidados = count($this->query("ref_code = '$uniqCode'"));
-				
-				$returnStatus = $totalConvidados > $this->activation_invites ? "ativo" : "em_ativacao";
+				if($actualStatus == 0){
+					$activated_account = true;
+
+					$queryConvidados = $this->query("ref_code = '$uniqCode'", "id_usuario");
+
+					$totalConvidados = count($queryConvidados);
+					if($totalConvidados >= $this->activation_invites){
+						foreach($queryConvidados as $infoConvidado){
+							$idConvidado = $infoConvidado['id_usuario'];
+
+							$totalCompras = $this->get_total_orders($idConvidado);
+
+							$activated_account = $totalCompras < $this->activation_sales ? false : $activated_account;
+						}
+					}else{
+						$activated_account = false;
+					}
+
+					$total_compras_usuario = $this->get_total_orders($id_usuario);
+
+					$returnStatus = $activated_account == true && $total_compras_usuario >= $this->activation_sales ? 1 : 0;
+					
+					if($returnStatus == 1){
+						mysqli_query($conexao, "update $tabela_clube_descontos set status = 1 where id_usuario = '$id_usuario'");
+					}
+					
+				}else{
+					$returnStatus = 1;
+				}
 			}
 			
 			return $returnStatus;
 		}
 		
-		function get_sales_point($subtotal, $type = "normal"){
+		function get_sales_points($subtotal, $type = "normal"){
 			$totalPoints = 0;
 			
 			$percentage = $type == "invited" ? $this->f_sale_percent_point : $this->sale_percent_point;
@@ -195,16 +285,158 @@
 			return $totalPoints;
 		}
 		
+		function account_update($id_usuario, $block_level = false){
+			global $conexao, $pew_custom_db;
+			$tabela_pedidos = $pew_custom_db->tabela_pedidos;
+			$tabela_clube_descontos = $pew_custom_db->tabela_clube_descontos;
+			
+			$dataAtual = date("Y-m-d H:i:s");
+
+			$cls_pedidos = new Pedidos();
+			
+			$queryClube = $this->query("id_usuario = '$id_usuario'", "uniq_code, ref_code, data_cadastro");
+			if(count($queryClube) > 0){
+				$infoClube = $queryClube[0];
+				$dataCadastro = $infoClube['data_cadastro'];
+				$uniqCode = $infoClube['uniq_code'];
+				$refCode = $infoClube['ref_code'];
+				$cartTokensPagos = array();
+				$cartTokensCancelados = array();
+				
+				$paid_orders_condition = "id_cliente = '$id_usuario' and status = 3 and data_controle > '$dataCadastro' or id_cliente = '$id_usuario' and status = 4 and data_controle > '$dataCadastro'";
+				
+				$canceled_orders_condition = "id_cliente = '$id_usuario' and status_transporte = 5 and data_controle > '$dataCadastro' or id_cliente = '$id_usuario' and status_transporte = 6 and data_controle > '$dataCadastro' or id_cliente = '$id_usuario' and status_transporte = 7 and data_controle > '$dataCadastro'";
+				
+				$queryPedidosPagos = mysqli_query($conexao, "select token_carrinho from $tabela_pedidos where $paid_orders_condition");
+				while($infoPedido = mysqli_fetch_array($queryPedidosPagos)){
+					array_push($cartTokensPagos, $infoPedido['token_carrinho']);
+				}
+				
+				$queryPedidosCancelados = mysqli_query($conexao, "select token_carrinho from $tabela_pedidos where $canceled_orders_condition");
+				while($infoPedido = mysqli_fetch_array($queryPedidosCancelados)){
+					array_push($cartTokensCancelados, $infoPedido['token_carrinho']);
+				}
+				
+				mysqli_query($conexao, "update $tabela_clube_descontos set last_update = '$dataAtual' where id_usuario = '$id_usuario'");
+				
+				foreach($cartTokensPagos as $token_carrinho){
+					$queryPonto = $this->query_pontos($id_usuario, "id", "id_usuario = '$id_usuario' and ref_token = '$token_carrinho'");
+					if(count($queryPonto) == 0){
+						$user_points = $this->get_sales_points(100, "normal");
+						$this->add_pontos_clube($id_usuario, 1, $user_points, "Você finalizou uma compra", $token_carrinho);
+						
+						$queryReferenceUser = $this->query("uniq_code = '$refCode'", "id_usuario");
+						if(count($queryReferenceUser) > 0){
+							$f_user_points = $this->get_sales_points(100, "invited");
+							$idRefUser = $queryReferenceUser[0]['id_usuario'];
+							$this->add_pontos_clube($idRefUser, 1, $f_user_points, "Um amigo finalizou uma compra", $token_carrinho);
+						}
+					}
+				}
+				
+				foreach($cartTokensCancelados as $token_carrinho){
+					$queryPontos = $this->query_pontos($id_usuario, "value", "id_usuario = '$id_usuario' and ref_token = '$token_carrinho'");
+					foreach($queryPontos as $infoPonto){
+						$valor_ponto = $infoPonto['value'];
+						
+						$return_token = "return_$token_carrinho";
+						
+						$queryInsert = $this->query_pontos($id_usuario, "id", "id_usuario = '$id_usuario' and ref_token = '$return_token'");
+						if(count($queryInsert) == 0){
+							$this->add_pontos_clube($id_usuario, 1, $valor_ponto, "Uma compra foi cancelada e seus pontos foram devolvidos", $return_token);
+						}
+					}
+				}
+				
+				if($block_level == false){
+					$queryIndicacoes = $this->query_indicados($uniqCode, "id_usuario");
+					if(count($queryIndicacoes) > 0){
+						foreach($queryIndicacoes as $infoIndicado){
+							$this->account_update($infoIndicado['id_usuario'], true);
+						}
+					}
+				}
+				
+				return true;
+			}else{
+				return false;
+			}
+		}
+		
+		function get_activation_article($id_usuario = null){
+			$no_check_string = "<i class='far fa-square' style='color: #ccc;'></i>";
+			$check_string = "<i class='far fa-check-square' style='color: #008b28;'></i>";
+			
+			$first_check = $no_check_string;
+			$second_check = $no_check_string;
+			$third_check = $no_check_string;
+			
+			$actived_account = false;
+			if($id_usuario != null && $this->get_status_conta($id_usuario) == 0){
+				$queryClube = $this->query("id_usuario = '$id_usuario'", "uniq_code");
+				$infoClube = $queryClube[0];
+				
+				if($this->get_total_orders($id_usuario) >= $this->activation_sales){
+					$first_check = $check_string;
+				}
+				
+				$queryIndicados = $this->query_indicados($infoClube['uniq_code'], "id_usuario");
+				if(count($queryIndicados) >= $this->activation_invites){
+					$second_check = $check_string;
+				}
+				
+				$ref_orders_rule = true;
+				if(count($queryIndicados) > $this->activation_invites){
+					foreach($queryIndicados as $infoIndicado){
+						$id_indicado = $infoIndicado['id_usuario'];
+						$ref_orders_rule = $this->get_total_orders($id_indicado) < $this->activation_sales ? false : $ref_orders_rule;
+					}
+					if($ref_orders_rule == true){
+						$third_check = $check_string;
+					}
+				}else{
+					$ref_orders_rule = false;	
+				}
+				
+			}else{
+				$actived_account = true;
+			}
+			
+			if($actived_account == false){
+				echo "<article class='grid-box white-color'>";
+					echo "Para ativar o Clube de Descontos você precisa:";
+					echo "<ul style='list-style: none; padding: 5px 10px 5px 10px;'>";
+						$str_compras = $this->activation_sales == 1 ? "1 compra" : $this->activation_sales." compras";
+						echo "<li>$first_check Você precisa finalizar <b>$str_compras</b> no site</li>";
+						echo "<li>$second_check Indicar <b>".$this->activation_invites." amigos</b> ao Clube</li>";
+						echo "<li>$third_check Cada um dos ". $this->activation_invites." amigos também deve ter feito <b>$str_compras</b></li>";
+					echo "</ul>";
+				echo "</article>";
+			}else{
+				echo "<article class='grid-box white-color'>";
+					echo "<h3 style='color: #008b28; margin: 0;'>Parabéns, seu Clube de Descontos está ativado</h3>";
+				echo "</article>";
+			}
+		}
+		
 		function get_view_convidar($infoClube, $complete_url){
 			$dirImages = "imagens/estrutura/clubeDescontos/conta";
+			$reference_url = $complete_url . "/clube-de-descontos/{$infoClube['uniq_code']}/";
+			
 			echo "<h3 class='subtitulo'>Convide seus amigos e familiares para fazer parte do Clube de Descontos</h3>";
+			
+			$this->get_activation_article($infoClube['id_usuario']);
+			
+			$invite_message = "Olá, tudo bem? Estou lhe convidando para participar do Clube de Descontos! Você vai adorar os benefícios que te esperam. Acesse: $reference_url";
+			
 			echo "<article class='grid-box'>";
 				echo "Convide quantos amigos quiser! Quanto mais amigos mais pontos. <br>Trazer seus amigos para o Clube trás os seguintes benefícios:";
 				echo "<ul>";
-					echo "<li>Ganhar pontos por indicação</li>";
+					echo "<li>Ganhar pontos por indicações</li>";
 					echo "<li>Comissão em pontos pelas compras de seus amigos na Loja</li>";
 				echo "</ul>";
 			echo "</article>";
+			
 			echo "<div class='media-field'>";
 				echo "<div class='media-box'><img src='$dirImages/compartilhe-redes-sociais.png' class='image'></div>";
 				echo "<div class='media-box'><img src='$dirImages/pontos-pra-todo-mundo.png' class='image'></div>";
@@ -215,16 +447,34 @@
 			echo "</div>";
 			echo "<div class='grid-box'>";
 				echo "<h4><i class='fas fa-link'></i> Link de Referência:</h4>";
-				echo "<textarea class='copy-box js-ref-code' readonly>" . $complete_url . "/clube-de-descontos/{$infoClube['uniq_code']}/</textarea>";
+				echo "<textarea class='copy-box js-ref-code' readonly>$reference_url</textarea>";
 				echo "<a class='link-padrao js-copy-code' style='margin: 0px;'>Copiar link</a>";
 			echo "</div>";
 			echo "<div class='grid-box white-color'>";
 				echo "<h4>Compartilhe pelas redes sociais</h4>";
 				echo "<div class='share-links'>";
-					echo "<i class='fab fa-facebook-square icones facebook' title='Compartilhar pelo Facebook'></i>";
-					echo "<i class='fab fa-whatsapp icones whatsapp' title='Compartilhar pelo WhatsApp'></i>";
-					echo "<i class='fab fa-twitter icones twitter' title='Compartilhar pelo Twitter'></i>";
-					echo "<i class='far fa-envelope icones' title='Compartilhar pelo E-mail'></i>";
+					echo "<a href='https://api.whatsapp.com/send?text=$invite_message' target='_blank'><i class='fab fa-whatsapp icones whatsapp' title='Co mpartilhar pelo WhatsApp'></i></a>";
+					echo "<a href='https://twitter.com/intent/tweet?text=$invite_message' target='_blank'><i class='fab fa-twitter icones twitter' title='Compartilhar pelo Twitter'></i></a>";
+					echo "<a class='js-trigger-share-email'><i class='far fa-envelope icones' title='Compartilhar pelo E-mail'></i></a>";
+					echo "<div class='fb-share-button' 
+						 data-href='https://$reference_url' 
+						 data-layout='button' data-size='large'>
+					</div>";
+				echo "</div>";
+			echo "</div>";
+			
+			echo "<div class='share-mailer-box'>";
+				echo "<div class='form-field'>";
+					echo "<input type='text' class='js-input-email' placeholder='Adicionar e-mail'>";
+					echo "<input type='button' class='js-input-confirm' value='OK'>";
+				echo "</div>";
+				echo "<div class='list-body'>";
+					echo "<h5 style='font-weight: normal; text-align: center; margin: 0 0 15px 0;'>Adicione os e-mails na lista para enviar o convite</h5>";
+					echo "<span class='js-span-email'></span>";
+				echo "</div>";
+				echo "<div class='bottom'>";
+					echo "<div class='js-back-button'>Voltar</div>";
+					echo "<div class='js-send-button'>Enviar</div>";
 				echo "</div>";
 			echo "</div>";
 		}
@@ -232,8 +482,15 @@
 		function get_view_pontos($infoClube){
 			global $pew_functions;
 			
+			$dataAtual = new DateTime(date("Y-m-d H:i:s"));
+			$lastUpdate = new DateTime($infoClube['last_update']);
+			$diff = $dataAtual->diff($lastUpdate);
+			
+			$str_last_update = $infoClube['str_last_update'];
+			
 			$brl_value = "0.00";
 			$arrayPontos = $this->query_pontos($infoClube['id_usuario']);
+			
 			echo "<h3 class='subtitulo'>Meus pontos</h3>";
 			echo "<article class='grid-box white-color'>";
 				echo "Quanto mais amigos você tiver no Clube do Descontos mais pontos você vai ganhar. Com os pontos você poderá:";
@@ -247,23 +504,16 @@
 			echo "</article>";
 			echo "<div class='grid-box'>";
 				echo "<h4>Pontuação total:</h4>";
-				$totalPontos = 0;
-				foreach($arrayPontos as $infoPonto){
-					$valor = $infoPonto['value'];
-					if($infoPonto['type'] == 1){
-						$totalPontos += $valor;
-					}else{
-						$totalPontos -= $valor;
-					}
-					
-					$brl_value = $this->converter_pontos("reais", $totalPontos);
-				}
+				$totalPontos = $this->get_total_pontos($infoClube['id_usuario']);
+				$brl_value = $this->converter_pontos("reais", $totalPontos);
+			
 				echo "<h3>$totalPontos pontos = <span class='price'>R$ $brl_value</span></h3>";
 				$brl_per_point = $pew_functions->custom_number_format($this->brl_per_point * 100);
 				echo "<h5 style='margin: 10px 0px 0px 0px; font-weight: normal;'>Cada 100 pontos valem R$ $brl_per_point em compras</h5>";
 			echo "</div>";
 			echo "<div class='grid-box white-color'>";
 				echo "<h4>Histórico:</h4>";
+				echo "<a class='link-padrao js-refresh-points' js-id='{$infoClube['id_usuario']}'>Atualizar</a> - Última atualização: $str_last_update";
 				echo "<table class='list-table'>";
 					echo "<thead>";
 						echo "<td>Ação</td>";
@@ -307,7 +557,6 @@
 			echo "<div class='grid-box white-color'>";
 				echo "<h4>Lista de indicados:</h4>";
 				$queryIndicados = $this->query_indicados($infoClube['uniq_code']);
-				$totalAtivos = 0;
 				echo "<table class='list-table'>";
 					echo "<thead>";
 						echo "<td>Nome</td>";
@@ -318,21 +567,23 @@
 					echo "<tbody>";
 					if(count($queryIndicados) > 0){
 						foreach($queryIndicados as $infoIndicado){
-							$montagemConta = $cls_conta->montar_minha_conta($infoIndicado['id_usuario']);
+							$idIndicado = $infoIndicado['id_usuario'];
+							
+							$montagemConta = $cls_conta->montar_minha_conta($idIndicado);
 							if($montagemConta){
 								$infoContaIndicado = $cls_conta->montar_array();
 								
+								$account_status = $this->get_status_conta($idIndicado);
+								
 								$nomeIndicado = $infoContaIndicado['usuario'];
 								$emailIndicado = $infoContaIndicado['email'];
-								$str_status = $infoIndicado['status'] == 0 ? "Em ativação" : "Ativado";
+								$str_status = $account_status == 0 ? "Em ativação" : "Ativado";
 								$dataCadastro = substr($infoIndicado['data_cadastro'], 0, 10);
 								$dataCadastro = $pew_functions->inverter_data($dataCadastro);
 								$dataAtivacao = substr($infoIndicado['data_ativacao'], 0, 10);
 								$dataAtivacao = $pew_functions->inverter_data($dataAtivacao);
 								
-								$dataFinal = $infoIndicado['status'] == 0 ? $dataCadastro : $dataAtivacao;
-								
-								$totalAtivos = $infoIndicado['status'] == 1 ? $totalAtivos + 1 : $totalAtivos;
+								$dataFinal = $account_status == 0 ? $dataCadastro : $dataAtivacao;
 								
 								echo "<tr><td>$nomeIndicado</td>";
 								echo "<td>$emailIndicado</td>";
@@ -348,14 +599,7 @@
 			
 			echo "</div>";
 			
-			echo "<div class='grid-box'>";
-			if($totalAtivos < 5){
-				$restante = 5 - $totalAtivos;
-					echo "<h3 style='margin: 0px; font-weight: normal;'>Faltam <b>$restante indicações</b> para ativar o seu Clube de Descontos</h3>";
-			}else{
-					echo "<h3 style='margin: 0px; font-weight: normal;'>Parabéns, você já <b>indicou $totalAtivos amigos</b> para o Clube de Descontos. Agora é só aproveitar os benefícios.</h3>";
-			}
-			echo "</div>";
+			$this->get_activation_article($infoClube['id_usuario']);
 		}
 		
 		function get_view_cadastrar($idUsuario){
@@ -395,5 +639,80 @@
 				echo "Existem muitas variações disponíveis de passagens de Lorem Ipsum, mas a maioria sofreu algum tipo de alteração, seja por inserção de passagens com humor, ou palavras aleatórias que não parecem nem um pouco convincentes.";
 			echo "</article>";
 			echo "<div class='grid-box'><a href='". $this->base_route ."/convidar' class='call-to-action'>Convide seus amigos</a></div>";
+		}
+		
+		function get_invite_email_body($reference_url){
+			
+		}
+		
+		function get_checkout_rules($subtotal){
+			$return = array();
+			$return["brl_per_point"] = $this->brl_per_point;
+			$return["min_points"] = $this->min_points_sale;
+			$return["max_points"] = 0;
+			
+			$percent_multiplier = $this->max_percent_sale / 100;
+			
+			$maxBrlVal = $subtotal * $percent_multiplier;
+			$return["max_points"] = $this->converter_pontos("pontos", $maxBrlVal);
+			
+			$alter_percent = 1 + (1 - $percent_multiplier);
+			$alter_points = $alter_percent * $this->min_points_sale;
+			
+			$return["min_brl"] = $this->converter_pontos("reais", $alter_points);
+			$return["max_brl"] = $maxBrlVal;
+			
+			return $return;
+		}
+	}
+
+	if(isset($_POST['acao'])){
+		$cls_clube = new ClubeDescontos();
+		$cls_conta = new MinhaConta();
+		
+		$acao = $_POST['acao'];
+		$idUsuario = isset($_POST['id_usuario']) ? intval($_POST['id_usuario']) : 0;
+		
+		if($acao == "update_conta"){
+			if($cls_clube->account_update($idUsuario)){
+				echo "true";
+			}else{
+				echo "false";
+			}
+		}
+		
+		if($acao == "send_email_invite"){
+			$destinatarios = array();
+			$emailList = $_POST["email_list"];
+			
+			foreach($emailList as $email){
+				$array = array();
+				$array["nome"] = null;
+				$array["email"] = $email;
+				array_push($destinatarios, $array);
+			}
+			
+			$invite_message = "Olá, tudo bem? Estou lhe convidando para participar do Clube de Descontos! Você vai adorar os benefícios que te esperam. Acesse: teste.teste";
+			
+			$cls_conta->verify_session_start();
+			$infoConta = $cls_conta->get_info_logado();
+			if($infoConta != null){
+				$idConta = $infoConta['id'];
+				
+				$queryInfo = $cls_clube->query("id_usuario = '$idConta'", "uniq_code");
+				if(count($queryInfo) > 0){
+					$uniqCode = $queryInfo[0]['uniq_code'];
+					
+					$pew_functions->enviar_email("Convite - Clube de Descontos", $invite_message, $destinatarios);
+					
+					echo "true";
+				}else{
+					echo "false";
+				}
+				
+			}else{
+				echo "false";
+			}
+			
 		}
 	}

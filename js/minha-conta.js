@@ -37,6 +37,9 @@ $(document).ready(function(){
 	phone_mask(".mascara-numero-conta");
 	input_mask(".mascara-cpf-conta", "999.999.999-99");
 	input_mask(".mascara-cep-conta", "99999-999");
+	input_mask(".mascara-cnpj", "00.000.000/0000-00", {reverse: true});
+	input_mask(".mascara-inscricao", "000.000.000.000", {reverse: true});
+	
 	var botaoAtualizarConta = $("#botaoAtualizarConta");
 	var botaoAtualizarEndereco = $("#botaoAtualizarEndereco");
 	var backgroundLoading = $(".sub-navigation .background-loading");
@@ -44,15 +47,24 @@ $(document).ready(function(){
 	var formUpdateConta = $(".formulario-atualiza-conta");
 	var objIdConta = $("#idMinhaConta");
 	var idConta = objIdConta.val();
-	var objNome = $("#nome");
+	// PASSO 1
 	var objEmail = $("#email");
+	var objTipoPessoa = $("#tipoPessoa");
 	var objSenhaAtual = $("#senhaAtual");
 	var objSenhaNova = $("#senhaNova");
 	var objConfirmaSenhaNova = $("#confirmaSenhaNova");
 	var objCelular = $("#celular");
+	// pf
+	var objNome = $("#nome");
 	var objCpf = $("#cpf");
 	var objSexo = $("#sexo");
 	var objDataNascimento = $("#dataNascimento");
+	// pj
+	var objRazaoSocial = $("#razaoSocial");
+	var objNomeFantasia = $("#nomeFantasia");
+	var objCNPJ = $("#cnpj");
+	var objInscricaoEstadual = $("#inscricaoEstadual");
+	var objIsentoInscricao = $("#isentoInscricao");
 
 	var objIdEndereco = $("#idEnderecoConta");
 	var objCep = $("#cepConta");
@@ -62,6 +74,20 @@ $(document).ready(function(){
 	var objBairro = $("#bairroConta");
 	var objEstado = $("#estadoConta");
 	var objCidade = $("#cidadeConta");
+	
+	objIsentoInscricao.off().on("change", function(){
+		var checked = $(this).prop("checked");
+		if(checked){
+			objInscricaoEstadual.val("");
+		}
+	});
+
+	objInscricaoEstadual.off().on("keyup", function(){
+		var valor = $(this).val();
+		if(valor.length > 0){
+			objIsentoInscricao.prop("checked", false);
+		}
+	});
 
 	/*UPDATE*/
 	var is_updating = false;
@@ -185,6 +211,38 @@ $(document).ready(function(){
 						opacity: "1"
 					});
 					break;
+				case objRazaoSocial:
+					var msg = "O campo razão social deve conter no mínimo 4 caracteres";
+					objRazaoSocial.addClass("wrong-input");
+					objRazaoSocial.next(".msg-input").text(msg).css({
+						visibility: "visible",
+						opacity: "1"
+					});
+					break;
+				case objNomeFantasia:
+					var msg = "O campo nome fantasia deve conter no mínimo 4 caracteres";
+					objNomeFantasia.addClass("wrong-input");
+					objNomeFantasia.next(".msg-input").text(msg).css({
+						visibility: "visible",
+						opacity: "1"
+					});
+					break;
+				case objCNPJ:
+					var msg = "O campo CNPJ deve ser preenchido corretamente";
+					objCNPJ.addClass("wrong-input");
+					objCNPJ.next(".msg-input").text(msg).css({
+						visibility: "visible",
+						opacity: "1"
+					});
+					break;
+				case objInscricaoEstadual:
+					var msg = "O campo inscrição estadual deve ser preenchido corretamente";
+					objInscricaoEstadual.addClass("wrong-input");
+					objInscricaoEstadual.next(".msg-input").text(msg).css({
+						visibility: "visible",
+						opacity: "1"
+					});
+					break;
 			}
 		});
 	}
@@ -254,24 +312,29 @@ $(document).ready(function(){
 
 	/*VALIDACAO PASSOS*/
 	function valida_update(){
-		var nome = objNome.val();
 		var email = objEmail.val();
 		var senhaAtual = objSenhaAtual.val();
 		var senhaNova = objSenhaNova.val();
 		var confirmaSenha = objConfirmaSenhaNova.val();
 		var celular = objCelular.val();
+		// pf
+		var nome = objNome.val();
 		var cpf = objCpf.val();
 		var sexo = objSexo.val();
 		var dataNascimento = objDataNascimento.val();
-		var allFields = [objNome, objEmail, objSenhaNova, objConfirmaSenhaNova, objCelular, objCpf, objSexo, objDataNascimento];
+		// pj
+		var razaoSocial = objRazaoSocial.val();
+		var nomeFantasia = objNomeFantasia.val();
+		var cnpj = objCNPJ.val();
+		var inscricaoEstadual = objInscricaoEstadual.val();
+		var isentoInscricao = objIsentoInscricao.prop("checked");
+
+		var allFields = [objNome, objEmail, objSenhaNova, objConfirmaSenhaNova, objCelular, objCpf, objSexo, objDataNascimento, objRazaoSocial, objNomeFantasia, objCNPJ, objInscricaoEstadual, objIsentoInscricao];
+		
 		var invalidFields = [];
 		var ctrlInvalid = 0;
 
 		function standardValidation(){
-			if(nome.length < 3){
-				invalidFields[ctrlInvalid] = objNome;
-				ctrlInvalid++;
-			}
 
 			if(validarEmail(email) == false){
 				invalidFields[ctrlInvalid] = objEmail;
@@ -292,19 +355,51 @@ $(document).ready(function(){
 				ctrlInvalid++;
 			}
 
-			if(validarCPF(cpf) == false){
-				invalidFields[ctrlInvalid] = objCpf;
-				ctrlInvalid++;
-			}
+			if(objTipoPessoa.val() == 0){
+				
+				if(nome.length < 3){
+					invalidFields[ctrlInvalid] = objNome;
+					ctrlInvalid++;
+				}
+				
+				if(validarCPF(cpf) == false){
+					invalidFields[ctrlInvalid] = objCpf;
+					ctrlInvalid++;
+				}
 
-			if(sexo == ""){
-				invalidFields[ctrlInvalid] = objSexo;
-				ctrlInvalid++;
-			}
+				if(sexo == ""){
+					invalidFields[ctrlInvalid] = objSexo;
+					ctrlInvalid++;
+				}
 
-			if(maiorIdade(objDataNascimento) == false){
-				invalidFields[ctrlInvalid] = objDataNascimento;
-				ctrlInvalid++;
+				if(maiorIdade(objDataNascimento) == false){
+					invalidFields[ctrlInvalid] = objDataNascimento;
+					ctrlInvalid++;
+				}
+				
+			}else{
+				
+				if(razaoSocial.length < 4){
+					invalidFields[ctrlInvalid] = objRazaoSocial;
+					ctrlInvalid++;
+				}
+
+				if(nomeFantasia.length < 4){
+					invalidFields[ctrlInvalid] = objNomeFantasia;
+					ctrlInvalid++;
+				}
+
+				if(validarCNPJ(cnpj) == false){
+					invalidFields[ctrlInvalid] = objCNPJ;
+					ctrlInvalid++;
+				}
+
+				if(isentoInscricao == false){
+					if(inscricaoEstadual.length < 15){
+						invalidFields[ctrlInvalid] = objInscricaoEstadual;
+						ctrlInvalid++;
+					}
+				}
 			}
 
 			// Trigger das mensagens de erro
@@ -475,6 +570,7 @@ $(document).ready(function(){
 				bairro: bairro,
 				cidade: cidade,
 				estado: estado,
+				user_side: true,
 			}
 
 			$.ajax({

@@ -8,6 +8,7 @@ error_reporting(E_ALL);
     require_once "@classe-paginas.php";
     $cls_paginas->set_titulo("Loja");
     $cls_paginas->set_descricao("...");
+	$cls_paginas->require_dependences();
 
     $buscarDepartamento = isset($_GET["departamento"]) ? true : false;
     $buscarCategoria = isset($_GET["categoria"]) ? true : false;

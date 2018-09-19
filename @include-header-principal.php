@@ -273,22 +273,19 @@ $session_id_franquia = $cls_franquias->id_franquia;
         text-align: center;
     }
     .header-principal .nav-header .top-bar .display-header-conta:hover .botao-minha-conta{
-        border-bottom: 1px solid #111;
+        background-color: #eee;
+		border: none;
     }
     .header-principal .nav-header .top-bar .display-header-conta .botao-minha-conta{
-        width: 100%;
-        margin: 0px;
-    }
-    .header-principal .nav-header .top-bar .display-header-conta:hover .box-header-conta{
-        visibility: visible;
-        opacity: 1;
+		margin: 0px;
+		padding: 0 5px;
     }
     .header-principal .nav-header .top-bar .display-header-conta .box-header-conta{
         position: absolute;
-        top: 52px;
+        top: 50px;
         min-width: 150px;
         margin: 0 auto;
-        right: 0px;
+        right: -10px;
         background-color: #f5f5f5;
         text-align: center;
         list-style: none;
@@ -296,7 +293,16 @@ $session_id_franquia = $cls_franquias->id_franquia;
         z-index: 150;
         visibility: hidden;
         opacity: 0;
-        transition: .3s;
+        transition: .2s;
+		-webkit-box-shadow: 0px 1px 5px 0px rgba(0, 0, 0, 0.4);
+		-moz-box-shadow: 0px 1px 5px 0px rgba(0, 0, 0, 0.4);
+		box-shadow: 0px 1px 5px 0px rgba(0, 0, 0, 0.4);
+		z-index: -1;
+    }
+	.header-principal .nav-header .top-bar .display-header-conta:hover .box-header-conta{
+        visibility: visible;
+        opacity: 1;
+		right: 0;
     }
     .header-principal .nav-header .top-bar .display-header-conta .box-header-conta li{
         margin: 0px;
@@ -312,7 +318,7 @@ $session_id_franquia = $cls_franquias->id_franquia;
         border-bottom: 1px solid #ccc;
     }
     .header-principal .nav-header .top-bar .display-header-conta .box-header-conta li:hover{
-        background-color: #ddd;   
+        background-color: #ddd;
     }
     /*END TOP BAR CART AND LOGIN CSS*/
     /*NAV TOP FIELD, SEARCH BAR, LOGO, SOCIAL MEDIA*/
@@ -463,7 +469,6 @@ $session_id_franquia = $cls_franquias->id_franquia;
         z-index: 80;
     }
     .header-principal .nav-header .display-links{
-		position: relative;
         display: -webkit-box;
         display: -ms-flexbox;
         display: flex;
@@ -1331,6 +1336,5 @@ $session_id_franquia = $cls_franquias->id_franquia;
     if(!isset($_SESSION["minha_conta"])){
         require_once "@include-cadastra-conta.php";
         require_once "@include-login.php";
-    }else{
     }
 ?>

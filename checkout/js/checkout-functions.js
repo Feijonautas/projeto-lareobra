@@ -32,6 +32,7 @@ $(document).ready(function(){
     sendDataForm.shippingAddressComplement = null;
     sendDataForm.jsonProdutos = null;
     sendDataForm.cartTotalPrice = null;
+    sendDataForm.pontosClube = 0;
     // END STANDARD FORM
     
     // INITIALIZE FUNCTIONS
@@ -73,9 +74,15 @@ $(document).ready(function(){
             sendDataForm.jsonProdutos[index_controller] = {"id": idProduto, "titulo": tituloProduto, "preco": precoProduto, "comprimento": comprimentoProduto, "largura": larguraProduto, "altura": alturaProduto, "peso": pesoProduto, "quantidade": quantidadeProduto};
         });
     }
+	
+	function set_info_clube(){
+		var pontosClube = $("#jsPointsClube").val() > 0 ? $("#jsPointsClube").val() : 0;
+		sendDataForm.pontosClube = pontosClube;
+	}
     
     set_ps_session_id();
     set_json_produtos();
+	set_info_clube();
     
     var ctrlAddedMascaras = 0;
     function set_mascaras(){
@@ -349,7 +356,9 @@ $(document).ready(function(){
                     mensagemAlerta("Sua compra foi finalizada com sucesso! Assim que o pagamento for confirmado novas informações estarão disponíveis.", false, "limegreen", redirect);
                 }else if(response == "pago"){
                     mensagemAlerta("Seu pagamento foi confirmado com sucesso! Logo informações sobre o rastreamento de sua compra serão adicionadas no seu pedido.", false, "limegreen", redirect);
-                }else if(typeof JSON.parse(response) != "undefined"){
+                }else if(response == "pontos_insuficientes"){
+					mensagemAlerta("Seus pontos do Clube de Descontos são insuficientes para finalizar essa compra", false, false, "carrinho/");	
+				}else if(typeof JSON.parse(response) != "undefined"){
                     // CUSTOMIZE FINISH
                     var json_response = JSON.parse(response);
                     

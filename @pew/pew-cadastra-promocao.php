@@ -715,7 +715,7 @@
 							<option value="0">Departamento</option>
 							<option value="1">Categoria</option>
 							<option value="2">Subcategoria</option>
-							<option value="3">Cupom</option>
+							<!--<option value="3">Cupom</option>-->
 							<option value="4">Produtos</option>
 						</select>
                     </label>

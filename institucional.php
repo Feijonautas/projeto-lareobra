@@ -4,7 +4,8 @@
     require_once "@classe-paginas.php";
 
     $cls_paginas->set_titulo("Institucional");
-    $cls_paginas->set_descricao("DESCRIÇÃO MODELO ATUALIZAR...");
+	$cls_paginas->set_descricao("DESCRIÇÃO MODELO ATUALIZAR...");
+	$cls_paginas->require_dependences();
 ?>
 <!DOCTYPE html>
 <html>

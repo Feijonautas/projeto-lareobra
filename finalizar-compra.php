@@ -1,16 +1,38 @@
 <?php
     session_start();
+
+	ini_set('display_errors', 1);
+	ini_set('display_startup_errors', 1);
+	error_reporting(E_ALL);
     
+	$_POST['user_side'] = true;
     require_once "@classe-paginas.php";
+    require_once "@classe-minha-conta.php";
+    require_once "@classe-clube-descontos.php";
 
     $cls_paginas->set_titulo("Finalizar compra");
     $cls_paginas->set_descricao("DESCRIÇÃO MODELO ATUALIZAR...");
+	$cls_paginas->require_dependences();
 
     if(isset($_GET["clear"])){
         if($_GET["clear"] == "true" || $_GET["clear"] == true){
             unset($_SESSION["carrinho"]);
         }
     }
+
+	$logged_user = true;
+	$cls_conta = new MinhaConta();
+	$cls_clube = new ClubeDescontos();
+
+	$cls_conta->verify_session_start();
+
+	$infoConta = $cls_conta->get_info_logado();
+	$idConta = null;
+	if($infoConta != null){
+		$idConta = $infoConta['id'];
+	}else{
+		$logged_user = false;
+	}
 ?>
 <!DOCTYPE html>
 <html>
@@ -25,6 +47,7 @@
         <title><?php echo $cls_paginas->titulo;?></title>
         <link type="image/png" rel="icon" href="imagens/identidadeVisual/logo-icon.png">
         <!--DEFAULT LINKS-->
+		<script type="text/javascript" src="https://stc.pagseguro.uol.com.br/pagseguro/api/v2/checkout/pagseguro.directpayment.js"></script>
         <?php
             require_once "@link-standard-styles.php";
             require_once "@link-standard-scripts.php";
@@ -58,6 +81,11 @@
                 display: flex;
                 flex-flow: row wrap;
                 align-items: flex-end;
+            }
+			.main-content .display-carrinho .info-title{
+                font-size: 18px;
+				margin: 15px 0 5px 0;
+				padding: 0 15px;
             }
             .main-content .display-carrinho .item-carrinho{
                 position: relative;
@@ -138,15 +166,13 @@
                 display: none;
             }
             .main-content .display-carrinho .msg-endereco{
-                margin: 0px 0px 10px 15px;
+                margin: 5px 15px;
                 font-weight: normal;
             }
             .main-content .display-carrinho .label-edita-endereco{
-                margin: 15px;
-                height: 20px;
+                margin: 0px 15px;
                 display: block;
                 font-size: 14px;
-                line-height: 20px;
                 cursor: pointer;
             }
             .main-content .display-carrinho .label-frete{
@@ -157,14 +183,48 @@
             }
             .main-content .display-carrinho .display-resultados-frete{
                 width: calc(40% - 20px);
-            }
-            .main-content .display-carrinho .display-resultados-frete .titulo{
-                font-size: 18px;
+				margin-top: 20px;
             }
             .main-content .display-carrinho .display-resultados-frete .span-frete{
                 margin: 0px 20px 0px 20px;
                 font-size: 14px;
             }
+            .main-content .display-carrinho .display-clube-options{
+				width: 100%;
+				margin-bottom: 30px;
+			}
+            .main-content .display-carrinho .display-clube-options .option-label{
+				padding: 5px 15px;	
+			}
+            .main-content .display-carrinho .display-clube-options .js-input-points-field{
+				padding: 0 15px;
+				display: none;
+			}
+            .main-content .display-carrinho .display-clube-options .js-input-points-field .descricao{
+				margin: 5px 0;	
+			}
+            .main-content .display-carrinho .display-clube-options .js-input-points-field .js-points{
+				height: 28px;
+				padding: 5px;
+				width: 98px;
+				border: 1px solid #ccc;
+				background-color: #eee;
+				outline: none;
+			}
+            .main-content .display-carrinho .display-clube-options .js-input-points-field .js-confirm{
+				height: 40px;
+				padding: 5px 10px;
+				border: none;
+				background-color: #222;
+				color: #fff;
+				cursor: pointer;
+			}
+            .main-content .display-carrinho .display-clube-options .js-input-points-field .js-confirm:hover{
+				background-color: #000;	
+			}
+            .main-content .display-carrinho .display-clube-options .js-input-points-field .view-brl-points{
+				padding: 10px;
+			}
             .main-content .display-carrinho .bottom-info{
                 position: relative;
                 padding-bottom: 40px;
@@ -293,8 +353,8 @@
                         width: 100%;
                         padding: 0px;
                     }
-                    .main-content .display-carrinho .display-resultados-frete .titulo{
-                        margin: 0px;   
+                    .main-content .display-carrinho .display-resultados-frete .info-title{
+                        margin: 0px;
                     }
                     .main-content .display-carrinho .display-resultados-frete .label-edita-endereco{
                         margin: 0px;   
@@ -355,6 +415,7 @@
                 var totalCarrinho = $("#totalCarrinho").val();
                 var viewTotalCompra = $(".final-value");
                 var viewCarrinhoFrete = $(".view-frete");
+				var pontosClube = $("#jsPointsClube").val();
                 
                 // DADOS COMPRA
                 var displayDados = $(".dados-compra");
@@ -455,7 +516,7 @@
 											displayResultadoFrete.html("Ocorreu um erro ao calcular o frete. Recarregue a página e tente novamente.");
 										},
 										success: function(resultado){
-											console.log(resultado)
+											//console.log(resultado)
 											var tituloServico = get_titulo_servico(codigo);
 
 											if(resultado != false){
@@ -511,7 +572,7 @@
                     $("#bairroDestino").val(bairro);
                     $("#cidadeDestino").val(cidade);
                     $("#estadoDestino").val(estado);
-                    $(".msg-endereco").html("Enviando para: <b>" + rua + ", " + numero + ", " + complemento +"</b>");
+                    $(".msg-endereco").html("Enviando para:<br> <b>" + rua + ", " + numero + ", " + complemento +"</b>");
                 }
                 
                 var carrinho = $("#carrinhoFinalizar").val();
@@ -567,9 +628,12 @@
                             
                             $(".finish-checkout-box").load(
                                 "checkout/@controller-checkout.php", 
-
-                                {valor_final: totalCarrinho, metodos_envio: metodosEnvio, codigo_transporte: transportCode, acao: "get_view_checkout"}, 
-
+                                {
+									valor_final: totalCarrinho,
+									metodos_envio: metodosEnvio,
+									codigo_transporte: transportCode,
+									acao: "get_view_checkout"
+								}, 
                                 function(){
                                     changeCheckout();
                                 }
@@ -788,6 +852,74 @@
                         finalizarCompra();
                     });
                 }
+				
+				var objCheckPoints = $(".js-enable-clube-points");
+				var is_checked_box = objCheckPoints.prop("checked");
+				var inputPointsField = $(".js-input-points-field");
+				var objPointsInput = inputPointsField.children(".js-points");
+				var objConfirmInput = inputPointsField.children(".js-confirm");
+				var viewBrlPoints = inputPointsField.children(".view-brl-points");
+				var minPoints = $("#clubeMinPoints").val() > 0 ? $("#clubeMinPoints").val() : 0;
+				var maxPoints = $("#clubeMaxPoints").val() > 0 ? $("#clubeMaxPoints").val() : 0;
+				var brlPerPoint = $("#clubeBrlPerPoint").val() > 0 ? $("#clubeBrlPerPoint").val() : 0;
+				var minBrlClube = $("#clubeMinBrl").val() > 0 ? $("#clubeMinBrl").val() : 0;
+				objCheckPoints.off().on("change", function(){
+					var checkbox = $(this);
+					var checked = checkbox.prop("checked");
+					if(checked){
+						inputPointsField.show();
+					}else{
+						if(is_checked_box){
+							window.location.href = "finalizar-compra.php?clube_descontos=false";
+						}
+						inputPointsField.hide();
+					}
+				});
+				
+				function set_view_points(){
+					var points = objPointsInput.val();
+					var brl_val = points * brlPerPoint;
+					brl_val = brl_val.toFixed(2);
+					viewBrlPoints.html("R$ " + brl_val);
+				}
+				set_view_points();
+				
+				objPointsInput.off().on("keyup", function(){
+					set_view_points();
+				});
+				
+				objConfirmInput.off().on("click", function(){
+					var points_value = objPointsInput.val();
+					
+					set_view_points();
+					
+					if(maxPoints > minPoints){
+						if(points_value >= minPoints && points_value <= maxPoints){
+							$.ajax({
+								type: "POST",
+								url: "@classe-carrinho-compras.php",
+								data: {acao_carrinho: "set_pontos_clube", points_value: points_value},
+								error: function(){
+									mensagemAlerta("Ocorre um erro. Recarregue a página e tente novamente.");
+								},
+								success: function(response){
+									//console.log(response);
+									if(response == "true"){
+										window.location.href = "carrinho/";
+									}else{
+										mensagemAlerta("Você não tem pontos suficientes<br><a href='minha-conta/clube-de-descontos/pontos' target='_blank' class='link-padrao'>Veja aqui seus pontos</a>");
+									}
+								}
+							});
+						}else if(points_value < minPoints){
+							mensagemAlerta("Você precisa usar no mínimo " + minPoints + " pontos");
+						}else{
+							mensagemAlerta("Você não pode usar mais que " + maxPoints + " pontos nessa compra");
+						}
+					}else{
+						mensagemAlerta("Não é possível usar pontos do Clube nesta compra. Você precisa gastar no mínimo R$" + minBrlClube);
+					}
+				});
             });
             
         </script>
@@ -805,8 +937,25 @@
         <!--THIS PAGE CONTENT-->
         <div class="main-content">
             <h1 class="titulo">Finalize sua compra</h1>
-            <article>Ao contrário do que se acredita, Lorem Ipsum não é simplesmente um texto randômico. Com mais de 2000 anos, suas raízes podem ser encontradas em uma obra de literatura latina clássica datada de 45 AC.</article>
-            
+			<?php
+			if(isset($_GET["clube_descontos"])){
+				unset($_SESSION['carrinho']['points_discount']);
+				unset($_SESSION['carrinho']['brl_discount']);
+				echo "<article>Aguarde...</article>";
+				echo "<script>window.location.href = 'carrinho/';</script>";
+			}
+			
+			$points_discount = isset($_SESSION['carrinho']['points_discount']) ? $_SESSION['carrinho']['points_discount'] : null;
+			
+			$brl_discount = isset($_SESSION['carrinho']['brl_discount']) ? $_SESSION['carrinho']['brl_discount'] : null;
+			
+			if($points_discount > 0){
+				echo "<article>Você está utilizando <b>$points_discount pontos</b> do Clube de Desconto. Foi adicionado um desconto total de <b>R$ ".$pew_functions->custom_number_format($brl_discount)."</b> nos produtos da sua compra.</article>";
+			}
+			?>
+            <!--redirect login-->
+			<input type="hidden" class="js-custom-login" value="carrinho/"> 
+			
             <!--DISPLAY ITENS-->
             <div class="display-carrinho">
                 <?php
@@ -864,7 +1013,6 @@
 							$promoAtiva = isset($item_carrinho['promocao_ativa']) && $item_carrinho['promocao_ativa'] == 1 ? true : false;
 							$lastPrice = isset($item_carrinho['last_price']) ? $item_carrinho['last_price'] : null;
 							
-							
                             echo "<div class='item-carrinho'>";
 								if($promoAtiva && $lastPrice != null){
 									$porcentDesconto = $cls_produtos->get_promo_percent($lastPrice, $preco);
@@ -907,89 +1055,107 @@
 								}
                             echo "</div>";
                         }
-						$json_cart = json_encode($json_cart);echo "<input type='hidden' value='$carrinho_json' id='carrinhoFinalizar'>";
-						echo "<input type='hidden' value='$carrinho_json' id='carrinhoFinalizar'>";
 						
-                            echo "<div class='display-resultados-frete before-checkout-area'>";
-                                echo "<h5 class='titulo'>Método de envio</h5>";
-                                $totalItens = $pew_functions->custom_number_format($totalItens);
-                                if(isset($_SESSION["minha_conta"])){
-                                    $sessaoConta = $_SESSION["minha_conta"];
-                                    $emailConta = isset($sessaoConta["email"]) ? $sessaoConta["email"] : null;
-                                    $senhaConta = isset($sessaoConta["senha"]) ? $sessaoConta["senha"] : null;
-                                    if($loginConta->auth($emailConta, $senhaConta) == true){
-                                        $idConta = $loginConta->query_minha_conta("md5(email) = '$emailConta' and senha = '$senhaConta'");
-                                        $loginConta->montar_minha_conta($idConta);
-                                        $infoConta = $loginConta->montar_array();
-                                        $enderecos = $infoConta["enderecos"];
-                                        $idEndereco = $enderecos["id"];
-                                        $cepConta = $enderecos["cep"];
-                                        $rua = $enderecos["rua"];
-                                        $numero = $enderecos["numero"];
-                                        $complemento = $enderecos["complemento"] != "" ? $enderecos["complemento"] : "";
-                                        $bairro = $enderecos["bairro"];
-                                        $cidade = $enderecos["cidade"];
-                                        $estado = $enderecos["estado"];
-                                        echo "<label class='label-edita-endereco'>";
-                                            echo "<input type='checkbox' name='endereco_diferente' id='enderecoDiferente'> Enviar para outro endereço";
-                                        echo "</label>";
-                                        echo "<div class='endereco-alternativo'>";
-                                        ?>
-                                            <div class='label medium'>
-                                                <h4 class='input-title'>CEP</h4>
-                                                <input type='text' placeholder='00000-000' name='cep' id='newCep' tabindex='1' class='mascara-cep-finaliza input-standard'>
-                                                <h6 class='msg-input'></h6>
-                                            </div>
-                                            <div class='label large'>
-                                                <h4 class='input-title'>Rua</h4>
-                                                <input type='text' placeholder='Rua' name='rua' id='newRua' class='input-nochange input-standard' readonly>
-                                                <h6 class='msg-input'></h6>
-                                            </div>
-                                            <br style='clear: both'>
-                                            <div class='label medium'>
-                                                <h4 class='input-title'>Número</h4>
-                                                <input type='text' placeholder='Numero' name='numero' id='newNumero' tabindex='2' class='input-standard'>
-                                                <h6 class='msg-input'></h6>
-                                            </div>
-                                            <div class='label medium'>
-                                                <h4 class='input-title'>Complemento</h4>
-                                                <input type='text' placeholder='Complemento' name='complemento' id='newComplemento' tabindex='3' class='input-standard'>
-                                                <h6 class='msg-input'></h6>
-                                            </div>
-                                            <div class='label medium'>
-                                                <h4 class='input-title'>Bairro</h4>
-                                                <input type='text' placeholder='Bairro' name='bairro' id='newBairro' class='input-nochange input-standard' readonly>
-                                            </div>
-                                            <div class='group'>
-                                                <div class='label medium'>
-                                                    <h4 class='input-title'>Estado</h4>
-                                                    <input type='text' placeholder='Estado' name='estado' id='newEstado' class='input-nochange input-standard' readonly>
-                                                </div>
-                                                <div class='label medium'>
-                                                    <h4 class='input-title'>Cidade</h4>
-                                                    <input type='text' placeholder='Cidade' name='cidade' id='newCidade' class='input-nochange input-standard' readonly>
-                                                </div>
-                                            </div>
-                                            <div class='label full clear'>
-                                                <button class='botao-salvar salvar-new-endereco' type='button'>SALVAR</button>
-                                            </div>
-                                        <?php
-                                        echo "</div>";
-                                        echo "<h5 class='msg-endereco'>Enviando para: <b>$rua, $numero $complemento</b></h5>";
-                                        echo "<div class='span-frete'></div>";
-                                        echo "<input type='hidden' id='cepDestino' value='$cepConta'>";
-                                        echo "<input type='hidden' id='ruaDestino' value='$rua'>";
-                                        echo "<input type='hidden' id='numeroDestino' value='$numero'>";
-                                        echo "<input type='hidden' id='complementoDestino' value='$complemento'>";
-                                        echo "<input type='hidden' id='bairroDestino' value='$bairro'>";
-                                        echo "<input type='hidden' id='estadoDestino' value='$estado'>";
-                                        echo "<input type='hidden' id='cidadeDestino' value='$cidade'>";
-                                    }else{
-                                        echo "<h6 style='margin: 0px 0px 0px 15px; font-weight: normal;'>Entre com sua conta para calcular</h6>";
-                                    }
-                                }else{
-                                    echo "<h6 style='margin: 0px 0px 0px 15px; font-weight: normal;'>Entre com sua conta para calcular</h6>";
-                                }
+						$clube_ativo = $cls_clube->get_status_conta($idConta) == 1 ? true : false;
+						if($clube_ativo){
+							$checkout_clube_rules = $cls_clube->get_checkout_rules($totalItens);
+							echo "<input type='hidden' value='{$checkout_clube_rules['min_points']}' id='clubeMinPoints'>";
+							echo "<input type='hidden' value='{$checkout_clube_rules['max_points']}' id='clubeMaxPoints'>";
+							echo "<input type='hidden' value='{$checkout_clube_rules['brl_per_point']}' id='clubeBrlPerPoint'>";
+							echo "<input type='hidden' value='{$checkout_clube_rules['min_brl']}' id='clubeMinBrl'>";
+						}
+						
+						$json_cart = json_encode($json_cart);
+						//print_r($_SESSION);
+						echo "<input type='hidden' value='$json_cart' id='carrinhoFinalizar'>";
+						
+						echo "<div class='display-resultados-frete before-checkout-area'>";
+						
+							if($clube_ativo){
+								$checked_clube = $points_discount !== null ? "checked" : null;
+								$style_points_field = $checked_clube == "checked" ? "style='display: block;'" : null;
+
+								echo "<div class='display-clube-options'>";
+									echo "<h5 class='info-title'>Clube de Descontos</h5>";
+									echo "<label class='option-label'><input type='checkbox' name='enable_clube_points' class='js-enable-clube-points' $checked_clube> Utilizar pontos do Clube</label>";
+									echo "<div class='js-input-points-field' $style_points_field>";
+										echo "<h6 class='descricao'>Selecione a quantidade de pontos</h6>";
+										echo "<input type='number' placeholder='Pontos' class='js-points' value='$points_discount' id='jsPointsClube'>";
+										echo "<input type='button' value='Atualizar' class='js-confirm'>";
+										echo "<span class='view-brl-points'></span>";
+									echo "</div>";
+								echo "</div>";
+							}
+
+							echo "<h5 class='info-title'>Método de envio</h5>";
+							$totalItens = $pew_functions->custom_number_format($totalItens);
+							if($logged_user){
+								$enderecos = $infoConta["enderecos"];
+								$idEndereco = $enderecos["id"];
+								$cepConta = $enderecos["cep"];
+								$rua = $enderecos["rua"];
+								$numero = $enderecos["numero"];
+								$complemento = $enderecos["complemento"] != "" ? $enderecos["complemento"] : "";
+								$bairro = $enderecos["bairro"];
+								$cidade = $enderecos["cidade"];
+								$estado = $enderecos["estado"];
+								echo "<div class='endereco-alternativo'>";
+								?>
+									<div class='label medium'>
+										<h4 class='input-title'>CEP</h4>
+										<input type='text' placeholder='00000-000' name='cep' id='newCep' tabindex='1' class='mascara-cep-finaliza input-standard'>
+										<h6 class='msg-input'></h6>
+									</div>
+									<div class='label large'>
+										<h4 class='input-title'>Rua</h4>
+										<input type='text' placeholder='Rua' name='rua' id='newRua' class='input-nochange input-standard' readonly>
+										<h6 class='msg-input'></h6>
+									</div>
+									<br style='clear: both'>
+									<div class='label medium'>
+										<h4 class='input-title'>Número</h4>
+										<input type='text' placeholder='Numero' name='numero' id='newNumero' tabindex='2' class='input-standard'>
+										<h6 class='msg-input'></h6>
+									</div>
+									<div class='label medium'>
+										<h4 class='input-title'>Complemento</h4>
+										<input type='text' placeholder='Complemento' name='complemento' id='newComplemento' tabindex='3' class='input-standard'>
+										<h6 class='msg-input'></h6>
+									</div>
+									<div class='label medium'>
+										<h4 class='input-title'>Bairro</h4>
+										<input type='text' placeholder='Bairro' name='bairro' id='newBairro' class='input-nochange input-standard' readonly>
+									</div>
+									<div class='group'>
+										<div class='label medium'>
+											<h4 class='input-title'>Estado</h4>
+											<input type='text' placeholder='Estado' name='estado' id='newEstado' class='input-nochange input-standard' readonly>
+										</div>
+										<div class='label medium'>
+											<h4 class='input-title'>Cidade</h4>
+											<input type='text' placeholder='Cidade' name='cidade' id='newCidade' class='input-nochange input-standard' readonly>
+										</div>
+									</div>
+									<div class='label full clear'>
+										<button class='botao-salvar salvar-new-endereco' type='button'>SALVAR</button>
+									</div>
+								<?php
+								echo "</div>";
+								echo "<label class='label-edita-endereco'>";
+									echo "<input type='checkbox' name='endereco_diferente' id='enderecoDiferente'> Enviar para outro endereço";
+								echo "</label>";
+								echo "<br><h5 class='msg-endereco'>Enviando para:<br><b>$rua, $numero $complemento</b></h5>";
+								echo "<div class='span-frete'></div>";
+								echo "<input type='hidden' id='cepDestino' value='$cepConta'>";
+								echo "<input type='hidden' id='ruaDestino' value='$rua'>";
+								echo "<input type='hidden' id='numeroDestino' value='$numero'>";
+								echo "<input type='hidden' id='complementoDestino' value='$complemento'>";
+								echo "<input type='hidden' id='bairroDestino' value='$bairro'>";
+								echo "<input type='hidden' id='estadoDestino' value='$estado'>";
+								echo "<input type='hidden' id='cidadeDestino' value='$cidade'>";
+							}else{
+								echo "<h6 style='margin: 0px 0px 0px 15px; font-weight: normal;'>Entre com sua conta para calcular</h6>";
+							}
                             echo "</div>";
                             echo "<div class='bottom-info before-checkout-area'>";
                                 echo "<input type='hidden' id='totalCarrinho' value='$totalItens'>";
@@ -1000,26 +1166,19 @@
                                 echo "<div class='display-total'>";
                                     echo "<h4 class='view-total'><span class='title title-bold'>Total</span> R$ <span class='final-value view-total'>$totalItens</span></h4>";
                                 echo "</div>";
-                                if(isset($_SESSION["minha_conta"])){
-                                    if($loginConta->auth($emailConta, $senhaConta) == true){
-                                        $idCliente = $loginConta->query_minha_conta("md5(email) = '$emailConta' and senha = '$senhaConta'");
-                                        $loginConta->montar_minha_conta($idCliente);
-                                        $infoCliente = $loginConta->montar_array();
-                                        echo "<span class='dados-compra'>";
-                                            echo "<input type='hidden' id='tokenCarrinho' value='{$carrinho_finalizar["token"]}'>";
-                                            echo "<input type='hidden' id='idCliente' value='{$infoCliente["id"]}'>";
-                                            echo "<input type='hidden' id='nomeCliente' value='{$infoCliente["usuario"]}'>";
-                                            echo "<input type='hidden' id='cpfCliente' value='{$infoCliente["cpf"]}'>";
-                                            echo "<input type='hidden' id='emailCliente' value='{$infoCliente["email"]}'>";
-                                            echo "<input type='hidden' id='zonaInicial' value='$zonaInicial'>";
-                                            echo "<input type='hidden' id='zonaFinal' value='$zonaFinal'>";
-                                            echo "<input type='hidden' id='estadoLoja' value='$estadoLoja'>";
-                                            echo "<input type='hidden' id='cidadeLoja' value='$cidadeLoja'>";
-                                        echo "</span>";
-                                        echo "<button type='button' class='botao-continuar botao-finalizar-compra' id='botaoFinalizarCompra'>Continuar <i class='fas fa-angle-double-right icon-button'></i></button>";
-                                    }else{
-                                        echo "<button type='button' class='botao-continuar botao-login-compra' id='botaoLoginCompra'><i class='fas fa-lock icon-button'></i> Faça login para continuar</button>";
-                                    }
+								if($logged_user){
+									echo "<span class='dados-compra'>";
+										echo "<input type='hidden' id='tokenCarrinho' value='{$carrinho_finalizar["token"]}'>";
+										echo "<input type='hidden' id='idCliente' value='{$infoConta["id"]}'>";
+										echo "<input type='hidden' id='nomeCliente' value='{$infoConta["usuario"]}'>";
+										echo "<input type='hidden' id='cpfCliente' value='{$infoConta["cpf"]}'>";
+										echo "<input type='hidden' id='emailCliente' value='{$infoConta["email"]}'>";
+										echo "<input type='hidden' id='zonaInicial' value='$zonaInicial'>";
+										echo "<input type='hidden' id='zonaFinal' value='$zonaFinal'>";
+										echo "<input type='hidden' id='estadoLoja' value='$estadoLoja'>";
+										echo "<input type='hidden' id='cidadeLoja' value='$cidadeLoja'>";
+									echo "</span>";
+									echo "<button type='button' class='botao-continuar botao-finalizar-compra' id='botaoFinalizarCompra'>Continuar <i class='fas fa-angle-double-right icon-button'></i></button>";
                                 }else{
                                     echo "<button type='button' class='botao-continuar botao-login-compra' id='botaoLoginCompra'><i class='fas fa-lock icon-button'></i> Faça login para continuar</button>";
                                 }

@@ -69,6 +69,10 @@
             function get_full_path(){
                 return $this->http . $this->base_path;
             }
+			
+			function require_dependences(){
+				require_once "@valida-start-cookie.php";
+			}
         }
     }
 

@@ -319,6 +319,9 @@
             }
         }
     }
+	.js-pessoa-juridica{
+		display: none;
+	}
 </style>
 <div class="section-cadastra">
     <div class="display-cadastra">
@@ -347,15 +350,27 @@
                     <i class="fas fa-spinner fa-spin icone-loading"></i>
                 </div>
                 <div class="displays display-info-contato">
-                    <div class="half">
+                    <div class="half js-pessoa-juridica">
+                        <h4 class="input-title">Razão Social</h4>
+                        <input type="text" placeholder="Razão Social" name="razao_social" id="razaoSocial">
+                        <h6 class="msg-input"></h6>
+                    </div>
+					<div class="half js-pessoa-fisica">
                         <h4 class="input-title">Nome Completo</h4>
                         <input type="text" placeholder="Nome Completo" name="nome" id="nome">
                         <h6 class="msg-input"></h6>
                     </div>
-                    <div class="half">
+                    <div class="small">
                         <h4 class="input-title">E-mail</h4>
                         <input type="text" placeholder="contato@bolsasemcouro.com.br" name="email" id="email" value="<?= $modalEmail; ?>">
                         <h6 class="msg-input"></h6>
+                    </div>
+					<div class="small">
+                        <h4 class="input-title">Tipo de pessoa</h4>
+                        <select name="tipo_pessoa" id="tipoPessoa">
+							<option value="0">Física</option>
+							<option value="1">Jurídica</option>
+						</select>
                     </div>
                     <div class="small">
                         <h4 class="input-title">Senha</h4>
@@ -377,12 +392,30 @@
                         <input type="text" placeholder="(41) 3030-3030" name="telefone" id="telefone" class="mascara-numero">
                         <h6 class="msg-input"></h6>
                     </div>
-                    <div class="small">
+                    <div class="small js-pessoa-fisica">
                         <h4 class="input-title">CPF</h4>
                         <input type="text" placeholder="000.000.000.00" name="cpf" id="cpf" class="mascara-cpf">
                         <h6 class="msg-input"></h6>
                     </div>
-                    <div class="small">
+					<div class="small js-pessoa-juridica">
+                        <h4 class="input-title">Nome Fantasia</h4>
+                        <input type="text" name="nome_fantasia" id="nomeFantasia" placeholder="Nome Fantasia">
+                        <h6 class="msg-input"></h6>
+                    </div>
+					<div class="small js-pessoa-juridica">
+                        <h4 class="input-title">CNPJ</h4>
+                        <input type="text" placeholder="00.000.000/0000-00" name="cnpj" id="cnpj" class="mascara-cnpj">
+                        <h6 class="msg-input"></h6>
+                    </div>
+					<div class="small js-pessoa-juridica">
+                        <h4 class="input-title">Inscricao Estadual</h4>
+                        <input type="text" placeholder="000.000.000.000" name="inscricao_estadual" id="inscricaoEstadual" class="mascara-inscricao">
+                        <h6 class="msg-input"></h6>
+						<div style="display: inline-block;">
+							<input type="checkbox" name="isento_inscricao" id="isentoInscricao" style="width: 13px; height: 13px;"> Isento
+						</div>
+                    </div>
+                    <div class="small js-pessoa-fisica">
                         <h4 class="input-title">SEXO</h4>
                         <select name="sexo" id="sexo">
                             <option value="">- Selecione -</option>
@@ -391,7 +424,7 @@
                         </select>
                         <h6 class="msg-input msg-input-sexo"></h6>
                     </div>
-                    <div class="small">
+                    <div class="small js-pessoa-fisica">
                         <h4 class="input-title">Data de nascimento</h4>
                         <input type="date" name="data_nascimento" id="dataNascimento">
                         <h6 class="msg-input"></h6>
@@ -490,17 +523,27 @@
         phone_mask(".mascara-numero");
         input_mask(".mascara-cpf", "000.000.000-00", {reverse: true});
         input_mask(".mascara-cep", "00000-000");
+        input_mask(".mascara-cnpj", "00.000.000/0000-00", {reverse: true});
+        input_mask(".mascara-inscricao", "000.000.000.000", {reverse: true});
         /*END SET MASCARAS*/
         
         // PASSO 1
-        var objNome = $("#nome");
         var objEmail = $("#email");
+        var objTipoPessoa = $("#tipoPessoa");
         var objSenha = $("#senha");
         var objConfirmaSenha = $("#confirmaSenha");
         var objCelular = $("#celular");
+		// pf
+        var objNome = $("#nome");
         var objCpf = $("#cpf");
         var objSexo = $("#sexo");
         var objDataNascimento = $("#dataNascimento");
+		// pj
+        var objRazaoSocial = $("#razaoSocial");
+        var objNomeFantasia = $("#nomeFantasia");
+		var objCNPJ = $("#cnpj");
+        var objInscricaoEstadual = $("#inscricaoEstadual");
+        var objIsentoInscricao = $("#isentoInscricao");
 
         // PASSO 2
         var objCep = $("#cep");
@@ -511,6 +554,8 @@
         var objCidade = $("#cidade");
         var objEstado = $("#estado");
         var objTermos = $("#termos");
+		
+		var afterLoginRedirect = "minha-conta/";
         
         /*BUSCA ENDERECO*/
         objCep.off().on("blur", function(){
@@ -527,7 +572,40 @@
                 objCidade.val("");
             }
         });
-        /*BUSCA ENDERECO*
+        /*BUSCA ENDERECO*/
+		
+		objTipoPessoa.off().on("change", function(){
+			var value = $(this).val();
+			if(value == 0){
+				$(".js-pessoa-fisica").each(function(){
+					$(this).show();
+				});
+				$(".js-pessoa-juridica").each(function(){
+					$(this).hide();
+				});
+			}else{
+				$(".js-pessoa-fisica").each(function(){
+					$(this).hide();
+				});
+				$(".js-pessoa-juridica").each(function(){
+					$(this).show();
+				});
+			}
+		});
+		
+		objIsentoInscricao.off().on("change", function(){
+			var checked = $(this).prop("checked");
+			if(checked){
+				objInscricaoEstadual.val("");
+			}
+		});
+		
+		objInscricaoEstadual.off().on("keyup", function(){
+			var valor = $(this).val();
+			if(valor.length > 0){
+				objIsentoInscricao.prop("checked", false);
+			}
+		});
         
         /*SET PASSOS*/
         var displayPassos = [];
@@ -746,6 +824,39 @@
                                 opacity: "1"
                             });
                             break;
+						case objRazaoSocial:
+							var msg = "O campo razão social deve conter no mínimo 4 caracteres";
+                            objRazaoSocial.addClass("wrong-input");
+                            objRazaoSocial.next(".msg-input").text(msg).css({
+                                visibility: "visible",
+                                opacity: "1"
+                            });
+                            break;
+						case objNomeFantasia:
+							var msg = "O campo nome fantasia deve conter no mínimo 4 caracteres";
+                            objNomeFantasia.addClass("wrong-input");
+                            objNomeFantasia.next(".msg-input").text(msg).css({
+                                visibility: "visible",
+                                opacity: "1"
+                            });
+                            break;
+						case objCNPJ:
+							var msg = "O campo CNPJ deve ser preenchido corretamente";
+                            objCNPJ.addClass("wrong-input");
+                            objCNPJ.next(".msg-input").text(msg).css({
+                                visibility: "visible",
+                                opacity: "1"
+                            });
+                            break;
+						case objInscricaoEstadual:
+							var msg = "O campo inscrição estadual deve ser preenchido corretamente";
+                            objInscricaoEstadual.addClass("wrong-input");
+                            objInscricaoEstadual.next(".msg-input").text(msg).css({
+                                visibility: "visible",
+                                opacity: "1"
+                            });
+                            break;
+							
                     }
                 });
             }
@@ -840,30 +951,31 @@
             
             /*VALIDACAO PASSOS*/
             function validaPasso1(){
-                var nome = objNome.val();
                 var email = objEmail.val();
                 var senha = objSenha.val();
                 var confirmaSenha = objConfirmaSenha.val();
                 var celular = objCelular.val();
+				
+				// pf
+                var nome = objNome.val();
                 var cpf = objCpf.val();
                 var sexo = objSexo.val();
                 var dataNascimento = objDataNascimento.val();
-                var allFields = [objNome, objEmail, objSenha, objConfirmaSenha, objCelular, objCpf, objSexo, objDataNascimento];
+				// pj
+                var razaoSocial = objRazaoSocial.val();
+                var nomeFantasia = objNomeFantasia.val();
+                var cnpj = objCNPJ.val();
+                var inscricaoEstadual = objInscricaoEstadual.val();
+                var isentoInscricao = objIsentoInscricao.prop("checked");
+				
+                var allFields = [objNome, objEmail, objSenha, objConfirmaSenha, objCelular, objCpf, objSexo, objDataNascimento, objRazaoSocial, objNomeFantasia, objCNPJ, objInscricaoEstadual, objIsentoInscricao];
+				
                 var invalidFields = [];
                 var ctrlInvalid = 0;
                 var thisStep = 1;
                 var nextStep = 2;
                 
                 function standardValidation(){
-                    if(nome.length < 3){
-                        invalidFields[ctrlInvalid] = objNome;
-                        ctrlInvalid++;
-                    }
-
-                    if(validarEmail(email) == false){
-                        invalidFields[ctrlInvalid] = objEmail;
-                        ctrlInvalid++; 
-                    }
                     if(senha.length < 6){
                         invalidFields[ctrlInvalid] = objSenha;
                         ctrlInvalid++;
@@ -878,21 +990,58 @@
                         invalidFields[ctrlInvalid] = objCelular;
                         ctrlInvalid++;
                     }
+					
+					if(validarEmail(email) == false){
+						invalidFields[ctrlInvalid] = objEmail;
+						ctrlInvalid++; 
+					}
+					
+					if(objTipoPessoa.val() == 0){
+						
+						if(nome.length < 3){
+							invalidFields[ctrlInvalid] = objNome;
+							ctrlInvalid++;
+						}
 
-                    if(validarCPF(cpf) == false){
-                        invalidFields[ctrlInvalid] = objCpf;
-                        ctrlInvalid++;
-                    }
-                    
-                    if(sexo == ""){
-                        invalidFields[ctrlInvalid] = objSexo;
-                        ctrlInvalid++;
-                    }
+						if(validarCPF(cpf) == false){
+							invalidFields[ctrlInvalid] = objCpf;
+							ctrlInvalid++;
+						}
 
-                    if(maiorIdade(objDataNascimento) == false){
-                        invalidFields[ctrlInvalid] = objDataNascimento;
-                        ctrlInvalid++;
-                    }
+						if(sexo == ""){
+							invalidFields[ctrlInvalid] = objSexo;
+							ctrlInvalid++;
+						}
+
+						if(maiorIdade(objDataNascimento) == false){
+							invalidFields[ctrlInvalid] = objDataNascimento;
+							ctrlInvalid++;
+						}
+						
+					}else{
+						
+						if(razaoSocial.length < 4){
+							invalidFields[ctrlInvalid] = objRazaoSocial;
+							ctrlInvalid++;
+						}
+						
+						if(nomeFantasia.length < 4){
+							invalidFields[ctrlInvalid] = objNomeFantasia;
+							ctrlInvalid++;
+						}
+						
+						if(validarCNPJ(cnpj) == false){
+							invalidFields[ctrlInvalid] = objCNPJ;
+							ctrlInvalid++;
+						}
+						
+						if(isentoInscricao == false){
+							if(inscricaoEstadual.length < 15){
+								invalidFields[ctrlInvalid] = objInscricaoEstadual;
+								ctrlInvalid++;
+							}
+						}
+					}
                     
                     // Trigger das mensagens de erro
                     prepareErrors(ctrlInvalid, allFields, invalidFields, thisStep, nextStep);
@@ -1074,7 +1223,7 @@
 											if(resposta == "true"){
 												mensagemAlerta("Cadastro feito com sucesso!", false, "limegreen");
 												setTimeout(function(){
-													window.location.reload();
+													window.location.href = afterLoginRedirect;
 												}, 400);
 											}
 											finish();

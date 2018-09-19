@@ -38,6 +38,7 @@
 
     $cls_paginas->set_titulo($tituloDica);
     $cls_paginas->set_descricao($descricaoCurta);
+	$cls_paginas->require_dependences();
 ?>
 <!DOCTYPE html>
 <html>

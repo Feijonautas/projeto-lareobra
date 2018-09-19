@@ -7,9 +7,7 @@ error_reporting(E_ALL);
 	$_POST['controller'] = "get_id_franquia";
 	require_once "../@valida-regiao.php";
 
-	$_POST['diretorio'] = "";
-	$_POST["diretorio_db"] = "@pew/";
-	$_POST['cancel_redirect'] = true;
+	$_POST['user_side'] = true;
 	require_once "../@classe-minha-conta.php";
 	require_once "../@classe-clube-descontos.php";
 
@@ -35,7 +33,7 @@ error_reporting(E_ALL);
                 $codigoTransporte = isset($_POST["codigo_transporte"]) ? $_POST["codigo_transporte"] : null;
                 
                 $valorTransporte = null;
-                
+				
                 if($metodosEnvio != null && is_array($metodosEnvio)){
                     foreach($metodosEnvio as $infoTransporte){
                         $codigo = $infoTransporte["codigo"];
@@ -166,7 +164,7 @@ error_reporting(E_ALL);
                 $quantity = $infoParcela["quantity"];
                 $amount = $infoParcela["amount"];
 
-                if($sendDataForm["selectedInstallment"] == $quantity){
+                if(isset($sendDataForm["selectedInstallment"]) && $sendDataForm["selectedInstallment"] == $quantity){
                     $pagseguro["installmentQuantity"] = $quantity;
                     $pagseguro["installmentValue"] = $amount;
                 }
@@ -174,6 +172,20 @@ error_reporting(E_ALL);
         }
         
         //print_r($pagseguro); exit();
+		
+		$customResponse = "false";
+		if(isset($sendDataForm['pontosClube']) && $sendDataForm['pontosClube'] > 0){
+			$selected_points_clube = $sendDataForm['pontosClube'];
+			
+			$totalPontos = $cls_clube->get_total_pontos($idConta);
+			
+			if($selected_points_clube <= $totalPontos){
+				$cls_clube->add_pontos_clube($idConta, 0, $selected_points_clube, "Você utilizou os pontos como forma de pagamento", $tokenCarrinho);
+			}else{
+				$enviarDados = false;
+				$customResponse = "pontos_insuficientes";
+			}
+		}
         
         if($enviarDados){
             $curl = curl_init();
@@ -253,7 +265,7 @@ error_reporting(E_ALL);
                     
                     $paymentLink = isset($xml->paymentLink) ? $xml->paymentLink : null;
                     
-                    mysqli_query($conexao, "insert into $tabela_pedidos (id_franquia, codigo_confirmacao, codigo_transacao, codigo_transporte, vlr_frete, codigo_pagamento, codigo_rastreamento, payment_link, referencia, token_carrinho, id_cliente, nome_cliente, cpf_cliente, email_cliente, cep, rua, numero, complemento, bairro, cidade, estado, data_controle, status_transporte, status) values ('$session_id_franquia', '$codigoConfirmacao', '$codigoTransacao', '{$sendDataForm["shippingCode"]}', '{$pagseguro["shippingCost"]}', '$codigoPagamento', null, '$paymentLink', '$referencia', '$tokenCarrinho', '$idConta', '{$pagseguro["senderName"]}', '{$pagseguro["senderCPF"]}', '{$pagseguro["senderEmail"]}', '{$pagseguro["billingAddressPostalCode"]}', '{$pagseguro["billingAddressStreet"]}', '{$pagseguro["billingAddressNumber"]}', '{$pagseguro["billingAddressComplement"]}', '{$pagseguro["billingAddressDistrict"]}', '{$pagseguro["billingAddressCity"]}', '{$pagseguro["billingAddressState"]}', '$dataAtual', '$statusTransporte', '$statusPagamento')");
+                    mysqli_query($conexao, "insert into $tabela_pedidos (id_franquia, codigo_confirmacao, codigo_transacao, codigo_transporte, vlr_frete, codigo_pagamento, codigo_rastreamento, payment_link, referencia, token_carrinho, id_cliente, nome_cliente, cpf_cliente, email_cliente, cep, rua, numero, complemento, bairro, cidade, estado, data_controle, status_transporte, status) values ('$session_id_franquia', '$codigoConfirmacao', '$codigoTransacao', '{$sendDataForm["shippingCode"]}', '{$pagseguro["shippingCost"]}', '$codigoPagamento', '', '$paymentLink', '$referencia', '$tokenCarrinho', '$idConta', '{$pagseguro["senderName"]}', '{$pagseguro["senderCPF"]}', '{$pagseguro["senderEmail"]}', '{$pagseguro["billingAddressPostalCode"]}', '{$pagseguro["billingAddressStreet"]}', '{$pagseguro["billingAddressNumber"]}', '{$pagseguro["billingAddressComplement"]}', '{$pagseguro["billingAddressDistrict"]}', '{$pagseguro["billingAddressCity"]}', '{$pagseguro["billingAddressState"]}', '$dataAtual', '$statusTransporte', '$statusPagamento')");
 					
 					$idPedido = get_last_id();
 					$cls_notificacoes->insert($session_id_franquia, "Nova pedido", "Um cliente finalizou um pedido na loja", "pew-interna-pedido.php?id_pedido=$idPedido", "finances");
@@ -278,27 +290,6 @@ error_reporting(E_ALL);
                     if($paymentLink != null){
                         $resposta = '{"paymentLink": "'.$paymentLink.'"}';
                     }
-					
-					# Clube de Descontos
-					$queryClube = $cls_clube->query("id_usuario = '$idConta'");
-					if(count($queryClube) > 0){
-						$infoClube = $queryClube[0];
-						$refCode = $infoClube['ref_code'];
-						
-						$getSalesPoints = $cls_clube->get_sales_point($somaProdutos, "normal");
-						
-						$cls_clube->add_pontos_clube($idConta, 1, $getSalesPoints, "Você finalizou uma compra", true);
-						
-						$queryInviter = $cls_clube->query("uniq_code = '$refCode'");
-						if(count($queryInviter) > 0){
-							$infoInvite = $queryInviter[0];
-							$idInvite = $infoInvite['id_usuario'];
-						
-							$getInvitePoints = $cls_clube->get_sales_point($somaProdutos, "invited");
-							
-							$cls_clube->add_pontos_clube($idInvite, 1, $getInvitePoints, "Um amigo finalizou uma compra", true);
-						}
-					}
                     
                     //print_r($xml); exit;
                     echo $resposta;
@@ -310,6 +301,6 @@ error_reporting(E_ALL);
             }
             
         }else{
-            echo "false";
+            echo $customResponse;
         }
     }

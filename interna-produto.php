@@ -27,6 +27,7 @@
         $cls_paginas->set_titulo("Produto não encontrado");
         $infoProduto = null;
     }
+	$cls_paginas->require_dependences();
     
     $infoDepartamentos = $produto->get_departamentos_produto();
     $totalDepartamentos = is_array($infoDepartamentos) ? count($infoDepartamentos) : 0;
@@ -815,10 +816,12 @@
                 
                 $selectedProdutosRelacionados = get_relacionados($idInternaProduto);
 				
-				foreach($selectedProdutosRelacionados as $index => $idProdRel){
-					$infoF = $cls_produtos->produto_franquia($idProdRel, $session_id_franquia);
-					if(isset($infoF['status']) && $infoF['status'] == 0){
-						unset($selectedProdutosRelacionados[$index]);
+				if(is_array($selectedProdutosRelacionados)){
+					foreach($selectedProdutosRelacionados as $index => $idProdRel){
+						$infoF = $cls_produtos->produto_franquia($idProdRel, $session_id_franquia);
+						if(isset($infoF['status']) && $infoF['status'] == 0){
+							unset($selectedProdutosRelacionados[$index]);
+						}
 					}
 				}
                 

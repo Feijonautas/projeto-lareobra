@@ -1,26 +1,34 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
     require_once "@include-global-vars.php";
     require_once "@classe-paginas.php";
     require_once "@classe-produtos.php";
     require_once "@classe-enderecos.php";
 
-	# Verificar o diretorio
-	# Exemplo 
-	# $_POST['diretorio'] = "";
-	# $_POST["diretorio_db"] = "@pew/";
-	# $_POST['cancel_redirect'] = true;
-	# Adicionar antes do require "@classe-minha-conta.php";
+	if(isset($_POST["user_side"])){
+		$_POST['diretorio'] = "";
+		$_POST["diretorio_db"] = "@pew/";
+		$_POST['cancel_redirect'] = true;
+	}
+
 	require_once "@pew/@classe-pedidos.php";
 
     class MinhaConta{
         private $id;
-        private $usuario;
+        private $usuario; // Nome fantasia PJ
+        private $razao_social;
         private $email;
         private $senha;
         private $celular;
         private $telefone;
         private $cpf;
+        private $cnpj;
+        private $inscricao_estadual;
         private $sexo;
+        private $tipo_pessoa;
         private $data_nascimento;
         private $data_cadastro;
         private $data_controle;
@@ -62,13 +70,17 @@
                 $info = mysqli_fetch_array($query);
                 $this->id = $info["id"];
                 $this->usuario = $info["usuario"];
+                $this->razao_social = $info["razao_social"];
                 $this->email = $info["email"];
                 $this->senha = $info["senha"];
                 $this->celular = $info["celular"];
                 $this->telefone = $info["telefone"];
                 $this->cpf = $info["cpf"];
-                $this->sexo = $info["sexo"];
+                $this->cnpj = $info["cnpj"];
+                $this->inscricao_estadual = $info["inscricao_estadual"];
                 $this->data_nascimento = $info["data_nascimento"];
+                $this->sexo = $info["sexo"];
+                $this->tipo_pessoa = $info["tipo_pessoa"];
                 $this->data_cadastro = $info["data_cadastro"];
                 $this->data_controle = $info["data_controle"];
                 $this->status = $info["status"];
@@ -108,79 +120,27 @@
 			return $returnInfo;
 		}
         
-        public function get_id(){
-            return $this->id;
-        }
-        
-        public function get_usuario(){
-            return $this->usuario;
-        }
-        
-        public function get_email(){
-            return $this->email;
-        }
-        
-        public function get_senha(){
-            return $this->senha;
-        }
-        
-        public function get_celular(){
-            return $this->celular;
-        }
-        
-        public function get_telefone(){
-            return $this->telefone;
-        }
-        
-        public function get_cpf(){
-            return $this->cpf;
-        }
-        
-        public function get_sexo(){
-            return $this->sexo;
-        }
-        
-        public function get_data_nascimento(){
-            return $this->data_nascimento;
-        }
-        
-        public function get_data_cadastro(){
-            return $this->data_cadastro;
-        }
-        
-        public function get_data_controle(){
-            return $this->data_controle;
-        }
-        
-        public function get_status(){
-            return $this->status;
-        }
-        
-        public function get_enderecos(){
-            return $this->enderecos;
-        }
-        
-        public function get_quantidade_enderecos(){
-            return $this->quantidade_enderecos;
-        }
-        
         public function montar_array(){
             if($this->minha_conta_montada == true){
                 $infoMinhaConta = array();
-                $infoMinhaConta["id"] = $this->get_id();
-                $infoMinhaConta["usuario"] = $this->get_usuario();
-                $infoMinhaConta["email"] = $this->get_email();
-                $infoMinhaConta["senha"] = $this->get_senha();
-                $infoMinhaConta["celular"] = $this->get_celular();
-                $infoMinhaConta["telefone"] = $this->get_telefone();
-                $infoMinhaConta["cpf"] = $this->get_cpf();
-                $infoMinhaConta["sexo"] = $this->get_sexo();
-                $infoMinhaConta["data_nascimento"] = $this->get_data_nascimento();
-                $infoMinhaConta["data_cadastro"] = $this->get_data_cadastro();
-                $infoMinhaConta["data_controle"] = $this->get_data_controle();
-                $infoMinhaConta["status"] = $this->get_status();
-                $infoMinhaConta["enderecos"] = $this->get_enderecos();
-                $infoMinhaConta["quantidade_enderecos"] = $this->get_quantidade_enderecos();
+                $infoMinhaConta["id"] = $this->id;
+                $infoMinhaConta["usuario"] = $this->usuario; // Nome fantasia
+                $infoMinhaConta["razao_social"] = $this->razao_social;
+                $infoMinhaConta["email"] = $this->email;
+                $infoMinhaConta["senha"] = $this->senha;
+                $infoMinhaConta["celular"] = $this->celular;
+                $infoMinhaConta["telefone"] = $this->telefone;
+                $infoMinhaConta["cpf"] = $this->cpf;
+                $infoMinhaConta["cnpj"] = $this->cnpj;
+                $infoMinhaConta["inscricao_estadual"] = $this->inscricao_estadual;
+                $infoMinhaConta["data_nascimento"] = $this->data_nascimento;
+                $infoMinhaConta["sexo"] = $this->sexo;
+                $infoMinhaConta["tipo_pessoa"] = $this->tipo_pessoa;
+                $infoMinhaConta["data_cadastro"] = $this->data_cadastro;
+                $infoMinhaConta["data_controle"] = $this->data_controle;
+                $infoMinhaConta["status"] = $this->status;
+                $infoMinhaConta["enderecos"] = $this->enderecos;
+                $infoMinhaConta["quantidade_enderecos"] = $this->quantidade_enderecos;
                 return $infoMinhaConta;
             }else{
                 return false;
@@ -246,7 +206,7 @@
             $tabela_minha_conta = $this->global_vars["tabela_minha_conta"];
             $alreadySubscribed = $this->pew_functions->contar_resultados($tabela_minha_conta, "email = '".$this->email."' or cpf = '".$this->cpf."'");
             if($alreadySubscribed == 0){
-                mysqli_query($this->conexao(), "insert into $tabela_minha_conta (usuario, email, senha, celular, telefone, cpf, data_nascimento, sexo, data_cadastro, data_controle, status) values ('".$this->usuario."', '".$this->email."', '".$this->senha."', '".$this->celular."', '".$this->telefone."', '".$this->cpf."', '".$this->data_nascimento."', '".$this->sexo."', '".$this->data_cadastro."', '".$this->data_controle."', 0)");
+                mysqli_query($this->conexao(), "insert into $tabela_minha_conta (usuario, razao_social, email, senha, celular, telefone, cpf, cnpj, inscricao_estadual, data_nascimento, sexo, tipo_pessoa, data_cadastro, data_controle, status) values ('".$this->usuario."', '".$this->razao_social."', '".$this->email."', '".$this->senha."', '".$this->celular."', '".$this->telefone."', '".$this->cpf."', '".$this->cnpj."', '".$this->inscricao_estadual."', '".$this->data_nascimento."', '".$this->sexo."', '".$this->tipo_pessoa."', '".$this->data_cadastro."', '".$this->data_controle."', 0)");
                 $selectID = mysqli_query($this->conexao(), "select last_insert_id()");
                 $selectedID = mysqli_fetch_assoc($selectID);
                 $selectedID = $selectedID["last_insert_id()"];
@@ -265,8 +225,9 @@
             }
         }
         
-        public function update_conta($idConta, $nome, $email, $senha, $celular, $telefone, $cpf, $sexo, $data_nascimento){
+        public function update_conta($idConta, $nome, $email, $senha, $celular, $telefone, $cpf, $cnpj, $razao_social, $inscricao_estadual, $sexo, $data_nascimento){
 			$cpf = preg_replace('/\D/', '', $cpf);
+			$cnpj = preg_replace('/\D/', '', $cnpj);
             $tabela_minha_conta = $this->global_vars["tabela_minha_conta"];
             if($this->montar_minha_conta($idConta) == true){
                 
@@ -282,7 +243,7 @@
                 $_SESSION["minha_conta"]["senha"] = $senha;
                 $_SESSION["minha_conta"]["email"] = md5($email);
                 
-                mysqli_query($this->conexao(), "update $tabela_minha_conta set usuario = '$nome', email = '$email', senha = '$senha', celular = '$celular', telefone = '$telefone', cpf = '$cpf', data_nascimento = '$data_nascimento', sexo = '$sexo', data_controle = '$dataAtual' where id = '$idConta'");
+                mysqli_query($this->conexao(), "update $tabela_minha_conta set usuario = '$nome', email = '$email', senha = '$senha', celular = '$celular', telefone = '$telefone', cpf = '$cpf', cnpj = '$cnpj', razao_social = '$razao_social', inscricao_estadual = '$inscricao_estadual', data_nascimento = '$data_nascimento', sexo = '$sexo', data_controle = '$dataAtual' where id = '$idConta'");
                 
                 echo  "true";
             }else{
@@ -290,48 +251,46 @@
             }
         }
         
-        public function cadastrar_conta($usuario, $email, $senha, $celular, $telefone, $cpf, $sexo, $data_nascimento, $enderecos){
+        public function cadastrar_conta($usuario, $razao_social, $email, $senha, $celular, $telefone, $cpf, $cnpj, $inscricao_estadual, $sexo, $tipo_pessoa, $data_nascimento, $enderecos){
             $this->id = null;
             $this->usuario = $usuario;
+            $this->razao_social = $razao_social;
             $this->email = $email;
             $this->senha = $senha;
             $this->celular = $celular;
             $this->telefone = $telefone;
             $this->cpf = $cpf;
+            $this->cnpj = $cnpj;
+            $this->inscricao_estadual = $inscricao_estadual;
             $this->sexo = $sexo;
+            $this->tipo_pessoa = $tipo_pessoa;
             $this->data_nascimento = $data_nascimento;
             $this->data_cadastro = date("Y-m-d H:i:s");
             $this->data_controle = date("Y-m-d H:i:s");
             $this->enderecos = $enderecos;
             $this->quantidade_enderecos = 0;
             $this->status = 0;
-			
-            $validacao = $this->validar_dados();
-            if($validacao == "true"){
             
-                $idConta = $this->grava_conta();
-                if((int)$idConta != 0){
-                    /*ENDERECO*/
-                    $ctrlEnderecos = 0;
-                    foreach($enderecos as $infoEndereco){
-                        $cep = $infoEndereco["cep"];
-                        $rua = $infoEndereco["rua"];
-                        $numero = $infoEndereco["numero"];
-                        $complemento = $infoEndereco["complemento"];
-                        $bairro = $infoEndereco["bairro"];
-                        $cidade = $infoEndereco["cidade"];
-                        $estado = $infoEndereco["estado"];
-                        $cadastraEndereco[$ctrlEnderecos] = new Enderecos();
-                        $cadastraEndereco[$ctrlEnderecos]->cadastra_endereco($idConta, "cliente", $cep, $rua, $numero, $complemento, $bairro, $estado, $cidade);
-                        $ctrlEnderecos++;
-                    }
-                    return true;
-                }else{
-                    return false;
-                }
-            }else{
-                return $validacao;
-            }
+			$idConta = $this->grava_conta();
+			if((int)$idConta != 0){
+				/*ENDERECO*/
+				$ctrlEnderecos = 0;
+				foreach($enderecos as $infoEndereco){
+					$cep = $infoEndereco["cep"];
+					$rua = $infoEndereco["rua"];
+					$numero = $infoEndereco["numero"];
+					$complemento = $infoEndereco["complemento"];
+					$bairro = $infoEndereco["bairro"];
+					$cidade = $infoEndereco["cidade"];
+					$estado = $infoEndereco["estado"];
+					$cadastraEndereco[$ctrlEnderecos] = new Enderecos();
+					$cadastraEndereco[$ctrlEnderecos]->cadastra_endereco($idConta, "cliente", $cep, $rua, $numero, $complemento, $bairro, $estado, $cidade);
+					$ctrlEnderecos++;
+				}
+				return true;
+			}else{
+				return false;
+			}
         }
         
         function confirmar_conta($idConta){
@@ -398,34 +357,83 @@
         }
 		
 		function get_view_dados($infoConta){
+			$tipoPessoa = $infoConta["tipo_pessoa"];
+				
 			$idConta = $infoConta["id"];
 			$nome = $infoConta["usuario"];
+			$razaoSocial = $infoConta["razao_social"];
 			$email = $infoConta["email"];
 			$celular = $infoConta["celular"];
 			$telefone = $infoConta["telefone"];
 			$cpf = $infoConta["cpf"];
+			$cnpj = $infoConta["cnpj"];
+			$inscricaoEstadual = $infoConta["inscricao_estadual"];
 			$sexo = $infoConta["sexo"];
 			$dataNascimento = $infoConta["data_nascimento"];
+			$checkboxIsentoInscricao = $inscricaoEstadual == null ? "checked" : null;
+			
+			if($infoConta["status"] == 0){
+				echo "<div class='label full'>";
+				echo "<font class='text warning'>Sua conta ainda não foi confirmada. Para ter mais segurança confirme seu e-mail. <a href='@envia-link-confirmacao.php' class='link-padrao'>Reenviar link de confirmação</a></font>";
+				echo "</div>";
+			}
 			
 			echo "<form class='formulario-atualiza-conta'>
-				<div class='half label'>
-					<input type='hidden' name='id_conta' id='idConta' value='$idConta'>
-					<input type='hidden' name='acao_conta' value='update_conta'>
+				<input type='hidden' name='id_conta' id='idConta' value='$idConta'>
+				<input type='hidden' name='user_side' value='true'>
+				<input type='hidden' id='tipoPessoa' value='$tipoPessoa'>
+				<input type='hidden' name='acao_conta' value='update_conta'>";
+			
+			if($tipoPessoa == 1){
+				echo "<div class='half label'>
+					<h4 class='input-title'>Razão Social</h4>
+					<input type='text' class='input-standard' placeholder='Razão Social' name='razao_social' id='razaoSocial' value='$razaoSocial'>
+					<h6 class='msg-input'></h6>
+				</div>";
+			}
+			
+			if($tipoPessoa == 0){
+				echo "<div class='half label'>
 					<h4 class='input-title'>Nome Completo</h4>
 					<input type='text' class='input-standard' placeholder='Nome Completo' name='nome' id='nome' value='$nome'>
 					<h6 class='msg-input'></h6>
-				</div>
-				<div class='small label'>
-					<h4 class='input-title'>E-mail</h4>
-					<input type='text' class='input-standard' placeholder='contato@bolsasemcouro.com.br' name='email' id='email' value='$email'>
-					<h6 class='msg-input'></h6>
-				</div>
-				<div class='small label'>
+				</div>";
+			}
+			echo "<div class='small label'>
+				<h4 class='input-title'>E-mail</h4>
+				<input type='text' class='input-standard' placeholder='contato@bolsasemcouro.com.br' name='email' id='email' value='$email'>
+				<h6 class='msg-input'></h6>
+			</div>";
+				
+			if($tipoPessoa == 0){
+				echo "<div class='small label'>
 					<h4 class='input-title'>CPF</h4>
 					<input type='text' class='input-standard mascara-cpf-conta' placeholder='000.000.000.00' name='cpf' id='cpf' value='$cpf'>
 					<h6 class='msg-input'></h6>
+				</div>";
+			}
+			
+			if($tipoPessoa == 1){
+				echo "<div class='small label'>
+					<h4 class='input-title'>Nome Fantasia</h4>
+					<input type='text' class='input-standard' placeholder='Nome Fantasia' name='nome_fantasia' id='nomeFantasia' value='$nome'>
+					<h6 class='msg-input'></h6>
 				</div>
 				<div class='small label'>
+					<h4 class='input-title'>CNPJ</h4>
+					<input type='text' class='input-standard mascara-cnpj' placeholder='00.000.000/0000-00' name='cnpj' id='cnpj' value='$cnpj'>
+					<h6 class='msg-input'></h6>
+				</div>
+				<div class='small label'>
+					<h4 class='input-title'>Inscricao Estadual</h4>
+					<input type='text' placeholder='000.000.000.000' name='inscricao_estadual' id='inscricaoEstadual' class='input-standard mascara-inscricao' value='$inscricaoEstadual'>
+					<h6 class='msg-input'></h6>
+					<div style='display: inline-block;'>
+						<input type='checkbox' name='isento_inscricao' id='isentoInscricao' style='width: 13px; height: 13px;' $checkboxIsentoInscricao> Isento
+					</div>
+				</div>";
+			}
+			echo "<div class='small label'>
 					<h4 class='input-title'>Celular</h4>
 					<input type='text' class='input-standard mascara-numero-conta' placeholder='(41) 9999-9999' name='celular' id='celular' value='$celular'>
 					<h6 class='msg-input'></h6>
@@ -434,8 +442,9 @@
 					<h4 class='input-title'>Telefone</h4>
 					<input type='text' class='input-standard mascara-numero-conta' placeholder='(41) 3030-3030' name='telefone' id='telefone' value='$telefone'>
 					<h6 class='msg-input'></h6>
-				</div>
-				<div class='small label'>
+				</div>";
+			if($tipoPessoa == 0){
+				echo "<div class='small label'>
 					<h4 class='input-title'>Sexo</h4>
 					<select name='sexo' id='sexo' class='input-standard'>
 						<option value=''>- Selecione -</option>";
@@ -462,8 +471,9 @@
 					<h4 class='input-title'>Data de nascimento</h4>
 					<input type='date' name='data_nascimento' id='dataNascimento' class='input-standard' value='$dataNascimento'>
 					<h6 class='msg-input'></h6>
-				</div>
-				<br class='clear'>
+				</div>";
+			}
+			echo "<br class='clear'>
 				<div class='small label'>
 					<h4 class='input-title'>Senha atual</h4>
 					<input type='password' class='input-standard' placeholder='Senha' name='senha_atual' id='senhaAtual'>
@@ -502,6 +512,7 @@
 			echo "<form class='formulario-atualiza-endereco'>
 				<input type='hidden' name='id_endereco' value='$idEndereco' id='idEnderecoConta'>
 				<input type='hidden' name='id_relacionado' value='$idConta'>
+				<input type='hidden' name='user_side' value='true'>
 				<div class='small label'>
 					<h4 class='input-title'>CEP</h4>
 					<input class='input-standard mascara-cep-conta' type='text' placeholder='00000-000' name='cep' id='cepConta' tabindex='1' value='$cep'>
@@ -702,8 +713,15 @@
             $senhaSessao = $_SESSION["minha_conta"]["senha"];
             
             if($cls_conta->auth($emailSessao, $senhaSessao)){
+				
+				$infoLogado = $cls_conta->get_info_logado();
+				
+				if($infoLogado["tipo_pessoa"] == 0){
+                	$post_fields = array("nome", "email", "senha_nova", "celular", "telefone", "cpf", "data_nascimento");
+				}else{
+                	$post_fields = array("razao_social", "nome_fantasia", "email", "senha_nova", "celular", "telefone", "cnpj", "inscricao_estadual");
+				}
                 
-                $post_fields = array("nome", "email", "senha_nova", "celular", "telefone", "cpf", "data_nascimento");
                 $invalid_fields = array();
 
                 $validar = true;
@@ -725,18 +743,30 @@
                     
                     if($idConta != false){
                         $novaSenha = $_POST["senha_nova"] != null ? md5($_POST["senha_nova"]) : null;
-                        $nome = addslashes($_POST["nome"]);
                         $email = addslashes($_POST["email"]);
                         $celular = addslashes($_POST["celular"]);
                         $telefone = addslashes($_POST["telefone"]);
-                        $cpf = addslashes($_POST["cpf"]);
-                        $cpf = str_replace(".", "", $cpf);
-                        $dataNascimento = addslashes($_POST["data_nascimento"]);
-                        $sexo = addslashes($_POST["sexo"]);
+						
+						//pf
+                        $nome = isset($_POST["nome"]) ? addslashes($_POST["nome"]) : null;
+                        $cpf = isset($_POST['cpf']) ? addslashes($_POST["cpf"]) : null;
+                        $cpf = $cpf != null ? str_replace(".", "", $cpf) : null;
+                        $dataNascimento = isset($_POST['data_nascimento']) ? addslashes($_POST["data_nascimento"]) : null;
+                        $sexo = isset($_POST['sexo']) ? addslashes($_POST["sexo"]) : null;
+						//pj
+						$cnpj = isset($_POST['cnpj']) ? addslashes($_POST['cnpj']) : null;
+						$cnpj = $cnpj != null ? str_replace(".", "", $cnpj) : null;
+						$inscricaoEstadual = isset($_POST['inscricao_estadual']) ? addslashes($_POST['inscricao_estadual']) : null;
+						$inscricaoEstadual = $inscricaoEstadual != null ? str_replace(".", "", $inscricaoEstadual) : null;
+						$razaoSocial = isset($_POST['razao_social']) ? addslashes($_POST['razao_social']) : null;
+						$nomeFantasia = isset($_POST['nome_fantasia']) ? addslashes($_POST['nome_fantasia']) : null;
+						
+						
+						$nome = $nomeFantasia == null ? $nome : $nomeFantasia;
                         
                         if($cls_conta->query_minha_conta("email = '$email' and id != '$idConta'") == false){
                             // Se não houver outros cadastros com o email informado
-                            $cls_conta->update_conta($idConta, $nome, $email, $novaSenha, $celular, $telefone, $cpf, $sexo, $dataNascimento);
+                            $cls_conta->update_conta($idConta, $nome, $email, $novaSenha, $celular, $telefone, $cpf, $cnpj, $razaoSocial, $inscricaoEstadual, $sexo, $dataNascimento);
                         }else{
                             echo "false";
                         }
@@ -744,9 +774,9 @@
                     }else{
                         echo "false";
                     }
-                    
-                    
-                }
+                }else{
+					echo "false";
+				}
                 
             }else{
                 echo "false";

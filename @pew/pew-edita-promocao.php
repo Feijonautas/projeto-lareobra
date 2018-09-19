@@ -751,9 +751,9 @@
 				$possibleTypes[2]['titulo'] = "Subcategoria";
 				$possibleTypes[2]['value'] = 2;
 				
-				$possibleTypes[3] = array();
+				/*$possibleTypes[3] = array();
 				$possibleTypes[3]['titulo'] = "Cupom";
-				$possibleTypes[3]['value'] = 3;
+				$possibleTypes[3]['value'] = 3;*/
 				
 				$possibleTypes[4] = array();
 				$possibleTypes[4]['titulo'] = "Produtos";

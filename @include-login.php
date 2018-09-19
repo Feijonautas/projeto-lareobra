@@ -301,6 +301,7 @@
         var botaoAlternaCadastre = $("#botaoAlternaCadastre");
         var botaoSubmit = $("#botaoSubmit");
         var backgroundLoading = $(".section-login .background-loading");
+		var afterLoginRedirect = "minha-conta/";
         var logando = false;
         /*END DEFAULT VARS*/
         
@@ -405,7 +406,7 @@
 					if(typeof customLogin != "undefined"){
 						window.location.href = customLogin;
 					}else{
-                    	window.location.reload();
+                    	window.location.href = afterLoginRedirect;
 					}
                 }
                 

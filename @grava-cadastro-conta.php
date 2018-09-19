@@ -8,7 +8,7 @@ error_reporting(E_ALL);
 	$_POST['controller'] = "get_id_franquia";
 	require_once "@valida-regiao.php";
 
-    $post_fields = array("nome", "email", "senha", "celular", "telefone", "cpf", "data_nascimento", "cep", "rua", "numero", "complemento", "bairro", "estado", "cidade");
+    $post_fields = array("nome", "nome_fantasia", "email", "senha", "celular", "telefone", "cpf", "cnpj", "inscricao_estadual", "sexo", "data_nascimento", "cep", "rua", "numero", "complemento", "bairro", "estado", "cidade");
     $invalid_fields = array();
 
     $validar = true;
@@ -19,7 +19,10 @@ error_reporting(E_ALL);
 
     if($validar == true){
         // SET VARS
-        $nome = addslashes($_POST["nome"]);
+        $tipoPessoa = (int) $_POST["tipo_pessoa"];
+		
+        $nome = $tipoPessoa == 0 ? addslashes($_POST["nome"]) : addslashes($_POST["nome_fantasia"]);
+        $razaoSocial = addslashes($_POST["razao_social"]);
         $email = addslashes($_POST["email"]);
         $senha = addslashes($_POST["senha"]);
         $senha = $senha != null ? md5($senha) : null;
@@ -27,6 +30,10 @@ error_reporting(E_ALL);
         $telefone = addslashes($_POST["telefone"]);
         $cpf = addslashes($_POST["cpf"]);
         $cpf = preg_replace('/\D/', '', $cpf);
+		$cnpj = addslashes($_POST["cnpj"]);
+        $cnpj = preg_replace('/\D/', '', $cnpj);
+		$inscricaoEstadual = addslashes($_POST["inscricao_estadual"]);
+        $inscricaoEstadual = preg_replace('/\D/', '', $inscricaoEstadual);
         $dataNascimento = addslashes($_POST["data_nascimento"]);
         $sexo = addslashes($_POST["sexo"]);
         $cep = addslashes($_POST["cep"]);
@@ -58,7 +65,8 @@ error_reporting(E_ALL);
         $enderecos[0]["estado"] = $estado;
         
         $cls_minha_conta = new MinhaConta();
-        $cadastro = $cls_minha_conta->cadastrar_conta($nome, $email, $senha, $celular, $telefone, $cpf, $sexo, $dataNascimento, $enderecos);
+        $cadastro = $cls_minha_conta->cadastrar_conta($nome, $razaoSocial, $email, $senha, $celular, $telefone, $cpf, $cnpj, $inscricaoEstadual, $sexo, $tipoPessoa, $dataNascimento, $enderecos);
+		
         if($cadastro === true){
             $bodyEmail = $cls_minha_conta->montar_email_confirmacao($email, $nome);
                         

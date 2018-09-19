@@ -4,7 +4,8 @@
     require_once "@classe-paginas.php";
 
     $cls_paginas->set_titulo("Termos e condições");
-    $cls_paginas->set_descricao("TDESCRIÇÃO MODELO ATUALIZAR...");
+	$cls_paginas->set_descricao("TDESCRIÇÃO MODELO ATUALIZAR...");
+	$cls_paginas->require_dependences();
 ?>
 <!DOCTYPE html>
 <html>

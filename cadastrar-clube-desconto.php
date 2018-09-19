@@ -8,6 +8,7 @@ error_reporting(E_ALL);
     require_once "@classe-paginas.php";
     $cls_paginas->set_titulo("Clube de Descontos");
     $cls_paginas->set_descricao("DESCRIÇÃO MODELO ATUALIZAR...");
+	$cls_paginas->require_dependences();
 
 	$_POST['diretorio'] = "";
 	$_POST["diretorio_db"] = "@pew/";
@@ -28,6 +29,10 @@ error_reporting(E_ALL);
 	}else{
 		$showMinhaConta = false;
 	}
+
+	$get_invite = isset($_GET['invite_code']) ? addslashes($_GET['invite_code']) : null;
+	$reference_url = $cls_paginas->get_full_path()."/clube-de-descontos/$get_invite/";
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -39,6 +44,13 @@ error_reporting(E_ALL);
         <meta name="HandheldFriendly" content="true">
         <meta name="description" content="<?php echo $cls_paginas->descricao;?>">
         <meta name="author" content="Efectus Web">
+		
+		<meta property="og:url"           content="<?= $reference_url; ?>" />
+		<meta property="og:type"          content="website" />
+		<meta property="og:title"         content="Faça parte do Clube de Descontos" />
+		<meta property="og:description"   content="Olá, tudo bem? Estou lhe convidando para participar do Clube de Descontos! Você vai adorar os benefícios que te esperam. Acesse: <?= $reference_url; ?>" />
+		<meta property="og:image"         content="https://www.lareobra.com.br/dev/imagens/identidadeVisual/logo-lareobra.png" />
+		
         <title><?php echo $cls_paginas->titulo;?></title>
         <link type="image/png" rel="icon" href="imagens/identidadeVisual/logo-icon.png">
         <!--DEFAULT LINKS-->
@@ -280,8 +292,6 @@ error_reporting(E_ALL);
 			$baseRoute = "clube-de-descontos";
             add_navigation("Clube de Descontos", $baseRoute."/");
 		
-			$get_invite = isset($_GET['invite_code']) ? addslashes($_GET['invite_code']) : null;
-		
 			if(count($cls_clube->query("uniq_code = '$get_invite'")) > 0){
 				$_SESSION['clube_invite_code'] = $get_invite;
 			}
@@ -300,12 +310,12 @@ error_reporting(E_ALL);
 					echo "<div class='login-block'>";
 						echo "<h1 class='titulo-principal' align=center>Você foi convidado(a) para participar do <br>Clube de Descontos</h1>";
 						echo "<div class='bottom'>";
-							echo "<h3>Para acessar o Clube de Descontos você precisa se cadastrar no site</h3>";
+							echo "<h3 style='margin: 0 0 15px 0;'>Para acessar o Clube de Descontos você precisa se cadastrar no site</h3>";
 							echo "<div><h4 class='descricao'>Se você já tem uma conta</h4> <a class='super-link btn-trigger-entrar'>clique aqui para logar</a></div>";
 							echo "<div><h4 class='descricao'>Se você ainda não tem conta</h4> <a class='super-link btn-trigger-cadastra-conta'>cadastre-se aqui</a></div>";
 						echo "</div>";
 						echo "<div class='bottom'>";
-							echo "<h3>Acessando o Clube de Descontos você poderá:</h3>";
+							echo "<h3 style='margin: 0 0 15px 0;'>Acessando o Clube de Descontos você poderá:</h3>";
 							echo "<ul>";
 								echo "<li>Ganhar promoções e cupons exclusivos</li>";
 								echo "<li>Ganhar pontos com indicações e compras na loja</li>";

@@ -7,11 +7,10 @@ error_reporting(E_ALL);
     
     require_once "@classe-paginas.php";
     $cls_paginas->set_titulo("Minha Conta");
-    $cls_paginas->set_descricao("...");
-
-	$_POST['diretorio'] = "";
-	$_POST["diretorio_db"] = "@pew/";
-	$_POST['cancel_redirect'] = true;
+	$cls_paginas->set_descricao("...");
+	$cls_paginas->require_dependences();
+	
+	$_POST['user_side'] = true;
 	require_once "@classe-minha-conta.php";
 	require_once "@classe-clube-descontos.php";
 
@@ -157,6 +156,7 @@ error_reporting(E_ALL);
 			.display-conta .box-painel .grid-box .link-padrao{
 				font-size: 18px;
 				padding: 0px;
+				margin: 0;
 			}
 			.display-conta .box-painel .white-color{
 				background-color: #fff;
@@ -174,8 +174,10 @@ error_reporting(E_ALL);
 				background-color: transparent;
 			}
 			.display-conta .box-painel .share-links{
+				display: flex;
 				margin: 15px 0;
 				font-size: 36px;
+				align-items: flex-end;
 			}
 			.display-conta .box-painel .share-links .icones{
 				margin-right: 20px;
@@ -247,10 +249,98 @@ error_reporting(E_ALL);
 			.green-arrow{
 				color: #27b643;	
 			}
+			.fb-share-button{
+				position: relative;
+				top: -7px;
+			}
+			.share-mailer-box{
+				position: fixed;
+				width: 330px;
+				top: 120px;
+				background-color: #fff;
+				margin: 0 auto;
+				left: 0;
+				right: 0;
+				z-index: 250;
+				visibility: hidden;
+				opacity: 0;
+				transition: .3s;
+				transform: scale(0.6);
+			}
+			.share-mailer-active{
+				opacity: 1;
+				visibility: visible;
+				transform: scale(1);
+			}
+			.share-mailer-box .form-field .js-input-email{
+				width: 278px;
+				padding: 0 5px 0 5px;
+				border: 1px solid #ccc;
+				height: 33px;
+				outline: none;
+				background-color: #f2f2f2;
+			}
+			.share-mailer-box .form-field .js-input-confirm{
+				width: 40px;
+				height: 35px;
+				background-color: #333;
+				color: #fff;
+				outline: none;
+				border: none;
+				cursor: pointer;
+				transition: .2s;
+			}
+			.share-mailer-box .form-field .js-input-confirm:hover{
+				background-color: #111;	
+			}
+			.share-mailer-box .list-body{
+				padding: 10px;
+				max-height: 260px;
+				overflow: auto;
+			}
+			.share-mailer-box .list-body .js-span-email .email{
+				position: relative;
+				padding: 3px 0;
+			}
+			.share-mailer-box .list-body .js-span-email .email .js-delete-email{
+				position: absolute;
+				top: 0;
+				right: 0;
+				cursor: pointer;
+				color: #999;
+			}
+			.share-mailer-box .list-body .js-span-email .email .js-delete-email:hover{
+				color: #111;	
+			}
+			.share-mailer-box .bottom{
+				display: flex;
+				justify-content: space-between;
+				padding: 5px;
+			}
+			.share-mailer-box .bottom .js-back-button{
+				background-color: #999;
+				color: #fff;
+				padding: 5px 10px;
+				cursor: pointer;
+				border-radius: 3px;
+			}
+			.share-mailer-box .bottom .js-back-button:hover{
+				background-color: #333;	
+			}
+			.share-mailer-box .bottom .js-send-button{
+				background-color: #00be36;
+				color: #fff;
+				padding: 5px 10px;
+				cursor: pointer;
+				border-radius: 3px;
+			}
+			.share-mailer-box .bottom .js-send-button:hover{
+				background-color: #008626;		
+			}
 		</style>
         <!--END PAGE CSS-->
         <!--PAGE JS-->
-		<script type="text/javascript" src="js/minha-conta.js?v=1.6"></script>
+		<script type="text/javascript" src="js/minha-conta.js?v=2.1"></script>
         <script>
             $(document).ready(function(){
                 console.log("Página carregada");
@@ -260,7 +350,156 @@ error_reporting(E_ALL);
 					document.execCommand('copy');
 					notificacaoPadrao("O Link de Referência foi copiado", "success");
 				});
+				
+				$(".js-refresh-points").each(function(){
+					var trigger = $(this);
+					var id_user = trigger.attr("js-id");
+					
+					var error_msg = "Ocorreu um erro ao atualizar a conta. Recarregue a página e tente novamente.";
+					trigger.off().on("click", function(){
+						$.ajax({
+							type: "POST",
+							url: "@classe-clube-descontos.php",
+							data: {acao: "update_conta", id_usuario: id_user},
+							error: function(){
+								mensagemAlerta(error_msg);
+							},
+							success: function(response){
+								console.log(response);
+								if(response == "true"){
+									window.location.reload();
+								}else{
+									mensagemAlerta(error_msg);
+								}
+							}
+						});
+					});
+				});
+				
+				var mailerBox = $(".share-mailer-box");
+				var mailerForm = mailerBox.children(".form-field");
+				var listBody = mailerBox.children(".list-body");
+				var bottom = mailerBox.children(".bottom");
+				var backButton = bottom.children(".js-back-button");
+				var sendButton = bottom.children(".js-send-button");
+				var inputEmail = mailerForm.children(".js-input-email");
+				var inputConfirm = mailerForm.children(".js-input-confirm");
+				var spanEmail = listBody.children(".js-span-email");
+				var maxEmails = 15;
+				
+				var added_emails = [];
+				var ctrl_added = 0;
+				
+				var sending_email = false;
+				function send_invite(){
+					var error_msg = "Ocorreu um erro ao enviar o email. Tente novamente mais tarde.";
+					
+					if(sending_email == false){
+						sending_email = true;
+						if(added_emails.length > 0){
+							notificacaoPadrao("Aguarde... Enviando...", "success", 60000);
+							$.ajax({
+								type: "POST",
+								url: "@classe-clube-descontos.php",
+								data: {acao: "send_email_invite", email_list: added_emails},
+								error: function(){
+									mensagemAlerta(error_msg);
+								},
+								success: function(response){
+									console.log(response);
+									if(response == "true"){
+										mensagemAlerta("Seu convite foi enviado com sucesso!", false, "limegreen");
+										setTimeout(function(){
+											window.location.reload();
+										}, 1000);
+									}else{
+										mensagemAlerta(error_msg);
+									}
+								}
+							});
+						}else{
+							mensagemAlerta("Nenhum e-mail foi adicionado para envio");
+						}
+					}
+				}
+				
+				function addEmail(email){
+					if(added_emails.length <= maxEmails){
+						
+						if(added_emails.indexOf(email) == -1){
+							spanEmail.append("<div class='email' id='addEmail"+ctrl_added+"'>"+email+"<a class='js-delete-email' js-control='"+ctrl_added+"' title='Remover e-mail'><i class='far fa-times-circle'></i></a></div>");
+						}else{
+							mensagemAlerta("Este e-mail já foi adicionado", false, "limegreen");
+						}
+
+						inputEmail.val("").focus();
+
+						added_emails.push(email);
+						ctrl_added++;
+						
+					}else{
+						mensagemAlerta("Este é o número máximo de e-mails que podem ser adicionados");
+					}
+				}
+				
+				function removerEmail(add_control){
+					$("#addEmail"+add_control).remove();
+					added_emails.splice(add_control, 1);
+				}
+				
+				inputConfirm.off().on("click", function(){
+					var email = inputEmail.val();
+					if(validarEmail(email) == true){
+						addEmail(email);
+					}else{
+						mensagemAlerta("O e-mail deve ser preenchido corretamente.", inputEmail);
+					}
+				});
+				
+				setInterval(function(){
+					$(".js-delete-email").each(function(){
+						var button = $(this);
+						var control = button.attr("js-control");
+						
+						button.off().on("click", function(){
+							removerEmail(control);
+						});
+					});
+				}, 100);
+				
+				var background = $(".background-paineis");
+				function toggle_share_email(){
+					if(mailerBox.hasClass("share-mailer-active") == false){
+						background.css("display", "block");
+						mailerBox.addClass("share-mailer-active");
+					}else{
+						mailerBox.removeClass("share-mailer-active");
+						setTimeout(function(){
+							background.css("display", "none");
+						}, 300);
+					}
+				}
+
+				$(".js-trigger-share-email").off().on("click", function(){
+					toggle_share_email();
+				});
+				
+				backButton.off().on("click", function(){
+					toggle_share_email();
+				});
+				
+				sendButton.off().on("click", function(){
+					send_invite();
+				});
             });
+			
+			(function(d, s, id) {
+				var js, fjs = d.getElementsByTagName(s)[0];
+				if (d.getElementById(id)) return;
+				js = d.createElement(s); js.id = id;
+				js.src = "https://connect.facebook.net/pt_BR/sdk.js#xfbml=1&version=v3.0";
+				fjs.parentNode.insertBefore(js, fjs);
+			}(document, 'script', 'facebook-jssdk'));
         </script>
         <!--END PAGE JS-->
     </head>
@@ -296,7 +535,7 @@ error_reporting(E_ALL);
 			function write_sub_links($array_links, $full_route, $sub_route = null){
 				foreach($array_links as $infoLink){
 					$class = $sub_route == $infoLink['url'] ? "active" : null;
-					echo "<a href='$full_route/{$infoLink['url']}/' class='$class'>{$infoLink['titulo']}</a>";
+					echo "<a href='$full_route/{$infoLink['url']}' class='$class'>{$infoLink['titulo']}</a>";
 				}
 			}
 		
@@ -379,29 +618,34 @@ error_reporting(E_ALL);
 					}
 					
 					if($cadastrarConta == false){
-						$infoClube = $queryConta[0];
-						$complete_url = $cls_paginas->get_full_path();
-						$complete_url = str_replace("https://", "", $complete_url);
 						
-						if($sub_route == "convidar"){
-							// Link Unico
-							$cls_clube->get_view_convidar($infoClube, $complete_url);
-						}
-
-						if($sub_route == "pontos"){
-							$cls_clube->get_view_pontos($infoClube);
-						}
-
-						if($sub_route == "indicados"){
-							$cls_clube->get_view_indicados($infoClube);
-						}
-						
-						if($sub_route == "loja-clube"){
-							$cls_clube->get_view_loja($infoClube);
-						}
-
 						if($sub_route == "regras"){
+							
 							$cls_clube->get_view_regras();
+							
+						}else{
+							
+							$infoClube = $queryConta[0];
+							$complete_url = $cls_paginas->get_full_path();
+							$complete_url = str_replace("https://", "", $complete_url);
+
+							if($sub_route == "convidar"){
+								// Link Unico
+								$cls_clube->get_view_convidar($infoClube, $complete_url);
+							}
+
+							if($sub_route == "pontos"){
+								$cls_clube->get_view_pontos($infoClube);
+							}
+
+							if($sub_route == "indicados"){
+								$cls_clube->get_view_indicados($infoClube);
+							}
+
+							if($sub_route == "loja-clube"){
+								$cls_clube->get_view_loja($infoClube);
+							}
+							
 						}
 						
 					}else{
@@ -420,9 +664,9 @@ error_reporting(E_ALL);
 				echo "<section class='display-conta'>";
 				if($showMinhaConta){
 					echo "<div class='side-navigation'>";
-						echo "<li><a href='$baseRoute/conta/'>Meus dados</a></li>";
-						echo "<li><a href='$baseRoute/pedidos/'>Pedidos</a></li>";
-						echo "<li><a href='$baseRoute/clube-de-descontos/'><i class='fas fa-star'></i> Clube de Descontos</a></li>";
+						echo "<li><a href='$baseRoute/conta'>Meus dados</a></li>";
+						echo "<li><a href='$baseRoute/pedidos'>Pedidos</a></li>";
+						echo "<li><a href='$baseRoute/clube-de-descontos'><i class='fas fa-star'></i> Clube de Descontos</a></li>";
 					echo "</div>";
 
 					echo "<div class='box-painel'>";
@@ -439,6 +683,7 @@ error_reporting(E_ALL);
 						echo "</ul>";
 						echo "<br><br>";
 						echo "<a class='call-to-action btn-trigger-entrar' style='margin: 0px; font-size: 18px; cursor: pointer;'>Fazer login <i class='fas fa-sign-in-alt'></i></i></a>";
+						echo "<br><br>Não tem conta? <a class='link-padrao btn-trigger-cadastra-conta' style='font-size: 16px; padding: 0; margin: 0;'>Cadastre-se</a>";
 					echo "</div>";
 				}
 				echo "</section>";
