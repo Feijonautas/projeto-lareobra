@@ -601,6 +601,10 @@ class NavLinks{
 				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='far fa-newspaper'></i> Newsletter", "pew-newsletter.php");
 				$countLinks++;
 			
+				$link_nav[$countLinks] = new NavLinks("Clientes", "pew-clientes.php", null, array(5));
+				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fas fa-users'></i> Lista de clientes", "pew-clientes.php");
+				$countLinks++;
+			
 				$link_nav[$countLinks] = new NavLinks("Categorias", "pew-categorias.php", null, array(5, 4, 3, 2));
 				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fa fa-tags'></i> Listar categorias", "pew-categorias.php");
 				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fa fa-th-list'></i> Departamentos", "pew-departamentos.php");

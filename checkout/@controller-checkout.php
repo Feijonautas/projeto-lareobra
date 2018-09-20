@@ -220,7 +220,7 @@ error_reporting(E_ALL);
 
                 if(isset($xml->error)){
                     
-                    print_r($xml);
+                    //print_r($xml);
                     
                     echo "false";
                     

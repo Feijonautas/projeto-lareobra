@@ -223,7 +223,7 @@
 						echo "<tbody>";
 							echo "<tr>";
 								echo "<td>Nome</td>";
-								echo "<td class='info'>{$infoPedido['nome_cliente']}</td>";
+								echo "<td class='info'><a href='pew-interna-cliente.php?id_cliente=$idCliente' class='link-padrao' target='_blank'>{$infoPedido['nome_cliente']}</a></td>";
 							echo "</tr>";
 							echo "<tr>";
 								echo "<td>E-mail</td>";

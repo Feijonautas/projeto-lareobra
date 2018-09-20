@@ -404,6 +404,7 @@
 					
 					$valorCobrado = $pew_functions->custom_number_format($this->valor_total);
 					
+					$idCliente = $this->id_cliente;
 					$maxCaracteres = 21;
 					$nomeCliente = strlen($this->nome_cliente) > $maxCaracteres ? substr($this->nome_cliente, 0, $maxCaracteres)."..." : $this->nome_cliente;
                     
@@ -423,7 +424,7 @@
 							echo "<td>$estado - $cidade</td>";
 						}
 						echo "<td>$data</td>";
-						echo "<td title='{$this->nome_cliente}' style='white-space: nowrap;'>$nomeCliente</td>";
+						echo "<td title='{$this->nome_cliente}' style='white-space: nowrap;'><a href='pew-interna-cliente.php?id_cliente=$idCliente' class='link-padrao' target='_blank'>$nomeCliente</a></td>";
 						echo "<td class='prices'>R$ $valorCobrado</td>";
 						echo "<td class='prices'>$transporteStr</td>";
 						echo "<td>$statusStr</td>";

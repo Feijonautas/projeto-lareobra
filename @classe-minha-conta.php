@@ -31,6 +31,7 @@ error_reporting(E_ALL);
         private $tipo_pessoa;
         private $data_nascimento;
         private $data_cadastro;
+        private $data_login;
         private $data_controle;
         private $status;
         private $enderecos = array();
@@ -48,6 +49,34 @@ error_reporting(E_ALL);
         private function conexao(){
             return $this->global_vars["conexao"];
         }
+		
+		function query($condicao = null, $select = null, $order = null, $limit = null, $exeptions = null){
+			$tabela_minha_conta = $this->global_vars["tabela_minha_conta"];
+			
+			$condicao = $condicao != null ? str_replace("where", "", $condicao) : "true";
+			$array = array();
+			
+			if(is_array($exeptions) && count($exeptions) > 0){
+				foreach($exeptions as $idEx){
+					$condicao .= "  and id != '$idEx'";
+				}
+			}
+			
+			$total = $this->pew_functions->contar_resultados($tabela_minha_conta, $condicao);
+			if($total > 0){
+				
+				$select = $select == null ? 'id, usuario, razao_social, email, senha, celular, telefone, cpf, cnpj, inscricao_estadual, data_nascimento, sexo, tipo_pessoa, data_cadastro, data_login, data_controle, status' : $select;
+				$order  = $order == null ? 'order by id desc' : $order;
+				$limit  = $limit == null ? null : "limit ". (int) $limit;
+				
+				$query = mysqli_query($this->conexao(), "select $select from $tabela_minha_conta where $condicao $order $limit");
+				while($info = mysqli_fetch_array($query)){
+					array_push($array, $info);
+				}
+			}
+			
+			return $array;
+		}
         
         public function query_minha_conta($condicao = 1){
             $tabela_minha_conta = $this->global_vars["tabela_minha_conta"];
@@ -82,6 +111,7 @@ error_reporting(E_ALL);
                 $this->sexo = $info["sexo"];
                 $this->tipo_pessoa = $info["tipo_pessoa"];
                 $this->data_cadastro = $info["data_cadastro"];
+                $this->data_login = $info["data_login"];
                 $this->data_controle = $info["data_controle"];
                 $this->status = $info["status"];
                 
@@ -137,6 +167,7 @@ error_reporting(E_ALL);
                 $infoMinhaConta["sexo"] = $this->sexo;
                 $infoMinhaConta["tipo_pessoa"] = $this->tipo_pessoa;
                 $infoMinhaConta["data_cadastro"] = $this->data_cadastro;
+                $infoMinhaConta["data_login"] = $this->data_login;
                 $infoMinhaConta["data_controle"] = $this->data_controle;
                 $infoMinhaConta["status"] = $this->status;
                 $infoMinhaConta["enderecos"] = $this->enderecos;
@@ -206,7 +237,7 @@ error_reporting(E_ALL);
             $tabela_minha_conta = $this->global_vars["tabela_minha_conta"];
             $alreadySubscribed = $this->pew_functions->contar_resultados($tabela_minha_conta, "email = '".$this->email."' or cpf = '".$this->cpf."'");
             if($alreadySubscribed == 0){
-                mysqli_query($this->conexao(), "insert into $tabela_minha_conta (usuario, razao_social, email, senha, celular, telefone, cpf, cnpj, inscricao_estadual, data_nascimento, sexo, tipo_pessoa, data_cadastro, data_controle, status) values ('".$this->usuario."', '".$this->razao_social."', '".$this->email."', '".$this->senha."', '".$this->celular."', '".$this->telefone."', '".$this->cpf."', '".$this->cnpj."', '".$this->inscricao_estadual."', '".$this->data_nascimento."', '".$this->sexo."', '".$this->tipo_pessoa."', '".$this->data_cadastro."', '".$this->data_controle."', 0)");
+                mysqli_query($this->conexao(), "insert into $tabela_minha_conta (usuario, razao_social, email, senha, celular, telefone, cpf, cnpj, inscricao_estadual, data_nascimento, sexo, tipo_pessoa, data_cadastro, data_login, data_controle, status) values ('".$this->usuario."', '".$this->razao_social."', '".$this->email."', '".$this->senha."', '".$this->celular."', '".$this->telefone."', '".$this->cpf."', '".$this->cnpj."', '".$this->inscricao_estadual."', '".$this->data_nascimento."', '".$this->sexo."', '".$this->tipo_pessoa."', '".$this->data_cadastro."', '".$this->data_cadastro."', '".$this->data_controle."', 0)");
                 $selectID = mysqli_query($this->conexao(), "select last_insert_id()");
                 $selectedID = mysqli_fetch_assoc($selectID);
                 $selectedID = $selectedID["last_insert_id()"];
@@ -322,14 +353,19 @@ error_reporting(E_ALL);
         }
         
         public function logar($email, $senha){
+			$tabela_minha_conta = $this->global_vars["tabela_minha_conta"];
+			
             $this->verify_session_start();
             $this->reset_session(); // Se já houver alguma sessão
             
             $_SESSION["minha_conta"] = array();
             $_SESSION["minha_conta"]["email"] = md5($email);
             $_SESSION["minha_conta"]["senha"] = md5($senha);
+			
+			$dataAtual = date("Y-m-d H:i:s");
             
             if($this->auth($_SESSION["minha_conta"]["email"], $_SESSION["minha_conta"]["senha"])){
+				mysqli_query($this->conexao(), "update $tabela_minha_conta set data_login = '$dataAtual'");
                 return true;
             }else{
                 $this->reset_session();
