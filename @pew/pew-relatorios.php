@@ -633,11 +633,15 @@ $page_title = "Relatório de vendas";
                                 echo "<td class='prices'>R$ $valorFrete</td>";
                                 echo "<td>$pagamento</td>";
 								if($pew_session->nivel == 1){
-									$queryFranquia = mysqli_query($conexao, "select estado, cidade from $tabela_franquias where id = '$idFranquia'");
-									$infoFranquia = mysqli_fetch_array($queryFranquia);
-									$estado = $infoFranquia['estado'];
-									$cidade = $infoFranquia['cidade'];
-									echo "<td>$estado - $cidade</td>";
+                                    if($idFranquia != 0){
+                                        $queryFranquia = mysqli_query($conexao, "select estado, cidade from $tabela_franquias where id = '$idFranquia'");
+                                        $infoFranquia = mysqli_fetch_array($queryFranquia);
+                                        $estado = $infoFranquia['estado'];
+                                        $cidade = $infoFranquia['cidade'];
+                                        echo "<td>$estado - $cidade</td>";
+                                    }else{
+                                        echo "<td>Principal</td>";
+                                    }
 								}
                                 if(isset($_POST["mostrar_departamentos"])){
                                     echo "<td>";

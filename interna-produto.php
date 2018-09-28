@@ -585,8 +585,11 @@
         <!--THIS PAGE CONTENT-->
         <div class="main-content">
             <?php
-			require_once "@classe-franquias.php";
+            $_POST['user_side'] = true;
+            require_once "@pew/pew-system-config.php";
 			require_once "@pew/@classe-promocoes.php";
+			require_once "@classe-franquias.php";
+			require_once "@classe-minha-conta.php";
 			
 			$dataAtual = date("Y-m-d H:i:s");
 
@@ -596,34 +599,57 @@
 			$cls_produtos = new Produtos();
 			$cls_franquias = new Franquias();
 			$cls_promocoes = new Promocoes();
+			$cls_conta = new MinhaConta();
 				
 			$session_id_franquia = $cls_franquias->id_franquia;
-				
-				
+    
+            $infoMinhaConta = $cls_conta->get_info_logado();
+            $idCliente = isset($infoMinhaConta['id']) ? $infoMinhaConta['id'] : 0;
+            $client_promo_rules = $cls_conta->get_promo_rules($idCliente);
+
 			$infoFranquia = $cls_produtos->produto_franquia($idInternaProduto, $session_id_franquia);
+            $infoProdutoPJ = $cls_produtos->get_produto_pj($idInternaProduto);
 			
-			$franquia_preco = $infoFranquia["preco"];
-			$franquia_preco_promocao = $infoFranquia["preco_promocao"];
-			$franquia_promocao_ativa = $infoFranquia["promocao_ativa"];
-			$franquia_estoque = $infoFranquia["estoque"];
+            $is_pessoa_juridica = false;
+            if($infoMinhaConta != null){
+                $is_pessoa_juridica = $infoMinhaConta["tipo_pessoa"] == 1 ? true : false;
+            }
+
+            if($is_pessoa_juridica){
+                $franquia_preco = $infoProdutoPJ["preco_pj"];
+                $franquia_preco_promocao = $infoProdutoPJ["preco_promocao_pj"];
+                $franquia_qtd_min_pj = $infoProdutoPJ["qtd_min_pj"];
+			    $franquia_promocao_ativa = $infoProdutoPJ["promocao_ativa"];
+			    $franquia_estoque = $infoProdutoPJ["estoque"];
+            }else{
+                $franquia_preco = $infoFranquia["preco"];
+                $franquia_preco_promocao = $infoFranquia["preco_promocao"];
+			    $franquia_promocao_ativa = $infoFranquia["promocao_ativa"];
+			    $franquia_estoque = $infoFranquia["estoque"];
+            }
 				
 			$especialPromoPriority = $cls_promocoes->priority;
 			$clockField = null;
 				
 			if($especialPromoPriority == true && $cls_promocoes->check_promo_produto($session_id_franquia, $idInternaProduto) == true){
-				$get_id_promocao = $cls_promocoes->get_promo_by_product($session_id_franquia, $idInternaProduto);
-				
-				$queryArray = $cls_promocoes->query("id = '$get_id_promocao'");
-				$infoPromocao = $queryArray[0];
-				
-				$rules = array();
-				$rules['discount_type'] = $infoPromocao['discount_type'];
-				$rules['discount_value'] = $infoPromocao['discount_value'];
-				
-				$franquia_promocao_ativa = true;
-				$franquia_preco_promocao = $cls_promocoes->get_price($franquia_preco, $rules);
-				
-				$clockField = $cls_promocoes->get_clock($dataAtual, $infoPromocao['data_final']);
+                $arrayPromos = $cls_promocoes->get_allpromo_by_product($session_id_franquia, $idInternaProduto);
+                foreach($arrayPromos as $idPromo){
+                    if($idPromo != false && $cls_promocoes->is_promo_available($idPromo, $client_promo_rules) == true){
+                        $queryArray = $cls_promocoes->query("id = '$idPromo'", "type, discount_type, discount_value, data_final");
+                        $infoPromocao = $queryArray[0];
+                        
+                        if($infoPromocao["type"] != 3){ // Se promoção for diferente de cupom
+                            $rules = array();
+                            $rules['discount_type'] = $infoPromocao['discount_type'];
+                            $rules['discount_value'] = $infoPromocao['discount_value'];
+                            
+                            $franquia_promocao_ativa = true;
+                            $franquia_preco_promocao = $cls_promocoes->get_price($franquia_preco, $rules);
+                            
+                            $clockField = $cls_promocoes->get_clock($dataAtual, $infoPromocao['data_final']);
+                        }
+                    }
+                }
 			}
 				
             $promocaoAtiva = $franquia_promocao_ativa == 1 && $franquia_preco_promocao > 0 && $franquia_preco_promocao < $franquia_preco ? true : false;
@@ -664,7 +690,9 @@
 
             $viewDisponibilidadadeField = $franquia_estoque == 0 ? "<div class='view-disponibilidade indisponivel'><span class='icone-disponibilidade'><i class='fas fa-times'></i></span> SEM ESTOQUE</div>" : "<div class='view-disponibilidade disponivel'><span class='icone-disponibilidade'><i class='fas fa-check'></i></span> EM ESTOQUE</div>";
 
-            $viewBotaoComprar = $franquia_estoque == 0 ? "<button class='botao-comprar sem-estoque'>COMPRAR</button>" : "<input type='text' class='quantidade-produto' value=1 placeholder='Qtd'><button  class='botao-comprar' id='addProdutoCarrinho' carrinho-id-produto='$idInternaProduto'>COMPRAR</button>";
+
+            $qtd_input_view = $is_pessoa_juridica && $franquia_qtd_min_pj > 0 ? $franquia_qtd_min_pj : 1;
+            $viewBotaoComprar = $franquia_estoque == 0 ? "<button class='botao-comprar sem-estoque'>COMPRAR</button>" : "<input type='text' class='quantidade-produto' value='$qtd_input_view' placeholder='Qtd'><button  class='botao-comprar' id='addProdutoCarrinho' carrinho-id-produto='$idInternaProduto'>COMPRAR</button>";
             /*END HTML VIEW*/
                 
             $iconArrow = "<i class='fas fa-angle-right icon'></i>";
@@ -725,6 +753,9 @@
 						echo $clockField;  // Relógio promocao
                         echo $viewParcelasField;
                         echo $viewDisponibilidadadeField;
+                        if($franquia_estoque > 0){
+                            echo "<h6 style='margin: 0 0 15px 0;'>$franquia_estoque restantes</h6>";
+                        }
                 
                         $infoCoresRelacionadas = $produto->get_cores_relacionadas();
                         $totalCores = is_array($infoCoresRelacionadas) ? count($infoCoresRelacionadas) : 0;
@@ -771,7 +802,12 @@
 						$clientCep = isset($_SESSION['franquia']['client_cep']) ? $_SESSION['franquia']['client_cep']: null;
                     ?>
                     <div class="display-comprar">
-                        <?php echo $viewBotaoComprar; ?>
+                        <?php 
+                            echo $viewBotaoComprar;
+                            if($is_pessoa_juridica){
+                                echo "<h5>Quantidade miníma de $franquia_qtd_min_pj unidades</h5>";
+                            }
+                        ?>
                     </div>
                     <div class="calculo-frete">
                         <h5 class="titulo-frete">CALCULAR FRETE</h5>
@@ -794,40 +830,51 @@
         <section class="produtos-relacionados">
             <?php
                 
-                require_once "@pew/pew-system-config.php";
-                
-                function get_relacionados($id_produto){
-                    global $tabela_produtos_relacionados, $conexao;
-                    $condicao = "id_produto = '$id_produto'";
-                    $selected = array();
-                    $i = 0;
-                    $return = false;
+                function get_produtos_recomendados($infoDepartamentos, $infoCategorias){
+                    global $conexao, $cls_produtos;
+
+                    $returnArray = array();
                     
-                    $query = mysqli_query($conexao, "select id_relacionado from $tabela_produtos_relacionados where $condicao");
-                    while($array = mysqli_fetch_array($query)){
-                        $selected[$i] = $array["id_relacionado"];
-                        $i++;
+                    $idDepartamento = $infoDepartamentos[0]["id"];
+                    $idCategoria = $infoCategorias[0]["id"];
+
+                    $produtosDepartamento = $cls_produtos->search_departamentos_produtos("id = '$idDepartamento'");
+                    $produtosCategoria = $cls_produtos->search_categorias_produtos("id = '$idCategoria'");
+
+                    foreach($produtosDepartamento as $idProduto){
+                        if(in_array($idProduto, $returnArray) == false){
+                            array_push($returnArray, $idProduto);
+                        }
                     }
+
+                    foreach($produtosCategoria as $idProduto){
+                        if(in_array($idProduto, $returnArray) == false){
+                            array_push($returnArray, $idProduto);
+                        }
+                    }
+
+                    shuffle($returnArray);
                     
-                    $return = is_array($selected) && count($selected) > 0 ? $selected : false;
-                    
-                    return $return;
+                    return $returnArray;
                 }
                 
-                $selectedProdutosRelacionados = get_relacionados($idInternaProduto);
+                $infoDepartamentos = $cls_produtos->get_departamentos_produto($idInternaProduto);
+                $infoCategorias = $cls_produtos->get_categorias_produto($idInternaProduto);
+
+                $selectedProdutosRecomendados = get_produtos_recomendados($infoDepartamentos, $infoCategorias);
 				
-				if(is_array($selectedProdutosRelacionados)){
-					foreach($selectedProdutosRelacionados as $index => $idProdRel){
+				if(is_array($selectedProdutosRecomendados)){
+					foreach($selectedProdutosRecomendados as $index => $idProdRel){
 						$infoF = $cls_produtos->produto_franquia($idProdRel, $session_id_franquia);
 						if(isset($infoF['status']) && $infoF['status'] == 0){
-							unset($selectedProdutosRelacionados[$index]);
+							unset($selectedProdutosRecomendados[$index]);
 						}
 					}
 				}
                 
-                if($selectedProdutosRelacionados != false){
-                    $vitrineProdutos[0] = new VitrineProdutos("carrossel", 15, "COMPRE JUNTO COM DESCONTO");
-                    $vitrineProdutos[0]->montar_vitrine($selectedProdutosRelacionados);
+                if($selectedProdutosRecomendados != false){
+                    $vitrineProdutos[0] = new VitrineProdutos("carrossel", 15, "QUEM VIU ESSE TAMBÉM VIU ESTE");
+                    $vitrineProdutos[0]->montar_vitrine($selectedProdutosRecomendados);
                 }
                 
             ?>

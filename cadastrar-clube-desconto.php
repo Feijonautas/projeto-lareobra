@@ -1,8 +1,4 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
     session_start();
     
     require_once "@classe-paginas.php";
@@ -31,7 +27,7 @@ error_reporting(E_ALL);
 	}
 
 	$get_invite = isset($_GET['invite_code']) ? addslashes($_GET['invite_code']) : null;
-	$reference_url = $cls_paginas->get_full_path()."/clube-de-descontos/$get_invite/";
+	$reference_url = $cls_clube->get_reference_url(0, $get_invite);
 
 ?>
 <!DOCTYPE html>

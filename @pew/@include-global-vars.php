@@ -2,6 +2,7 @@
     require_once "pew-system-config.php";
     $globalVars = array(
         "conexao" => $conexao,
+        "tabela_newsletter" => $pew_custom_db->tabela_newsletter,
         "tabela_departamentos" => $pew_custom_db->tabela_departamentos,
         "tabela_categorias" => $pew_db->tabela_categorias,
         "tabela_subcategorias" => $pew_db->tabela_subcategorias,
@@ -24,6 +25,7 @@
         "tabela_pedidos" => $pew_custom_db->tabela_pedidos,
         "tabela_pedidos_observacoes" => $pew_custom_db->tabela_pedidos_observacoes,
         "tabela_orcamentos" => $pew_custom_db->tabela_orcamentos,
+        "tabela_clube_descontos" => $pew_custom_db->tabela_clube_descontos,
     );
     global $globalVars;
 ?>

@@ -401,7 +401,7 @@
                 if(errors > 0){
                     setInputMessages(errorFields);
                 }else{
-					var customLogin = $(".js-custom-login").val();
+					var customLogin = $(".js-custom-redirect").val();
 					
 					if(typeof customLogin != "undefined"){
 						window.location.href = customLogin;

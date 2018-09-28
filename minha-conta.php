@@ -418,6 +418,7 @@ error_reporting(E_ALL);
 								}
 							});
 						}else{
+							sending_email = false;
 							mensagemAlerta("Nenhum e-mail foi adicionado para envio");
 						}
 					}
@@ -626,12 +627,9 @@ error_reporting(E_ALL);
 						}else{
 							
 							$infoClube = $queryConta[0];
-							$complete_url = $cls_paginas->get_full_path();
-							$complete_url = str_replace("https://", "", $complete_url);
-
 							if($sub_route == "convidar"){
 								// Link Unico
-								$cls_clube->get_view_convidar($infoClube, $complete_url);
+								$cls_clube->get_view_convidar($infoClube);
 							}
 
 							if($sub_route == "pontos"){
@@ -673,6 +671,7 @@ error_reporting(E_ALL);
 						get_view($get_route, $get_sub_route);
 					echo "</div>";
 				}else{
+					echo "<input type='hidden' class='js-custom-redirect' value='$baseRoute/$get_route/$get_sub_route'>";
 					echo "<div class='login-block'>";
 						echo "<h1>Bem vindo a loja virtual da $cls_paginas->empresa</h1>";
 						echo "<h3>Fazendo login você terá acesso a:</h3>";

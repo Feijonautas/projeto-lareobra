@@ -1,5 +1,4 @@
 <?php
-    
     require_once "@classe-metodos-pagamento.php";
 
     class Checkout{

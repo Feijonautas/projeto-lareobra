@@ -3,6 +3,8 @@
     require_once "@classe-system-functions.php";
     require_once "@pew/pew-system-config.php";
 	require_once "@classe-franquias.php";
+	$_POST['user_side'] = true;
+	require_once "@classe-minha-conta.php";
 
 	$cls_franquias = new Franquias();
 	$session_id_franquia = $cls_franquias->id_franquia;
@@ -16,24 +18,33 @@
 	require_once "@pew/@classe-promocoes.php";
 
 	$cls_promocoes = new Promocoes();
-	$selectPromocoes = $cls_promocoes->get_promocoes_franquia($session_id_franquia, true);
+	$cls_minha_conta = new MinhaConta();
+
+	$selectPromocoes = $cls_promocoes->get_promocoes_franquia($session_id_franquia, true, true);
 	
 	$dataAtual = date("Y-m-d H:i:s");
 
+	$infoCliente = $cls_minha_conta->get_info_logado();
+	$idClienteConta = $infoCliente != null ? (int) $infoCliente["id"] : 0;
+	$clientePromoRules = $cls_minha_conta->get_promo_rules($idClienteConta);
+
 	foreach($selectPromocoes as $infoProm){
 		$idPromo = $infoProm["id"];
-		$infoArray = $cls_promocoes->query("id = '$idPromo'");
-		$infoPromocao = $infoArray[0];
-		$produtos = $cls_promocoes->get_produtos($idPromo);
-		$clockTimer = $cls_promocoes->get_clock($dataAtual, $infoPromocao['data_final']);
-		$infoPromocao["produtos"] = $produtos;
-		$infoPromocao["clock"] = $clockTimer;
-		
-		$vitrinePromo = new VitrineProdutos("standard", 20, $infoPromocao['titulo_vitrine'], $infoPromocao['descricao_vitrine'], $infoPromocao);
-		$vitrinePromo->montar_vitrine($produtos);
-		
-		$get_exceptions = $vitrinePromo->get_exceptions();
-		$exceptions_array = $vitrinePromo->build_exceptions_array($exceptions_array, $get_exceptions);
+
+		if($cls_promocoes->is_promo_available($idPromo, $clientePromoRules) == true){
+			$infoArray = $cls_promocoes->query("id = '$idPromo'");
+			$infoPromocao = $infoArray[0];
+			$produtos = $cls_promocoes->get_produtos($idPromo);
+			$clockTimer = $cls_promocoes->get_clock($dataAtual, $infoPromocao['data_final']);
+			$infoPromocao["produtos"] = $produtos;
+			$infoPromocao["clock"] = $clockTimer;
+			
+			$vitrinePromo = new VitrineProdutos("standard", 20, $infoPromocao['titulo_vitrine'], $infoPromocao['descricao_vitrine'], $infoPromocao);
+			$vitrinePromo->montar_vitrine($produtos);
+			
+			$get_exceptions = $vitrinePromo->get_exceptions();
+			$exceptions_array = $vitrinePromo->build_exceptions_array($exceptions_array, $get_exceptions);
+		}
 	}
 
     $condicaoPromocao = "promocao_ativa = 1 and preco_promocao < preco_bruto and id_franquia = '$session_id_franquia' order by rand()";

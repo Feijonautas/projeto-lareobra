@@ -1,20 +1,19 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
-    require_once "@include-global-vars.php";
-    require_once "@classe-paginas.php";
-    require_once "@classe-produtos.php";
-    require_once "@classe-enderecos.php";
-
+	// POST CONFIG
+	$FAST_LOADING = isset($_POST['just_login_info']) && $_POST['just_login_info'] != false ? true : false;
 	if(isset($_POST["user_side"])){
 		$_POST['diretorio'] = "";
 		$_POST["diretorio_db"] = "@pew/";
 		$_POST['cancel_redirect'] = true;
 	}
 
-	require_once "@pew/@classe-pedidos.php";
+    require_once "@include-global-vars.php";
+	require_once "@classe-enderecos.php";
+	if($FAST_LOADING == false){
+		require_once "@classe-paginas.php";
+		require_once "@classe-produtos.php";
+		require_once "@pew/@classe-pedidos.php";
+	}
 
     class MinhaConta{
         private $id;
@@ -90,6 +89,31 @@ error_reporting(E_ALL);
                 return false;
             }
         }
+
+		function get_promo_rules($idMinhaConta = 0){
+			$tabela_minha_conta = $this->global_vars["tabela_minha_conta"];
+			$tabela_clube_descontos = $this->global_vars["tabela_clube_descontos"];
+			$tabela_newsletter = $this->global_vars["tabela_newsletter"];
+			$pew_functions = $this->pew_functions;
+
+			$clientInfo = array();
+			$clientInfo['is_pf'] = true;
+			$clientInfo['is_pj'] = false;
+			$clientInfo['clube_descontos_cadastrado'] = false;
+			$clientInfo['newsletter_cadastrado'] = false;
+
+			$condicaoConta = "id = '$idMinhaConta'";
+			if($pew_functions->contar_resultados($tabela_minha_conta, $condicaoConta) > 0){
+				$queryInfo = $this->query($condicaoConta, "tipo_pessoa, email");
+
+				$clientInfo['is_pf'] = $queryInfo[0]["tipo_pessoa"] == 0 ? true : false;
+				$clientInfo['is_pj'] = $queryInfo[0]["tipo_pessoa"] == 1 ? true : false;
+				$clientInfo['clube_descontos_cadastrado'] = $pew_functions->contar_resultados($tabela_clube_descontos, "id_usuario = '$idMinhaConta'") > 0 ? true : false;
+				$clientInfo['newsletter_cadastrado'] = $pew_functions->contar_resultados($tabela_newsletter, "email = '{$queryInfo[0]['email']}'") > 0 ? true : false;
+			}
+
+			return $clientInfo;
+		}
         
         public function montar_minha_conta($idMinhaConta){
             $tabela_minha_conta = $this->global_vars["tabela_minha_conta"];
@@ -743,39 +767,32 @@ error_reporting(E_ALL);
         
         $cls_conta = new MinhaConta();
         $cls_conta->verify_session_start();
+
+		$session_email = isset($_SESSION['minha_conta']['email']) ? $_SESSION['minha_conta']['email'] : null;
+		$session_senha = isset($_SESSION['minha_conta']['senha']) ? $_SESSION['minha_conta']['senha'] : null;
         
-        if($acao == "update_conta" && isset($_SESSION["minha_conta"])){
-            $emailSessao = $_SESSION["minha_conta"]["email"];
-            $senhaSessao = $_SESSION["minha_conta"]["senha"];
-            
-            if($cls_conta->auth($emailSessao, $senhaSessao)){
-				
+        if($acao == "update_conta"){
+            if($cls_conta->auth($session_email, $session_senha)){
 				$infoLogado = $cls_conta->get_info_logado();
-				
 				if($infoLogado["tipo_pessoa"] == 0){
                 	$post_fields = array("nome", "email", "senha_nova", "celular", "telefone", "cpf", "data_nascimento");
 				}else{
                 	$post_fields = array("razao_social", "nome_fantasia", "email", "senha_nova", "celular", "telefone", "cnpj", "inscricao_estadual");
 				}
-                
-                $invalid_fields = array();
 
                 $validar = true;
-                $i = 0;
+                $invalid_fields = array();
                 foreach($post_fields as $post_name){
-                    if(!isset($_POST[$post_name])) $validar = false; $invalid_fields[$i] = $post_name; $i++;
+                    if(!isset($_POST[$post_name])) $validar = false; array_push($invalid_fields, $post_name);
                 }
 
                 if($validar){
-                
                     $senhaAtual = $_POST["senha_atual"] != null ? md5($_POST["senha_atual"]) : null;
-                    
                     if($senhaAtual != null){
-                        $idConta = $cls_conta->query_minha_conta("md5(email) = '$emailSessao' and senha = '$senhaAtual'");
+                        $idConta = $cls_conta->query_minha_conta("md5(email) = '$session_email' and senha = '$senhaAtual'");
                     }else{
-                        $idConta = $cls_conta->query_minha_conta("md5(email) = '$emailSessao' and senha = '$senhaSessao'");
+                        $idConta = $cls_conta->query_minha_conta("md5(email) = '$session_email' and senha = '$session_senha'");
                     }
-                    
                     
                     if($idConta != false){
                         $novaSenha = $_POST["senha_nova"] != null ? md5($_POST["senha_nova"]) : null;
@@ -790,15 +807,12 @@ error_reporting(E_ALL);
                         $dataNascimento = isset($_POST['data_nascimento']) ? addslashes($_POST["data_nascimento"]) : null;
                         $sexo = isset($_POST['sexo']) ? addslashes($_POST["sexo"]) : null;
 						//pj
+						$nome = isset($_POST['nome_fantasia']) ? addslashes($_POST['nome_fantasia']) : null;
 						$cnpj = isset($_POST['cnpj']) ? addslashes($_POST['cnpj']) : null;
 						$cnpj = $cnpj != null ? str_replace(".", "", $cnpj) : null;
 						$inscricaoEstadual = isset($_POST['inscricao_estadual']) ? addslashes($_POST['inscricao_estadual']) : null;
 						$inscricaoEstadual = $inscricaoEstadual != null ? str_replace(".", "", $inscricaoEstadual) : null;
 						$razaoSocial = isset($_POST['razao_social']) ? addslashes($_POST['razao_social']) : null;
-						$nomeFantasia = isset($_POST['nome_fantasia']) ? addslashes($_POST['nome_fantasia']) : null;
-						
-						
-						$nome = $nomeFantasia == null ? $nome : $nomeFantasia;
                         
                         if($cls_conta->query_minha_conta("email = '$email' and id != '$idConta'") == false){
                             // Se não houver outros cadastros com o email informado
@@ -810,6 +824,7 @@ error_reporting(E_ALL);
                     }else{
                         echo "false";
                     }
+
                 }else{
 					echo "false";
 				}
@@ -817,9 +832,9 @@ error_reporting(E_ALL);
             }else{
                 echo "false";
             }
+
         }else if($acao == "update_endereco"){
             $idConta = isset($_POST["id_conta"]) ? $_POST["id_conta"] : 0;
-            
             if($idConta > 0){
                 $tabela_enderecos = $pew_custom_db->tabela_enderecos;
                 

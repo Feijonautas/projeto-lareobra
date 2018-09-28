@@ -3,7 +3,7 @@
 	session_start();
 	require_once "@valida-sessao.php";
 
-	$post_fields = array("titulo_vitrine", "descricao_vitrine", "type", "discount_type", "discount_value", "data_inicio", "hora_inicio", "data_final", "hora_final", "status");
+	$post_fields = array("titulo_vitrine", "descricao_vitrine", "grupo_clientes", "type", "discount_type", "discount_value", "data_inicio", "hora_inicio", "data_final", "hora_final", "status");
     $invalid_fields = array();
     $gravar = true;
     foreach($post_fields as $post_name){
@@ -19,9 +19,11 @@
 		
 		$tituloVitrine = $_POST['titulo_vitrine'];
 		$descricaoVitrine = $_POST['descricao_vitrine'];
+		$grupoClientes = $_POST['grupo_clientes'];
 		$type = $_POST['type'];
 		$discountType = $_POST['discount_type'];
 		$discountValue = $_POST['discount_value'];
+		$cTypeEnglobamento = null;
 		$status = $_POST['status'];
 
 		$dataInicio = $_POST['data_inicio'];
@@ -36,6 +38,18 @@
 		$cupomCode = null;
 		
 		$idFranquia = $pew_session->id_franquia;
+
+		function get_explode_string($arrayProdutos){
+			$ctrl = 1;
+			$returnString = "";
+
+			foreach ($arrayProdutos as $idProduto) {
+			$returnString .= $ctrl < count($arrayProdutos) ? $idProduto . "||" : $idProduto;
+				$ctrl++;
+			}
+
+			return $returnString;
+		}
 		
 		switch($type){
 			case 0:
@@ -49,18 +63,30 @@
 				break;
 			case 3:
 				$cupomCode = isset($_POST['cupom_code']) ? $_POST['cupom_code'] : null;
+				$cTypeEnglobamento = isset($_POST['ctype_englobamento']) ? $_POST['ctype_englobamento'] : null;
+				switch($cTypeEnglobamento){
+					case 0:
+						$setProdutos = isset($_POST['departamento']) ? (int)$_POST['departamento'] : null;
+						break;
+					case 1:
+						$setProdutos = isset($_POST['categoria']) ? (int) $_POST['categoria'] : null;
+						break;
+					case 2:
+						$setProdutos = isset($_POST['subcategoria']) ? (int) $_POST['subcategoria'] : null;
+						break;
+					case 3:
+						$selectedProdutos = isset($_POST['produtos_promocao']) ? $_POST['produtos_promocao'] : array();
+						$setProdutos = get_explode_string($selectedProdutos);
+						break;
+				}
 				break;
 			case 4:
 				$selectedProdutos = isset($_POST['produtos_promocao']) ? $_POST['produtos_promocao'] : array();
-				$ctrl = 1;
-				foreach($selectedProdutos as $idProduto){
-					$setProdutos .= $ctrl < count($selectedProdutos) ? $idProduto."||" : $idProduto;
-					$ctrl++;
-				}
+				$setProdutos = get_explode_string($selectedProdutos);
 				break;
 		}
 
-		mysqli_query($conexao, "insert into $tabela_promocoes (id_franquia, titulo_vitrine, descricao_vitrine, type, discount_type, discount_value, set_produtos, cupom_code, data_inicio, data_final, status) values ('$idFranquia', '$tituloVitrine', '$descricaoVitrine', '$type', '$discountType', '$discountValue', '$setProdutos', '$cupomCode', '$dataInicioF', '$dataFinalF', '$status')");
+		mysqli_query($conexao, "insert into $tabela_promocoes (id_franquia, titulo_vitrine, descricao_vitrine, type, discount_type, discount_value, set_produtos, cupom_code, ctype_englobamento, grupo_clientes, data_inicio, data_final, status) values ('$idFranquia', '$tituloVitrine', '$descricaoVitrine', '$type', '$discountType', '$discountValue', '$setProdutos', '$cupomCode', '$cTypeEnglobamento', '$grupoClientes', '$dataInicioF', '$dataFinalF', '$status')");
 		
 		echo "<script>window.location.href = 'pew-promocoes.php?msg=Promoção cadastrada&msgType=success';</script>";
 		

@@ -41,29 +41,27 @@
         <!--PAGE CONTENT-->
         <h1 class="titulos"><?php echo $page_title; ?></h1>
         <section class="conteudo-painel">
-            <!--<form action="pew-contatos-servicos.php" method="get" class="label half clear">
-                <label class="group">
-                    <div class="group">
-                        <h3 class="label-title">Busca de contatos</h3>
-                    </div>
-                    <div class="group">
-                        <div class="xlarge" style="margin-left: -5px; margin-right: 0px;">
-                            <input type="search" name="busca" placeholder="Busque por nome, email, assunto, telefone, mensagens ou tipo" class="label-input" title="Buscar">
-                        </div>
-                        <div class="xsmall" style="margin-left: 0px;">
-                            <button type="submit" class="btn-submit label-input btn-flat" style="margin: 10px;">
-                                <i class="fas fa-search"></i>
-                            </button>
-                        </div>
-                    </div>
-                </label>
-            </form>-->
+            <div class="label half jc-left">
+                <div class="full">
+                    <h4 class="subtitulos" align=left>Mais funções</h4>
+                </div>
+                <div class="label full">
+                    <?php
+                        if($pew_session->nivel == 1){
+                            echo "<h4 style='margin: 0;'>Apenas franquias podem cadastrar promoções</h4>";
+                        }else{
+                            echo "<a href='pew-cadastra-promocao.php' class='btn-flat' title='Cadastre uma nova promoção'><i class='fas fa-plus'></i> Cadastrar promoção</a>";
+                        }
+                    ?>
+                </div>
+            </div>
             <table class="table-padrao" cellspacing="0">
             <?php
                 $tabela_promocoes = $pew_custom_db->tabela_promocoes;
                 $tabela_franquias = "franquias_lojas";
 				
 				$mainCondition = null;
+                $getSEARCH = null;
                 /*if(isset($_GET["busca"]) && $_GET["busca"] != ""){
                     $getSEARCH = addslashes($_GET["busca"]);
                     $mainCondition = "nome like '%".$getSEARCH."%' or telefone like '%".$getSEARCH."%' or email like '%".$getSEARCH."%' or mensagem like '%".$getSEARCH."%' or tipo like '%".$getSEARCH."%'";
@@ -82,9 +80,11 @@
 						if($pew_session->nivel == 1){
                         	echo "<td>Franquia</td>";
 						}
+                        echo "<td align=center>#</td>";
                         echo "<td>Titulo</td>";
                         echo "<td align=center>Relógio</td>";
                         echo "<td align=center>Desconto</td>";
+                        echo "<td align=center>Grupo de Clientes</td>";
                         echo "<td align=center>Status</td>";
                         echo "<td align=center>Informações</td>";
                     echo "</thead>";
@@ -102,6 +102,7 @@
 						$discountValue = $infoPromocao['discount_value'];
 						
 						$str_desconto = $discountType == 0 ? $discountValue."%" : "R$ ".$pew_functions->custom_number_format($discountValue);
+						$str_grupo = $cls_promocoes->get_string_grupos($infoPromocao["grupo_clientes"]);
 						
 						echo "<tr>";
 						if($pew_session->nivel == 1){
@@ -118,16 +119,18 @@
 							}
 						}
 						
+                        echo "<td align=center>$id</td>";
                         echo "<td>$titulo</td>";
                         echo "<td align=center style='width: 100px;'>$clock</td>";
                         echo "<td align=center>$str_desconto</td>";
+                        echo "<td align=center>$str_grupo</td>";
                         echo "<td align=center>$status</td>";
                         echo "<td align=center><a href='pew-edita-promocao.php?id_promocao=$id' class='btn-editar'><i class='fa fa-eye' aria-hidden='true'></i></a></td>";
 						echo "</tr>";
                     }
                     echo "</tbody></table>";
                 }else{
-                    $msg = $mainCondition != "true" ? "Nenhum resultado encontrado. <a href='pew-promocoes.php' class='link-padrao'><b>Voltar<b></a>" : "Nenhuma promoção foi cadastrada.";
+                    $msg = $getSEARCH != null ? "Nenhum resultado encontrado. <a href='pew-promocoes.php' class='link-padrao'><b>Voltar<b></a>" : "Nenhuma promoção foi cadastrada.";
                     echo "<br><br><br><br><br><h3 align='center'>$msg</h3>";
                 }
             ?>

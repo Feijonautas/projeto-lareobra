@@ -417,11 +417,15 @@
 					echo "<tr>";
 						echo "<td>$idPedido</td>";
 						if($pew_session->nivel == 1){
-							$queryFranquia = mysqli_query($conexao, "select cidade, estado from $tabela_franquias where id = '$idFranquia'");
-							$infoFranquia = mysqli_fetch_array($queryFranquia);
-							$cidade = $infoFranquia["cidade"];
-							$estado = $infoFranquia["estado"];
-							echo "<td>$estado - $cidade</td>";
+                            if($idFranquia != 0){
+                                $queryFranquia = mysqli_query($conexao, "select cidade, estado from $tabela_franquias where id = '$idFranquia'");
+                                $infoFranquia = mysqli_fetch_array($queryFranquia);
+                                $cidade = $infoFranquia["cidade"];
+                                $estado = $infoFranquia["estado"];
+                                echo "<td>$estado - $cidade</td>";
+                            }else{
+                                echo "<td>Principal</td>";
+                            }
 						}
 						echo "<td>$data</td>";
 						echo "<td title='{$this->nome_cliente}' style='white-space: nowrap;'><a href='pew-interna-cliente.php?id_cliente=$idCliente' class='link-padrao' target='_blank'>$nomeCliente</a></td>";

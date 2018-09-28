@@ -1,7 +1,11 @@
 <?php
+    require_once "@pew/@classe-promocoes.php";
     require_once "@include-global-vars.php";
     require_once "@classe-produtos.php";
-    require_once "@pew/@classe-promocoes.php";
+
+    $_POST['user_side'] = true;
+    $_POST['just_login_info'] = true;
+    require_once "@classe-minha-conta.php";
 
     class VitrineProdutos{
         private $tipo;
@@ -9,18 +13,28 @@
         private $titulo_vitrine;
         private $descricao_vitrine;
         private $quantidade_produtos;
-        private $promocao_especial;
+        private $promocao_especial = null;
         public  $exceptions = array();
         private $global_vars;
         private $pew_functions;
         private $id_franquia;
+        private $id_cliente = 0;
 
         function __construct($tipo = "standard", $limiteProdutos = 5, $tituloVitrine = null, $descricaoVitrine = null, $infoPromocaoEspecial = null){
 			$_POST['controller'] = "get_id_franquia";
 			require_once "@valida-regiao.php"; # set id franquia
-			global $session_id_franquia;
+            if(!isset($session_id_franquia)){
+                // Se já tinha sido configurado
+                global $session_id_franquia;
+            }
+
+            $cls_conta = new MinhaConta();
+
+            $infoClienteLogado = $cls_conta->get_info_logado();
+            $idCliente = $infoClienteLogado['id'];
 			
             $this->id_franquia = $session_id_franquia;
+            $this->id_cliente = $idCliente;
             $this->tipo = $tipo;
             $this->limite_produtos = $limiteProdutos;
             $this->titulo_vitrine = $tituloVitrine;
@@ -38,6 +52,7 @@
         }
         
         public function create_box_produto($idProduto = 0){
+            $cls_conta = new MinhaConta();
 			// Variaveis estáticas
             $tabela_cores = $this->global_vars["tabela_cores"];
 			$dirImagensProdutos = "imagens/produtos";
@@ -68,22 +83,54 @@
                 $padrao_url_produto = "$padrao_titulo_url/$idProduto/";
 				$padrao_src_imagem = "produto-padrao.png";
 				
-				$franquia_preco = $infoFranquia["preco"];
-				$franquia_preco_promocao = $infoFranquia["preco_promocao"];
-				$franquia_promocao_ativa = $infoFranquia["promocao_ativa"];
-				
-				if(is_array($this->promocao_especial)){
-					$cls_promocoes = new Promocoes();
+                $infoConta = $cls_conta->get_info_logado();
+                if($infoConta["tipo_pessoa"] == 1){
+                    // Pessoa Juridica
+                    $infoProdutoPJ = $cls_produto->get_produto_pj($idProduto);
+                    $franquia_preco = $infoProdutoPJ["preco_pj"];
+                    $franquia_preco_promocao = $infoProdutoPJ["preco_promocao_pj"];
+                    $franquia_promocao_ativa = $infoProdutoPJ["promocao_ativa"];
+                }else{
+                    $franquia_preco = $infoFranquia["preco"];
+                    $franquia_preco_promocao = $infoFranquia["preco_promocao"];
+                    $franquia_promocao_ativa = $infoFranquia["promocao_ativa"];
+                }
+
+                $dataAtual = date("Y-m-d H:i:s");
+                $cls_promocoes = new Promocoes();
+
+                $special_promo_active = is_array($this->promocao_especial) ? true : false;
+                if($special_promo_active == false){
+                    // Se promoção vitrine não foi configurada então buscar por promoção produto individualmente
+                    $client_promo_rules = $cls_conta->get_promo_rules($this->id_cliente);
+                    $arrayPromos = $cls_promocoes->get_allpromo_by_product($this->id_franquia, $idProduto);
+                    foreach($arrayPromos as $idPromo){
+                        if($idPromo != false && $cls_promocoes->is_promo_available($idPromo, $client_promo_rules) == true){
+                            $infoArray = $cls_promocoes->query("id = '$idPromo'", "type, discount_type, discount_value, data_final");
+                            if($infoArray[0]['type'] != 3){ // Se promoção for diferente de cupom
+                                $get_prod_promocao = $infoArray[0];
+                                $produtos = $cls_promocoes->get_produtos($idPromo);
+                                $clockTimer = $cls_promocoes->get_clock($dataAtual, $get_prod_promocao['data_final']);
+                                $get_prod_promocao["produtos"] = $produtos;
+                                $get_prod_promocao["clock"] = $clockTimer;
+
+                                $special_promo_active = true;
+                            }
+                        }
+                    }
+                }
+
+                $final_info_promo = $this->promocao_especial == null && isset($get_prod_promocao) ? $get_prod_promocao : $this->promocao_especial;
+				if($special_promo_active){
 					$priority = $cls_promocoes->priority;
+					$discountType = $final_info_promo['discount_type'];
+					$discountValue = $final_info_promo['discount_value'];
 					$clock = true;
-					$infoPromo = $this->promocao_especial;
-					$discountType = $infoPromo['discount_type'];
-					$discountValue = $infoPromo['discount_value'];
 					
 					$rules = array();
 					$rules['discount_type'] = $discountType;
 					$rules['discount_value'] = $discountValue;
-					
+
 					$preco_w_discount = $cls_promocoes->get_price($franquia_preco, $rules);
 					
 					if($priority == true || $franquia_promocao_ativa == false && $franquia_preco_promocao <= $preco_w_discount){
@@ -91,8 +138,8 @@
 						$franquia_preco_promocao = $preco_w_discount;
 					}
 					
-					if($clock == true && in_array($idProduto, $infoPromo['produtos'])){
-						$clockField = $infoPromo['clock'];
+					if($clock == true && in_array($idProduto, $final_info_promo['produtos'])){
+						$clockField = $final_info_promo['clock'];
 					}
 				}
 				
@@ -356,8 +403,7 @@
 						echo $this->create_box_produto($idProduto);
 						$ctrlProdutos++;
                     }
-                }
-                    
+                }   
             
                 if($ctrlProdutos == 0){
                     echo "<h3 class='mensagem-no-result'><i class='fas fa-search'></i> Nenhum produto foi encontrado</h3>";

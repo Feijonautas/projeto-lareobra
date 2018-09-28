@@ -269,7 +269,8 @@
 						global $cls_produtos, $pew_functions, $pew_session, $franquias_controll_divs;
 						
 						$dir_imagens = '../imagens/produtos/';
-						
+
+						rsort($array);
 						if(is_array($array)){
 							foreach($array as $index => $idProduto){
 								$cls_produtos->montar_produto($idProduto);

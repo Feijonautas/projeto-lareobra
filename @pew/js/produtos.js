@@ -123,7 +123,8 @@ $(document).ready(function(){
             var objEstoque = $("#formCadastraProduto #estoque");
             var objDescricaoCurta = $("#formCadastraProduto #descricaoCurta");
             var objDescricaoLonga = CKEDITOR.instances["descricaoLonga"];
-            var objPreco = $("#formCadastraProduto #preco");
+            var objPrecoPF = $("#formCadastraProduto #precoPF");
+            var objPrecoPJ = $("#formCadastraProduto #precoPJ");
             var objSku = $("#formCadastraProduto #sku");
             var objPeso = $("#formCadastraProduto #peso");
             var objComprimento = $("#formCadastraProduto #comprimento");
@@ -134,7 +135,8 @@ $(document).ready(function(){
             var estoque = objEstoque.val();
             var descricaoCurta = objDescricaoCurta.val();
             var descricaoLonga = objDescricaoLonga.getData();
-            var preco = objPreco.val();
+            var precoPF = objPrecoPF.val();
+            var precoPJ = objPrecoPJ.val();
             var sku = objSku.val();
             var peso = objPeso.val();
             var comprimento = objComprimento.val();
@@ -165,12 +167,16 @@ $(document).ready(function(){
                         mensagemAlerta("O campo Descricao Longa deve conter no mínimo 40 caracteres.", objDescricaoLonga);
                         return false;
                     }
-                    if(preco.length <= 0){
-                        mensagemAlerta("O campo Preço é obrigatório.", objPreco);
-                        return false;
-                    }
                     if(sku.length <= 0){
                         mensagemAlerta("O campo SKU é obrigatório.", objSku);
+                        return false;
+                    }
+                    if(precoPF.length <= 0){
+                        mensagemAlerta("O campo Preço PF é obrigatório.", objPrecoPF);
+                        return false;
+                    }
+                    if(precoPJ.length <= 0){
+                        mensagemAlerta("O campo Preço PJ é obrigatório.", objPrecoPJ);
                         return false;
                     }
                     if(peso.length <= 0){
@@ -338,7 +344,8 @@ $(document).ready(function(){
             var objEstoque = $("#formAtualizaProduto #estoque");
             var objDescricaoCurta = $("#formAtualizaProduto #descricaoCurta");
             var objDescricaoLonga = CKEDITOR.instances["descricaoLonga"];
-            var objPreco = $("#formAtualizaProduto #preco");
+            var objPrecoPF = $("#formAtualizaProduto #precoPF");
+            var objPrecoPJ = $("#formAtualizaProduto #precoPJ");
             var objSku = $("#formAtualizaProduto #sku");
             var objPeso = $("#formAtualizaProduto #peso");
             var objComprimento = $("#formAtualizaProduto #comprimento");
@@ -350,7 +357,8 @@ $(document).ready(function(){
             var estoque = objEstoque.val();
             var descricaoCurta = objDescricaoCurta.val();
             var descricaoLonga = objDescricaoLonga.getData();
-            var preco = objPreco.val();
+            var precoPF = objPrecoPF.val();
+            var precoPJ = objPrecoPJ.val();
             var sku = objSku.val();
             var peso = objPeso.val();
             var comprimento = objComprimento.val();
@@ -381,12 +389,16 @@ $(document).ready(function(){
                         mensagemAlerta("O campo Descricao Longa deve conter no mínimo 40 caracteres.", objDescricaoLonga);
                         return false;
                     }
-                    if(preco.length <= 0){
-                        mensagemAlerta("O campo Preço é obrigatório.", objPreco);
-                        return false;
-                    }
                     if(sku.length <= 0){
                         mensagemAlerta("O campo SKU é obrigatório.", objSku);
+                        return false;
+                    }
+                    if(precoPF.length <= 0){
+                        mensagemAlerta("O campo Preço PF é obrigatório.", objPrecoPF);
+                        return false;
+                    }
+                    if(precoPJ.length <= 0){
+                        mensagemAlerta("O campo Preço PJ é obrigatório.", objPrecoPJ);
                         return false;
                     }
                     if(peso.length <= 0){

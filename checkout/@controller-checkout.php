@@ -2,6 +2,7 @@
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
+
     session_start();
 
 	$_POST['controller'] = "get_id_franquia";
@@ -17,7 +18,6 @@ error_reporting(E_ALL);
     if(isset($_POST["acao"])){
         
         $acao = $_POST["acao"];
-        
         require_once "@classe-checkout.php";
         
         $cls_checkout_acao = new Checkout();
@@ -119,6 +119,7 @@ error_reporting(E_ALL);
         
         // Dados cliente
 		$idConta = 0;
+        $isPessoaJuridica = false;
         if(isset($_SESSION["minha_conta"])){
             require_once "../@classe-minha-conta.php";
             $sessaoConta = $_SESSION["minha_conta"];
@@ -126,16 +127,19 @@ error_reporting(E_ALL);
             $emailConta = isset($sessaoConta["email"]) ? $sessaoConta["email"] : null;
             $senhaConta = isset($sessaoConta["senha"]) ? $sessaoConta["senha"] : null;
             
-            $loginConta = new MinhaConta();
-            
-            if($loginConta->auth($emailConta, $senhaConta) == true){
-                $idConta = $loginConta->query_minha_conta("md5(email) = '$emailConta' and senha = '$senhaConta'");
+            if($cls_conta->auth($emailConta, $senhaConta) == true){
+                $idConta = $cls_conta->query_minha_conta("md5(email) = '$emailConta' and senha = '$senhaConta'");
                 
-                $loginConta->montar_minha_conta($idConta);
-                $infoCliente = $loginConta->montar_array();
+                $cls_conta->montar_minha_conta($idConta);
+                $infoCliente = $cls_conta->montar_array();
+                $isPessoaJuridica = $infoCliente["tipo_pessoa"] == 1 ? true : false;
                 
                 $pagseguro["senderName"] = $infoCliente["usuario"];
-                $pagseguro["senderCPF"] = $infoCliente["cpf"];
+                if($isPessoaJuridica == false){
+                    $pagseguro["senderCPF"] = $infoCliente["cpf"];
+                }else{
+                    $pagseguro["senderCNPJ"] = $infoCliente["cnpj"];
+                }
                 $pagseguro["senderAreaCode"] = clear_number(format_phone("ddd", $infoCliente["celular"]));
                 $pagseguro["senderPhone"] = clear_number(format_phone("number", $infoCliente["celular"]));
                 $pagseguro["senderEmail"] = $infoCliente["email"];
@@ -220,7 +224,7 @@ error_reporting(E_ALL);
 
                 if(isset($xml->error)){
                     
-                    //print_r($xml);
+                    print_r($xml);
                     
                     echo "false";
                     
@@ -242,6 +246,7 @@ error_reporting(E_ALL);
                     $tabela_carrinhos = $pew_custom_db->tabela_carrinhos;
                     $tabela_pedidos = $pew_custom_db->tabela_pedidos;
                     $tabela_produtos = $pew_custom_db->tabela_produtos;
+                    $tabela_franquias_produtos = $pew_custom_db->tabela_franquias_produtos;
                     
 					$somaProdutos = 0;
                     foreach($sendDataForm["jsonProdutos"] as $infoProduto){
@@ -249,6 +254,35 @@ error_reporting(E_ALL);
                         $tituloProduto = $infoProduto["titulo"];
                         $quantidadeProduto = $infoProduto["quantidade"];
                         $precoProduto = $infoProduto["preco"];
+                        $queryEstoqueBaixo = mysqli_query($conexao, "select estoque_baixo from $tabela_produtos where id = '$idProduto'");
+                        $infoEstoqueBaixo = mysqli_fetch_array($queryEstoqueBaixo);
+                        $aviso_estoque_baixo = $infoEstoqueBaixo["estoque_baixo"];
+
+                        $id_franquia_notificacao = $session_id_franquia;
+                        if($isPessoaJuridica){
+                            $queryEstoque = mysqli_query($conexao, "select estoque from $tabela_produtos where id = '$idProduto'");
+                            $infoEstoque = mysqli_fetch_array($queryEstoque);
+                            $updateEstoque = $infoEstoque["estoque"] - $quantidadeProduto;
+                            $newEstoque = $updateEstoque > 0 ? $updateEstoque : 0;
+
+                            mysqli_query($conexao, "update $tabela_produtos set estoque = '$newEstoque' where id = '$idProduto'");
+                            $id_franquia_notificacao = 0;
+
+                            if($newEstoque <= $aviso_estoque_baixo){
+                                $cls_notificacoes->insert($id_franquia_notificacao, "Estoque baixo", "O produto: $tituloProduto tem $newEstoque unidades restantes", "pew-edita-produto.php?id_produto=$idProduto", "finances");
+                            }
+                        }else{
+                            $queryEstoque = mysqli_query($conexao, "select estoque from $tabela_franquias_produtos where id_produto = '$idProduto'");
+                            $infoEstoque = mysqli_fetch_array($queryEstoque);
+                            $updateEstoque = $infoEstoque["estoque"] - $quantidadeProduto;
+                            $newEstoque = $updateEstoque > 0 ? $updateEstoque : 0;
+                            
+                            mysqli_query($conexao, "update $tabela_franquias_produtos set estoque = '$newEstoque' where id_produto = '$idProduto'");
+
+                            if($newEstoque <= $aviso_estoque_baixo){
+                                $cls_notificacoes->insert($id_franquia_notificacao, "Estoque baixo", "O produto: $tituloProduto tem $newEstoque unidades restantes", "pew-produtos.php", "finances");
+                            }
+                        }
                         
                         mysqli_query($conexao, "insert into $tabela_carrinhos (token_carrinho, id_produto, nome_produto, quantidade_produto, preco_produto, data_controle, status) values ('$tokenCarrinho', '$idProduto', '$tituloProduto', '$quantidadeProduto', '$precoProduto', '$dataAtual', 1)");
 						
@@ -265,7 +299,11 @@ error_reporting(E_ALL);
                     
                     $paymentLink = isset($xml->paymentLink) ? $xml->paymentLink : null;
                     
-                    mysqli_query($conexao, "insert into $tabela_pedidos (id_franquia, codigo_confirmacao, codigo_transacao, codigo_transporte, vlr_frete, codigo_pagamento, codigo_rastreamento, payment_link, referencia, token_carrinho, id_cliente, nome_cliente, cpf_cliente, email_cliente, cep, rua, numero, complemento, bairro, cidade, estado, data_controle, status_transporte, status) values ('$session_id_franquia', '$codigoConfirmacao', '$codigoTransacao', '{$sendDataForm["shippingCode"]}', '{$pagseguro["shippingCost"]}', '$codigoPagamento', '', '$paymentLink', '$referencia', '$tokenCarrinho', '$idConta', '{$pagseguro["senderName"]}', '{$pagseguro["senderCPF"]}', '{$pagseguro["senderEmail"]}', '{$pagseguro["billingAddressPostalCode"]}', '{$pagseguro["billingAddressStreet"]}', '{$pagseguro["billingAddressNumber"]}', '{$pagseguro["billingAddressComplement"]}', '{$pagseguro["billingAddressDistrict"]}', '{$pagseguro["billingAddressCity"]}', '{$pagseguro["billingAddressState"]}', '$dataAtual', '$statusTransporte', '$statusPagamento')");
+                    // Se pessoa Juridica = redirecionar pedido para Franquia Principal
+                    $session_id_franquia = $isPessoaJuridica == true ? 0 : $session_id_franquia;
+
+                    $final_cpf_cnpj = $isPessoaJuridica == false ? $pagseguro['senderCPF'] : $pagseguro['senderCNPJ'];
+                    mysqli_query($conexao, "insert into $tabela_pedidos (id_franquia, codigo_confirmacao, codigo_transacao, codigo_transporte, vlr_frete, codigo_pagamento, codigo_rastreamento, payment_link, referencia, token_carrinho, id_cliente, nome_cliente, cpf_cliente, email_cliente, cep, rua, numero, complemento, bairro, cidade, estado, data_controle, status_transporte, status) values ('$session_id_franquia', '$codigoConfirmacao', '$codigoTransacao', '{$sendDataForm["shippingCode"]}', '{$pagseguro["shippingCost"]}', '$codigoPagamento', '', '$paymentLink', '$referencia', '$tokenCarrinho', '$idConta', '{$pagseguro["senderName"]}', '$final_cpf_cnpj', '{$pagseguro["senderEmail"]}', '{$pagseguro["billingAddressPostalCode"]}', '{$pagseguro["billingAddressStreet"]}', '{$pagseguro["billingAddressNumber"]}', '{$pagseguro["billingAddressComplement"]}', '{$pagseguro["billingAddressDistrict"]}', '{$pagseguro["billingAddressCity"]}', '{$pagseguro["billingAddressState"]}', '$dataAtual', '$statusTransporte', '$statusPagamento')");
 					
 					$idPedido = get_last_id();
 					$cls_notificacoes->insert($session_id_franquia, "Nova pedido", "Um cliente finalizou um pedido na loja", "pew-interna-pedido.php?id_pedido=$idPedido", "finances");

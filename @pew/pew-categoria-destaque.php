@@ -182,7 +182,7 @@
         ?>
         <!--PAGE CONTENT-->
         <h1 class="titulos"><?php echo $page_title; ?></a></h1>
-        <section class="conteudo-painel">
+        <section class="conteudo-painel flex-wrap">
             <div class="full label clear">
                 <a class="btn-add-categoria btn-flat" title="Adicionar categoria destaque"><i class="fas fa-plus"></i> Adicionar categoria destaque</a>
             </div>

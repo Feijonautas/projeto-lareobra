@@ -508,7 +508,7 @@
                     <ul class="sub-menu">
                         <li><a href='quem-somos.php' class='sub-link'>Quem Somos</a></li>
                         <li><a href='garantia-de-qualidade.php' class='sub-link'>Garantia de qualidade</a></li>
-                        <li><a href='frete-gratis.php' class='sub-link'>Frete Grátis</a></li>
+                        <!-- <li><a href='frete-gratis.php' class='sub-link'>Frete Grátis</a></li> -->
                         <li><a href='seja-fornecedor.php' class='sub-link'>Seja fornecedor</a></li>
                         <li><a href='trabalhe-conosco.php' class='sub-link'>Trabalhe conosco</a></li>
                     </ul>

@@ -241,6 +241,7 @@
 				var objForm = $("#promoForm");
 				// padrao
 				var objTipo = $("#promoTipo");
+				var objEnglobamento = $("#cTypeEnglobamento");
 				var objValorDesconto = $("#promoValorDesconto");
 				var objTipoDesconto = $("#promoTipoDesconto");
 				var objDataInicio = $("#promoDataInicio");
@@ -278,26 +279,6 @@
 					var diffDaysFinal = get_days_diff(objDataFinal.val());
 					if(objValorDesconto.val() <= 0){
 						mensagemAlerta("O campo Valor desconto deve ser maior do que 0", objValorDesconto);
-						return false;
-					}
-					if(diffDaysInicio === false || diffDaysInicio < 0){
-						mensagemAlerta("A data de início deve ser maior ou igual a " + writeDate, objDataInicio);
-						return false;
-					}
-					if(objHoraInicio.val() == ""){
-						mensagemAlerta("Insira um horário de início válido", objHoraInicio);
-						return false;
-					}
-					if(diffDaysFinal === false || diffDaysFinal < 0){
-						mensagemAlerta("A data final deve ser maior ou igual a " + writeDate, objDataFinal);
-						return false;
-					}
-					if(objHoraFinal.val() == ""){
-						mensagemAlerta("Insira um horário final válido", objHoraFinal);
-						return false;
-					}
-					if(objTituloVitrine.val().length < 4){
-						mensagemAlerta("O título da vitrine deve conter no mínimo 4 caracteres", objTituloVitrine);
 						return false;
 					}
 					switch(type){
@@ -341,6 +322,26 @@
 								return false;
 							}
 					}
+                    if(diffDaysInicio === false || diffDaysInicio < 0){
+						mensagemAlerta("A data de início deve ser maior ou igual a " + writeDate, objDataInicio);
+						return false;
+					}
+					if(objHoraInicio.val() == ""){
+						mensagemAlerta("Insira um horário de início válido", objHoraInicio);
+						return false;
+					}
+					if(diffDaysFinal === false || diffDaysFinal < 0){
+						mensagemAlerta("A data final deve ser maior ou igual a " + writeDate, objDataFinal);
+						return false;
+					}
+					if(objHoraFinal.val() == ""){
+						mensagemAlerta("Insira um horário final válido", objHoraFinal);
+						return false;
+					}
+					if(objTituloVitrine.val().length < 4){
+						mensagemAlerta("O título deve conter no mínimo 4 caracteres", objTituloVitrine);
+						return false;
+					}
 					
 					return true;
 				}
@@ -375,10 +376,29 @@
 						$(".js-subcategoria-promocao").show();
 					}else if(value == 3){
 						$(".js-cupom-code").show();
+                        $(".js-departamento-promocao").show();
 					}else if(value == 4){
 						$(".js-select-produtos").show();
 					}
 				});
+
+                objEnglobamento.off().on("change", function(){
+					var value = $(this).val();
+					$(".js-alter-hide").each(function(){
+						$(this).hide();
+					});
+
+					if(value == 0){
+						$(".js-departamento-promocao").show();
+					}else if(value == 1){
+						$(".js-categoria-promocao").show();
+					}else if(value == 2){
+						$(".js-subcategoria-promocao").show();
+					}else if(value == 3){
+						$(".js-select-produtos").show();
+					}
+				});
+
 				
                 /*PRODUTOS RELACIONADOS*/
                 var botaoProdutosRelacionados = $(".btn-produtos-relacionados");
@@ -715,7 +735,7 @@
 							<option value="0">Departamento</option>
 							<option value="1">Categoria</option>
 							<option value="2">Subcategoria</option>
-							<!--<option value="3">Cupom</option>-->
+							<option value="3">Cupom</option>
 							<option value="4">Produtos</option>
 						</select>
                     </label>
@@ -723,15 +743,38 @@
                         <h3 class="label-title" align=left>Valor desconto</h3>
 						<input type="number" class="label-input" name="discount_value" id="promoValorDesconto" value="5">
                     </label>
-					<label class="label small">
+					<label class="label xsmall">
                         <h3 class="label-title" align=left>Tipo do desconto</h3>
 						<select name="discount_type" class="label-input" id="promoTipoDesconto">
 							<option value="0">Porcentagem</option>
 							<option value="1">Valor Fixo</option>
 						</select>
                     </label>
+                    <label class="label xsmall">
+                        <h3 class="label-title" align=left>Grupo de Clientes</h3>
+						<select name="grupo_clientes" class="label-input" id="promoGrupos">
+							<option value="todos">Todos</option>
+							<option value="pf">Pessoa Física</option>
+							<option value="pj">Pessoa Jurídica</option>
+							<option value="clube_descontos">Clube de Descontos</option>
+							<option value="newsletter">Inscritos Newsletter</option>
+						</select>
+                    </label>
+                    <label class="label xsmall js-hidden js-select-hide js-cupom-code">
+                        <h3 class="label-title" align=left>Código do cupom</h3>
+                        <input type="text" class="label-input" name="cupom_code" id="promoCodigoCupom">
+                    </label>
+                    <label class="label xsmall js-hidden js-select-hide js-cupom-code">
+                        <h3 class="label-title" align=left>Regra de Englobamento</h3>
+                        <select name="ctype_englobamento" class="label-input" id="cTypeEnglobamento">
+							<option value="0">Departamento</option>
+							<option value="1">Categoria</option>
+							<option value="2">Subcategoria</option>
+							<option value="3">Produtos</option>
+						</select>
+                    </label>
 					<!--SHOW BY TYPE SELECT-->
-					<label class="label small js-select-hide js-departamento-promocao">
+					<label class="label small js-select-hide js-alter-hide js-departamento-promocao">
                         <h3 class="label-title" align=left>Departamento</h3>
 						<select name="departamento" class="label-input" id="promoTipoDepartamento">
 							<?php
@@ -741,7 +784,7 @@
 							?>
 						</select>
                     </label>
-					<label class="label small js-hidden js-select-hide js-categoria-promocao">
+					<label class="label small js-hidden js-select-hide js-alter-hide js-categoria-promocao">
                         <h3 class="label-title" align=left>Categoria</h3>
 						<select name="categoria" class="label-input" id="promoTipoCategoria">
 							<?php
@@ -751,7 +794,7 @@
 							?>
 						</select>
                     </label>
-					<label class="label small js-hidden js-select-hide js-subcategoria-promocao">
+					<label class="label small js-hidden js-select-hide js-alter-hide js-subcategoria-promocao">
                         <h3 class="label-title" align=left>Subcategoria</h3>
 						<select name="subcategoria" class="label-input" id="promoTipoSubcategoria">
 							<?php
@@ -761,14 +804,10 @@
 							?>
 						</select>
                     </label>
-					<label class="label small js-hidden js-select-hide js-cupom-code">
-                        <h3 class="label-title" align=left>Código do cupom</h3>
-                        <input type="text" class="label-input" name="cupom_code" id="promoCodigoCupom">
-                    </label>
 					<!--END SHOW BY TYPE SELECT-->
 					
 					<!--SELECT PRODUTOS-->
-					<div class="label small js-hidden js-select-hide js-select-produtos">
+					<div class="label small js-hidden js-select-hide js-alter-hide js-select-produtos">
 						<h3 class="label-title" style='margin-bottom: 10px;'>Produtos da promoção</h3>
 						<a class="btn-produtos-relacionados">Produtos Selecionados (<?php echo count($selectedProdutos); ?>)</a>
 						<div class="display-produtos-relacionados">
@@ -807,7 +846,7 @@
 					<!--END SELECT PRODUTOS-->
                 </div>
 				
-                <div class="group clear">
+                <div class="group clear" style='padding-top: 30px;'>
 					<h3 class='title-description'>Duração da promoção</h3>
 					<label class="label medium">
 						<label class="half">
@@ -840,15 +879,16 @@
 					</label>
 				</div>
 				
-				<div class="group clear mbottom">
-					<h3 class='title-description'>Informações da vitrine</h3>
+				<div class="group clear mbottom" style='padding-top: 30px;'>
+					<h3 class='title-description'>Informações de visualização</h3>
 					<label class="half">
-						<h3 class="label-title" align=left>Titulo da vitrine</h3>
+						<h3 class="label-title" align=left>Titulo</h3>
 						<input type="text" name="titulo_vitrine" class='label-input' id='tituloPromocao'>
 					</label>
 					<label class="half">
-						<h3 class="label-title" align=left>Descrição da vitrine</h3>
+						<h3 class="label-title" align=left>Descrição</h3>
 						<textarea name="descricao_vitrine" class='label-textarea' id='descricaoPromocao'></textarea>
+                        <h5 style='margin: 5px 0;font-weight: normal;'>Escreva <b><?= htmlentities("<br>"); ?></b> para pular de linha</h5>
 					</label>
 				</div>
            

@@ -1,9 +1,4 @@
 <?php
-
-	ini_set('display_errors', 1);
-	ini_set('display_startup_errors', 1);
-	error_reporting(E_ALL);
-
     session_start();
     
     $thisPageURL = substr($_SERVER["REQUEST_URI"], strpos($_SERVER["REQUEST_URI"], '@pew'));
@@ -148,29 +143,6 @@
                 });
             });
         </script>
-        <style>
-            .btn-add-colecao{
-                width: 95%;
-                height: 20px;
-                padding: 2%;
-                padding-top: 5px;
-                padding-bottom: 5px;
-                background-color: #f1f1f1;
-                margin-bottom: 2px;
-                font-size: 16px;
-                text-align: left;
-                position: relative;
-                transition: .3s;
-                border-left: 3px solid #df2321;
-                overflow: hidden;
-                cursor: pointer;
-                color: #df2321;
-            }
-            .btn-add-colecao-active{
-                color: #f78a14;
-                border-color: #f78a14;
-            }
-        </style>
     </head>
     <body>
         <?php
@@ -187,7 +159,7 @@
         ?>
         <!--PAGE CONTENT-->
         <h1 class="titulos"><?php echo $page_title; ?></h1>
-        <section class="conteudo-painel">
+        <section class="conteudo-painel flex-wrap">
             <div class="full clear label">
                 <a class="btn-flat btn-add-categoria" title="Adicionar categoria a vitrine"><i class="fas fa-plus"></i> Adicionar categoria a vitrine</a>
             </div>

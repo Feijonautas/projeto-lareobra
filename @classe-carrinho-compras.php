@@ -1,21 +1,23 @@
 <?php
 	ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+    ini_set('display_startup_errors', 1);
+    error_reporting(E_ALL);
+
 	if(!isset($_SESSION)){
 		session_start();
 	}
-
-    ini_set('memory_limit', '-1');
+    
+    $_POST['user_side'] = true;
+    $_POST['just_login_info'] = true;
+    require_once "@classe-minha-conta.php";
+    require_once "@classe-clube-descontos.php";
 
     require_once "@include-global-vars.php";
     require_once "@classe-system-functions.php";
     require_once "@classe-produtos.php";
     require_once "@classe-franquias.php";
     require_once "@pew/@classe-promocoes.php";
-	
-	$_POST['user_side'] = true;
-	require_once "@classe-clube-descontos.php";
+    
 
     class Carrinho{
         private $produtos = array();
@@ -24,13 +26,18 @@ error_reporting(E_ALL);
         private $valor_total;
         private $status;
         private $classe_produtos;
-		private $id_franquia;
+		private $id_franquia = 0;
+		public $id_cliente = 0;
         public $pew_functions;
         public $global_vars;
         
         function __construct(){
             global $pew_functions, $globalVars;
 			$cls_franquias = new Franquias();
+            $cls_conta = new MinhaConta();
+
+            $infoClienteLogado = $cls_conta->get_info_logado();
+            $idCliente = $infoClienteLogado['id'];
 			
             $this->verify_session();
             $this->valor_total = 0;
@@ -42,6 +49,7 @@ error_reporting(E_ALL);
             $this->global_vars = $globalVars;
             $this->set_token();
             $this->id_franquia = $cls_franquias->id_franquia;
+            $this->id_cliente = $idCliente;
         }
         
         function conexao(){
@@ -70,68 +78,102 @@ error_reporting(E_ALL);
         }
 		
 		function set_info_franquia($info){
-			$cls_produtos = new Produtos();
-			
 			$idProd = $info['id'];
-			
-			$infoFranquia = $cls_produtos->produto_franquia($idProd, $this->id_franquia);
-			$franquia_preco = $infoFranquia["preco"];
-			$franquia_preco_promocao = $infoFranquia["preco_promocao"];
-			$franquia_promocao_ativa = $infoFranquia["promocao_ativa"];
-			$franquia_estoque = $infoFranquia["estoque"];
-			$franquia_status = $infoFranquia["status"];
-			$precoFinal = $franquia_preco;
-			
-			if($franquia_promocao_ativa == 1 && $franquia_preco_promocao < $franquia_preco && $franquia_preco_promocao > 0){
-				$precoFinal = $franquia_preco_promocao;
-				$info["promocao_ativa"] = true;
-				$info["last_price"] = $franquia_preco;
-			}
-			
+
+			$cls_produtos = new Produtos();
+			$cls_conta = new MinhaConta();
+            $infoMinhaConta = $cls_conta->get_info_logado();
+
+            //Pessoa Juridica
+            if($infoMinhaConta != null && $infoMinhaConta["tipo_pessoa"] == 1){
+                $infoProdutoPJ = $cls_produtos->get_produto_pj($idProd);
+                $franquia_preco = $infoProdutoPJ["preco_pj"];
+                $franquia_preco_promocao = $infoProdutoPJ["preco_promocao_pj"];
+                $franquia_promocao_ativa = $infoProdutoPJ["promocao_ativa"];
+                $franquia_estoque = $infoProdutoPJ["estoque"];
+                $franquia_status = $infoProdutoPJ["status"];
+                $qtd_min_pj = $infoProdutoPJ["qtd_min_pj"];
+            }else{
+                $infoFranquia = $cls_produtos->produto_franquia($idProd, $this->id_franquia);
+                $franquia_preco = $infoFranquia["preco"];
+                $franquia_preco_promocao = $infoFranquia["preco_promocao"];
+                $franquia_promocao_ativa = $infoFranquia["promocao_ativa"];
+                $franquia_estoque = $infoFranquia["estoque"];
+                $franquia_status = $infoFranquia["status"];
+            }
+
+            $promocao_ativa = $franquia_status == 1 && $franquia_promocao_ativa == 1 ? true : false;
+            $precoFinal = $promocao_ativa == true && $franquia_preco_promocao < $franquia_preco ? $franquia_preco_promocao : $franquia_preco;
+            $info["promocao_ativa"] = $promocao_ativa;
+            $info["last_price"] = $franquia_preco;
+
 			$cls_promocoes = new Promocoes();
 			$especialPromoPriority = $cls_promocoes->priority;
-
 			if($especialPromoPriority == true && $cls_promocoes->check_promo_produto($this->id_franquia, $idProd) == true){
-				$get_id_promocao = $cls_promocoes->get_promo_by_product($this->id_franquia, $idProd);
-
-				$queryArray = $cls_promocoes->query("id = '$get_id_promocao'");
-				$infoPromocao = $queryArray[0];
-
-				$rules = array();
-				$rules['discount_type'] = $infoPromocao['discount_type'];
-				$rules['discount_value'] = $infoPromocao['discount_value'];
-
-				$precoFinal = $cls_promocoes->get_price($franquia_preco, $rules);
-				
-				$info["promocao_ativa"] = true;
-				$info["last_price"] = $franquia_preco;
+                $client_promo_rules = $cls_conta->get_promo_rules($this->id_cliente);
+                $arrayPromos = $cls_promocoes->get_allpromo_by_product($this->id_franquia, $idProd);
+                foreach($arrayPromos as $idPromo){
+                    if($idPromo != false && $cls_promocoes->is_promo_available($idPromo, $client_promo_rules) == true){
+                        $queryArray = $cls_promocoes->query("id = '$idPromo'", "type, discount_type, discount_value");
+                        $infoPromocao = $queryArray[0];
+                        if($infoPromocao['type'] != 3){ // Se promoção diferente de cupom
+                            $rules = array();
+                            $rules['discount_type'] = $infoPromocao['discount_type'];
+                            $rules['discount_value'] = $infoPromocao['discount_value'];
+                            
+                            $precoFinal = $cls_promocoes->get_price($franquia_preco, $rules);
+                            
+                            $info["promocao_ativa"] = true;
+                            $info["last_price"] = $franquia_preco;
+                        }
+                    }
+                }
 			}
 			
 			$info["preco"] = $precoFinal;
 			$info["estoque"] = $franquia_estoque;
 			$info["status"] = $franquia_status;
-			$info["quantidade"] = $info["quantidade"] > $franquia_estoque ? $franquia_estoque : $info["quantidade"];
+            $info["quantidade"] = isset($qtd_min_pj) && $info["quantidade"] < $qtd_min_pj ? $qtd_min_pj : $info["quantidade"];
 			return $info;
 		}
         
         function add_produto($idProduto, $quantidade = 1){
 			$cls_produtos = new Produtos();
+			$cls_conta = new MinhaConta();
             $tabela_produtos = $this->global_vars["tabela_produtos"];
             $total = $this->pew_functions->contar_resultados($tabela_produtos, "id = '$idProduto'");
             $quantidade = $quantidade == 0 ? 1 : $quantidade;
+
+            $infoMinhaConta = $cls_conta->get_info_logado();
+            $infoProdutoPJ = $cls_produtos->get_produto_pj($idProduto);
+
+            $is_pessoa_juridica = false;
+            if ($infoMinhaConta != null) {
+                $is_pessoa_juridica = $infoMinhaConta["tipo_pessoa"] == 1 ? true : true;
+            }
             
             if($total > 0){
-                $this->classe_produtos->montar_produto($idProduto);
-                $infoProduto = $this->classe_produtos->montar_array();
-				$infoFranquia = $cls_produtos->produto_franquia($idProduto, $this->id_franquia);
-				$franquia_preco = $infoFranquia["preco"];
-				$franquia_preco_promocao = $infoFranquia["preco_promocao"];
-				$franquia_promocao_ativa = $infoFranquia["promocao_ativa"];
-				$franquia_estoque = $infoFranquia["estoque"];
-                
+                $cls_produtos->montar_produto($idProduto);
+                $infoProduto = $cls_produtos->montar_array();
+
+                if($is_pessoa_juridica){
+                    $qtd_min_pj = $infoProdutoPJ["qtd_min_pj"];
+                    $franquia_preco = $infoProdutoPJ["preco_pj"];
+                    $franquia_preco_promocao = $infoProdutoPJ["preco_promocao_pj"];
+                    $franquia_promocao_ativa = $infoProdutoPJ["promocao_ativa"];
+                    $franquia_estoque = $infoProdutoPJ["estoque"];
+                    $franquia_status = $infoProdutoPJ["status"];
+                }else{
+                    $infoFranquia = $cls_produtos->produto_franquia($idProduto, $this->id_franquia);
+                    $franquia_preco = $infoFranquia["preco"];
+                    $franquia_preco_promocao = $infoFranquia["preco_promocao"];
+                    $franquia_promocao_ativa = $infoFranquia["promocao_ativa"];
+                    $franquia_estoque = $infoFranquia["estoque"];
+                    $franquia_status = $infoFranquia["status"];
+                }
                 $precoFinal = $franquia_promocao_ativa == 1 && $franquia_preco_promocao < $franquia_preco && $franquia_preco_promocao > 0 ? $franquia_preco_promocao : $franquia_preco;
-                $this->verify_session();
                 
+                $this->verify_session();
                 function set_produto($id, $nome, $preco, $estoque, $quantidade, $comprimento, $largura, $altura, $peso, $count){
                     $_SESSION["carrinho"]["itens"][$count]["id"] = $id;
                     $_SESSION["carrinho"]["itens"][$count]["nome"] = $nome;
@@ -202,96 +244,108 @@ error_reporting(E_ALL);
 			}
 			return $percent;
 		}
+
+        function cart_subtotal_discount($subtotal_update, $percent_mutiplier, $cart_products){
+            $newSubtotal = 0;
+            foreach($cart_products as $index => $item_info){
+                $precoAtual = $item_info['preco'];
+                $discount = $precoAtual * $percent_mutiplier;
+                $newPreco = number_format($precoAtual - $discount, 2, ".", "");
+                $cart_products[$index]['preco'] = $newPreco;
+                $newSubtotal += $newPreco * $cart_products[$index]['quantidade'];
+            }
+            
+            if($subtotal_update > $newSubtotal){
+                # Se passar alguns centavos
+                $sum = number_format($subtotal_update - $newSubtotal, 2, ".", "");
+                
+                foreach($cart_products as $index => $item_info){
+                    $precoAtual = $item_info['preco'];
+                    $sum_produto = $sum / $item_info['quantidade'];
+                    if($sum_produto >= 0.01){
+                        $cart_products[$index]['preco'] = $precoAtual + $sum_produto;
+                        break;
+                    }
+                }
+            }
+
+            return $cart_products;
+        }
         
         function get_carrinho(){
+            $cls_promocoes = new Promocoes();
+            $cls_conta = new MinhaConta();
+
             $this->verify_session();
             $carrinho = array();
             $carrinho["itens"] = array();
             $carrinho["token"] = $_SESSION["carrinho"]["token"];
             
-            $ctrl = 0;
 			$subtotal = 0;
-            
             foreach($_SESSION["carrinho"]["itens"] as $itens){
                 $idProduto = $itens["id"];
-                $selectedRelacionados = $this->classe_produtos->get_relacionados_produto($idProduto, "id_relacionado = '$idProduto'");
-                $is_compre_junto = false;
                 
-                $carrinho["itens"][$ctrl] = $this->set_info_franquia($itens);
-				
-				$subtotalProduto = $carrinho['itens'][$ctrl]['preco'] * $carrinho['itens'][$ctrl]['quantidade'];
-				
-				$subtotal += $subtotalProduto;
-                
-                /*if(is_array($selectedRelacionados)){
-                    $selected = array();
-                    $ctrlInterno = 0;
-                    
-                    foreach($selectedRelacionados as $idRelacionado){
-						$infoF = $this->classe_produtos->produto_franquia($idRelacionado, $this->id_franquia);
-						if(isset($infoF['status']) && $infoF['status'] == 1){
-							$selected[$ctrlInterno] = $idRelacionado;
-							$ctrlInterno++;
-						}
-                    }
-                    
-                    foreach($_SESSION["carrinho"]["itens"] as $index => $valor){
-                        foreach($selected as $index => $infoRel){
-                            if($valor["id"] == $infoRel["id_produto"]){
-                                $is_compre_junto = true;
-                            }
-                        }
-                    }
-                }
-                
-                if($is_compre_junto){
-                    $infoPrecoRelacionado = $this->classe_produtos->get_preco_relacionado($idProduto);
-                    $carrinho["itens"][$ctrl]["preco"] = $this->pew_functions->custom_number_format($infoPrecoRelacionado["valor"]);
-                    $carrinho["itens"][$ctrl]["desconto"] = $infoPrecoRelacionado["desconto"];
-                }*/
-                    
-                $ctrl++;
+                $infoProdutoFinal = $this->set_info_franquia($itens);
+				$subtotal += $infoProdutoFinal['preco'] * $infoProdutoFinal['quantidade'];
+
+                array_push($carrinho["itens"], $infoProdutoFinal);
             }
 			
 			if(isset($_SESSION["carrinho"]["points_discount"])){
+                // Clube de Descontos
 				$cls_clube = new ClubeDescontos();
 				$get_pontos = (int) $_SESSION['carrinho']['points_discount'];
 				$brl_value = $cls_clube->converter_pontos("reais", $get_pontos);
 				
-				$subtotal_diff = $subtotal - $brl_value;
-				$percent_diff = $this->get_percent_diff($subtotal, $subtotal_diff);
+				$subtotal_update = $subtotal - $brl_value;
+				$percent_diff = $this->get_percent_diff($subtotal, $subtotal_update);
 				$percent_mutiplier = $percent_diff / 100;
 				
 				$_SESSION['percent_diff'] = $percent_diff;
 				
-				$newSubtotal = 0;
-				foreach($carrinho["itens"] as $index => $item_info){
-					$precoAtual = $item_info['preco'];
-					$discount = $precoAtual * $percent_mutiplier;
-					$newPreco = number_format($precoAtual - $discount, 2, ".", "");
-					$carrinho['itens'][$index]['preco'] = $newPreco;
-					$newSubtotal += $newPreco * $carrinho['itens'][$index]['quantidade'];
-				}
+                $carrinho["itens"] = $this->cart_subtotal_discount($subtotal_update, $percent_mutiplier, $carrinho['itens']);
 				
-				if($subtotal_diff > $newSubtotal){
-					# Se passar alguns centavos
-					$sum = number_format($subtotal_diff - $newSubtotal, 2, ".", "");
-					
-					foreach($carrinho["itens"] as $index => $item_info){
-						$precoAtual = $item_info['preco'];
-						$sum_produto = $sum / $item_info['quantidade'];
-						if($sum_produto >= 0.01){
-							$carrinho['itens'][$index]['preco'] = $precoAtual + $sum_produto;
-							break;
-						}
-					}
-				}
-			}
+			}else if(isset($_SESSION['carrinho']['cupom_desconto'])){
+                // Cupom de desconto
+                $get_cupom = $_SESSION['carrinho']['cupom_desconto'];
+                $id_cupom = $cls_promocoes->get_id_cupom($get_cupom);
+                $client_promo_rules = $cls_conta->get_promo_rules($this->id_cliente);
+                if($id_cupom != false && $cls_promocoes->is_promo_available($id_cupom, $client_promo_rules) == true){
+                    $promo_rules = $cls_promocoes->get_promo_rules($id_cupom);
+                    $promo_products = $cls_promocoes->get_produtos($id_cupom);
+
+                    $carrinho_cupom = array();
+                    $carrinho_restante = array();
+                    $subtotal_cupom = 0;
+                    foreach($carrinho['itens'] as $item_info){
+                        if(in_array($item_info['id'], $promo_products) == true){
+                            array_push($carrinho_cupom, $item_info);
+                            $subtotal_cupom += $item_info['preco'] * $item_info['quantidade'];
+                        }else{
+                            array_push($carrinho_restante, $item_info);
+                        }
+                    }
+
+                    $priceWithDiscount = $cls_promocoes->get_price($subtotal_cupom, $promo_rules);
+                    $totalDiscount = $subtotal_cupom - $priceWithDiscount;
+
+                    $subtotal_update = $subtotal_cupom - $totalDiscount;
+                    $percent_diff = $this->get_percent_diff($subtotal_cupom, $subtotal_update);
+                    $percent_mutiplier = $percent_diff / 100;
+
+                    $carrinho["itens"] = $this->cart_subtotal_discount($subtotal_update, $percent_mutiplier, $carrinho_cupom);
+                    foreach($carrinho_restante as $info_produto){
+                        array_push($carrinho['itens'], $info_produto);
+                    }
+                }else{
+                    $this->reset_cupom();
+                }
+            }
 			
 			if(count($carrinho["itens"]) == 0){
 				unset($_SESSION["carrinho"]);
 			}
-			
+
             return $carrinho;
         }
         
@@ -350,6 +404,7 @@ error_reporting(E_ALL);
                         $carrinho["itens"][$ctrlProdutos]["largura"] = $infoProduto["largura"];
                         $carrinho["itens"][$ctrlProdutos]["altura"] = $infoProduto["altura"];
                         $carrinho["itens"][$ctrlProdutos]["peso"] = $infoProduto["peso"];
+                        $carrinho["itens"][$ctrlProdutos]["status"] = $infoProduto["status"];
                         $ctrlProdutos++;
                     }
                 }
@@ -368,38 +423,88 @@ error_reporting(E_ALL);
 			$this->verify_session();
 			
 			$get_pontos = (int) $get_pontos;
-			$infoConta = $cls_conta->get_info_logado();
-			$idConta = $infoConta['id'];
-			
-			$queryClube = $cls_clube->query("id_usuario = '$idConta'", "id");
-			if(count($queryClube) > 0){
-				$totalPontos = 0;
-				$arrayPontos = $cls_clube->query_pontos($idConta);
-				foreach($arrayPontos as $infoPonto){
-					$valor = $infoPonto['value'];
-					if($infoPonto['type'] == 1){
-						$totalPontos += $valor;
-					}else{
-						$totalPontos -= $valor;
-					}
-				}
-				if($get_pontos <= $totalPontos){
-					$brl_value = $cls_clube->converter_pontos("reais", $get_pontos);
-					$_SESSION["carrinho"]["brl_discount"] = $brl_value;
-					$_SESSION["carrinho"]["points_discount"] = $get_pontos;
-					return true;
-				}else{
-					return false;
-				}
-			}else{
-				return false;
-			}
+            if($get_pontos > 0){
+                $infoConta = $cls_conta->get_info_logado();
+                $idConta = $infoConta['id'];
+                
+                $queryClube = $cls_clube->query("id_usuario = '$idConta'", "id");
+                if(count($queryClube) > 0){
+                    $totalPontos = 0;
+                    $arrayPontos = $cls_clube->query_pontos($idConta);
+                    foreach($arrayPontos as $infoPonto){
+                        $valor = $infoPonto['value'];
+                        if($infoPonto['type'] == 1){
+                            $totalPontos += $valor;
+                        }else{
+                            $totalPontos -= $valor;
+                        }
+                    }
+                    if($get_pontos <= $totalPontos){
+                        $this->reset_cupom(); // Evitar duplo desconto
+
+                        $brl_value = $cls_clube->converter_pontos("reais", $get_pontos);
+                        $_SESSION['carrinho']['brl_discount'] = $brl_value;
+                        $_SESSION['carrinho']['points_discount'] = $get_pontos;
+
+                        return true;
+                    }else{
+                        return false;
+                    }
+                }else{
+                    return false;
+                }
+            }else{
+                $this->reset_pontos_clube();
+
+                return true;
+            }
 		}
+
+        function reset_pontos_clube(){
+            $this->verify_session();
+            
+            unset($_SESSION['carrinho']['brl_discount']);
+            unset($_SESSION['carrinho']['points_discount']);
+        }
+
+        function add_cupom($cupom){
+            $cls_promocoes = new Promocoes();
+            $cls_conta = new MinhaConta();
+            $this->verify_session();
+
+            $client_promo_rules = $cls_conta->get_promo_rules($this->id_cliente);
+            $id_cupom = $cls_promocoes->get_id_cupom($cupom);
+
+            if($id_cupom != false){
+                
+                if($cls_promocoes->is_promo_available($id_cupom, $client_promo_rules) == true){
+                    $this->reset_pontos_clube(); // Evitar duplo desconto
+
+                    $_SESSION['carrinho']['cupom_desconto'] = $cupom;
+                    return true;
+                }else{
+                    unset($_SESSION['carrinho']['cupom_desconto']);
+                    return "indisponivel";
+                }
+                
+            }else{
+                $this->reset_cupom();
+                return false;
+            }
+        }
+
+        function reset_cupom(){
+            $this->verify_session();
+            
+            unset($_SESSION['carrinho']['cupom_desconto']);
+        }
     }
 
     if(isset($_POST["acao_carrinho"])){
         $acao = $_POST["acao_carrinho"];
         $cls_carrinho = new Carrinho();
+        $cls_promocoes = new Promocoes();
+        $cls_conta = new MinhaConta();
         
         if($acao == "adicionar_produto"){
             $idProduto = isset($_POST["id_produto"]) ? (int)$_POST["id_produto"] : 0;
@@ -485,7 +590,19 @@ error_reporting(E_ALL);
 			}else{
 				echo "false";
 			}
-		}
+		}else if($acao == "check_cupom"){
+            $get_cupom = isset($_POST['cupom_code']) ? addslashes($_POST['cupom_code']) : false;
+            $id_cupom = $cls_promocoes->get_id_cupom($get_cupom);
+            
+            if($id_cupom != false){
+                $is_cupom_available = $cls_carrinho->add_cupom($get_cupom) === true ? true : false;
+                echo $cls_promocoes->get_cupom_view($id_cupom, $is_cupom_available);
+            }else{
+                echo "invalido";
+            }
+        }else if($acao == "reset_cupom"){
+            $cls_carrinho->reset_cupom();
+        }
     }
 
-    // session_destroy();
+    //session_destroy();

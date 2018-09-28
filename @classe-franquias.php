@@ -9,7 +9,7 @@
 
 	if(!class_exists('Franquias')){
 		class Franquias{
-			public $idFranquia;
+			public $id_franquia;
 			public $estado;
 			public $cidade;
 			public $cep_inicial;

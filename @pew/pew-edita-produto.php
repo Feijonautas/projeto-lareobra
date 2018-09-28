@@ -1,4 +1,7 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
     session_start();
     
     $thisPageURL = substr($_SERVER["REQUEST_URI"], strpos($_SERVER["REQUEST_URI"], '@pew'));
@@ -24,7 +27,7 @@
             require_once "@link-standard-styles.php";
             require_once "@link-standard-scripts.php";
         ?>
-        <script type="text/javascript" src="js/produtos.js"></script>
+        <script type="text/javascript" src="js/produtos.js?v=1.1"></script>
         <script>
             var selecionandoCategoria = false;
             function checkSubcategorias(idSubcategoria){
@@ -801,17 +804,14 @@
                 $skuProduto = $infoProduto["sku"];
                 $codigoBarrasProduto = $infoProduto["codigo_barras"];
                 $nomeProduto = $infoProduto["nome"];
-                $precoProduto = $infoProduto["preco"];
-                $precoProduto = $pew_functions->custom_number_format($precoProduto);
+                $precoProdutoPF = $infoProduto["preco"];
+                $precoProdutoPJ = $infoProduto["preco_pj"];
                 $precoCustoProduto = $infoProduto["preco_custo"];
-                $precoCustoProduto = $pew_functions->custom_number_format($precoCustoProduto);
                 $precoSugeridoProduto = $infoProduto["preco_sugerido"];
-                $precoSugeridoProduto = $pew_functions->custom_number_format($precoSugeridoProduto);
-                $precoPromocaoProduto = $infoProduto["preco_promocao"];
-                $precoPromocaoProduto = $pew_functions->custom_number_format($precoPromocaoProduto);
+                $precoPromocaoProdutoPF = $infoProduto["preco_promocao"];
+                $precoPromocaoProdutoPJ = $infoProduto["preco_promocao_pj"];
+                $qtdMinPJ = $infoProduto["qtd_min_pj"];
                 $promocaoAtiva = $infoProduto["promocao_ativa"];
-                $descontoRelacionado = $infoProduto["desconto_relacionado"];
-                $descontoRelacionado = $pew_functions->custom_number_format($descontoRelacionado);
                 $marcaProduto = $infoProduto["marca"];
                 $idCorProduto = $infoProduto["id_cor"];
                 $estoqueProduto = $infoProduto["estoque"];
@@ -989,19 +989,27 @@
                 </div>
                 <div class="label xsmall">
                     <h2 class='label-title'>Preço Custo</h2>
-                    <input type="number" step="any" name="preco_custo" id="precoCusto" placeholder="0.00" class="label-input" style="margin-top: 10px;" value="<?php echo $precoCustoProduto;?>">
-                </div>
-                <div class="label xsmall">
-                    <h2 class='label-title'>Preço Bruto</h2>
-                    <input type="number" step="any" name="preco" id="preco" placeholder="0.00" class="label-input" style="margin-top: 10px;" value="<?php echo $precoProduto;?>">
+                    <input type="number" step="any" name="preco_custo" id="precoCusto" placeholder="0.00" class="label-input" style="margin-top: 10px;" value="<?php echo $precoCustoProduto; ?>">
                 </div>
                 <div class="label xsmall">
                     <h2 class='label-title'>Preço Sugerido</h2>
-                    <input type="number" step="any" name="preco_sugerido" id="precoSugerido" placeholder="0.00" class="label-input" style="margin-top: 10px;" value="<?php echo $precoSugeridoProduto;?>">
+                    <input type="number" step="any" name="preco_sugerido" id="precoSugerido" placeholder="0.00" class="label-input" style="margin-top: 10px;" value="<?php echo $precoSugeridoProduto; ?>">
                 </div>
                 <div class="label xsmall">
-                    <h2 class='label-title'>Preço Promoção</h2>
-                    <input type="number" step="any" name="preco_promocao" id="precoPromocao" placeholder="0.00" class="label-input" style="margin-top: 10px;" value="<?php echo $precoPromocaoProduto;?>">
+                    <h2 class='label-title'>Preço PF</h2>
+                    <input type="number" step="any" name="preco_pf" id="precoPF" placeholder="0.00" class="label-input" style="margin-top: 10px;" value="<?php echo $precoProdutoPF; ?>">
+                </div>
+                <div class="label xsmall">
+                    <h2 class='label-title'>Preço PJ</h2>
+                    <input type="number" step="any" name="preco_pj" id="precoPJ" placeholder="0.00" class="label-input" style="margin-top: 10px;" value="<?php echo $precoProdutoPJ; ?>">
+                </div>
+                <div class="label xsmall">
+                    <h2 class='label-title'>Promoção PF</h2>
+                    <input type="number" step="any" name="preco_promocao_pf" id="precoPromocaoPF" placeholder="0.00" class="label-input" style="margin-top: 10px;" value="<?php echo $precoPromocaoProdutoPF; ?>">
+                </div>
+                <div class="label xsmall">
+                    <h2 class='label-title'>Promoção PJ</h2>
+                    <input type="number" step="any" name="preco_promocao_pj" id="precoPromocaoPJ" placeholder="0.00" class="label-input" style="margin-top: 10px;" value="<?php echo $precoPromocaoProdutoPJ; ?>">
                 </div>
                 <div class="label xsmall">
                     <h2 class='label-title'>Status Promoção</h2>
@@ -1015,6 +1023,10 @@
                             }
                         ?>
                     </select>
+                </div>
+                <div class="label xsmall">
+                    <h2 class='label-title'>Compra min. PJ</h2>
+                    <input type="number" step="any" name="qtd_min_pj" id="qtdMinPJ" placeholder="10" class="label-input" style="margin-top: 10px;" value="<?php echo $qtdMinPJ; ?>">
                 </div>
                 <!--END LINHA 3-->
                 <br class="clear">
@@ -1201,53 +1213,6 @@
                     <h3 class="label-title">Iframe Vídeo</h3>
                     <input type="text" class="label-input" name="url_video" placeholder="<iframe></iframe>" value="<?php echo $urlVideoProduto; ?>">
                 </div>
-                <div class="small" >
-                    <!--PRODUTOS RELACIONADOS-->
-                    <h3 class="label-title" >Produtos Relacionados</h3>
-                    <a class="btn-relacionados" id="btnProdRelacionados" style="float: left;">Produtos Selecionados <?php echo "(".$ctrlRelacionados.")";?></a>
-                    <div class="display-relacionados" id="display-produtos-relacionados">
-                        <div class="header-relacionados">
-                            <h3 class="title-relacionados">Produtos relacionados</h3>
-                            <!--<h5 class="descricao-relacionados">Selecione os produtos relacionados</h5>-->
-                            <input type="search" class="busca-relacionados" name="busca_relacionados" placeholder="Busque categoria, nome, marca, id, ou sku" form="busca_produto">
-                            <label title="Listar somente os produtos que já foram selecionados"><input type="checkbox" id="checkOnlyActives"> Somente os selecionados</label>
-                        </div>
-                        <div class="lista-relacionados">
-                            <div class="loading-background">
-                                <h4 class="loading-message"><i class='fa fa-spinner fa-pulse fa-3x fa-fw'></i></h4>
-                            </div>
-                            <div class="lista-relacionados-msg"><h4>Exibindo todos os produtos:</h4><a class="link-padrao limpar-todos-relacionados" title="Limpar todos os produtos listados abaixo e que foram selecionados">Limpar todos</a></div>
-                        <?php
-                            $condicaoRelacionados = "id != '$idProduto' and status = 1";
-                            $totalRelacionados = $pew_functions->contar_resultados($tabela_produtos, $condicaoRelacionados);
-                            if($totalRelacionados > 0){
-                                $queryAllProdutos = mysqli_query($conexao, "select id, nome from $tabela_produtos where $condicaoRelacionados order by nome asc");
-                                while($infoRelacionados = mysqli_fetch_array($queryAllProdutos)){
-                                    $idProdutoRelacionado = $infoRelacionados["id"];
-                                    $nomeProdutoRelacionado = $infoRelacionados["nome"];
-                                    $checked = "";
-                                    foreach($selectedProdutosRelacionados as $idRel => $info){
-                                        if($idProdutoRelacionado == $idRel){
-                                            $checked = "checked";
-                                        }
-                                    }
-                                    echo "<label class='label-relacionados label-produtos-relacionados'><input type='checkbox' name='produtos_relacionados[]' value='$idProdutoRelacionado' $checked> $nomeProdutoRelacionado</label>";
-                                }
-                            }else{
-                                echo "<h4 class='full'>Nenhum produto encontrado</h4>";
-                            }
-                        ?>
-                        </div>
-                        <div class="bottom-relacionados">
-                            <a class="btn-salvar-relacionados" id="btnSalvarProdutosRelacionados">Salvar</a>
-                        </div>
-                    </div>
-                    <!--END PRODUTOS RELACIONADOS-->
-                </div>
-                <div class="label xsmall">
-                        <h2 class='label-title'>% Desconto</h2>
-                        <input type="number" step="any" name="desconto_relacionado" id="descontoRelacionado" placeholder="30%" class="label-input" value="<?php echo $descontoRelacionado;?>">
-                    </div>
                 <script type="text/javascript" src="js/include-cores-relacionadas.js?v=2"></script>
                 <div class="small" align=left>
                     <!--PRODUTOS RELACIONADOS-->

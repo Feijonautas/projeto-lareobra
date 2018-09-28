@@ -20,7 +20,6 @@
 
 	if($controller == "get_id_franquia"){
 		$return = isset($_POST['return']) ? true : false;
-		
 		$session_id_franquia = $cls_franquias->id_franquia;
 		
 		if($return){

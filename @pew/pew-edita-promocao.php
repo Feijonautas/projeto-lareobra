@@ -241,6 +241,7 @@
 				var objForm = $("#promoForm");
 				// padrao
 				var objTipo = $("#promoTipo");
+				var objEnglobamento = $("#cTypeEnglobamento");
 				var objValorDesconto = $("#promoValorDesconto");
 				var objTipoDesconto = $("#promoTipoDesconto");
 				var objDataInicio = $("#promoDataInicio");
@@ -278,26 +279,6 @@
 					var diffDaysFinal = get_days_diff(objDataFinal.val());
 					if(objValorDesconto.val() <= 0){
 						mensagemAlerta("O campo Valor desconto deve ser maior do que 0", objValorDesconto);
-						return false;
-					}
-					/*if(diffDaysInicio === false || diffDaysInicio < 0){
-						mensagemAlerta("A data de início deve ser maior ou igual a " + writeDate, objDataInicio);
-						return false;
-					}*/
-					if(objHoraInicio.val() == ""){
-						mensagemAlerta("Insira um horário de início válido", objHoraInicio);
-						return false;
-					}
-					if(diffDaysFinal === false || diffDaysFinal < 0){
-						mensagemAlerta("A data final deve ser maior ou igual a " + writeDate, objDataFinal);
-						return false;
-					}
-					if(objHoraFinal.val() == ""){
-						mensagemAlerta("Insira um horário final válido", objHoraFinal);
-						return false;
-					}
-					if(objTituloVitrine.val().length < 4){
-						mensagemAlerta("O título da vitrine deve conter no mínimo 4 caracteres", objTituloVitrine);
 						return false;
 					}
 					switch(type){
@@ -341,6 +322,22 @@
 								return false;
 							}
 					}
+                    if(objHoraInicio.val() == ""){
+						mensagemAlerta("Insira um horário de início válido", objHoraInicio);
+						return false;
+					}
+					if(diffDaysFinal === false || diffDaysFinal < 0){
+						mensagemAlerta("A data final deve ser maior ou igual a " + writeDate, objDataFinal);
+						return false;
+					}
+					if(objHoraFinal.val() == ""){
+						mensagemAlerta("Insira um horário final válido", objHoraFinal);
+						return false;
+					}
+					if(objTituloVitrine.val().length < 4){
+						mensagemAlerta("O título da vitrine deve conter no mínimo 4 caracteres", objTituloVitrine);
+						return false;
+					}
 					
 					return true;
 				}
@@ -375,7 +372,25 @@
 						$(".js-subcategoria-promocao").show();
 					}else if(value == 3){
 						$(".js-cupom-code").show();
+                        $(".js-departamento-promocao").show();
 					}else if(value == 4){
+						$(".js-select-produtos").show();
+					}
+				});
+
+                objEnglobamento.off().on("change", function(){
+					var value = $(this).val();
+					$(".js-alter-hide").each(function(){
+						$(this).hide();
+					});
+
+					if(value == 0){
+						$(".js-departamento-promocao").show();
+					}else if(value == 1){
+						$(".js-categoria-promocao").show();
+					}else if(value == 2){
+						$(".js-subcategoria-promocao").show();
+					}else if(value == 3){
 						$(".js-select-produtos").show();
 					}
 				});
@@ -730,6 +745,8 @@
 				
 				$discountType = $infoPromocao['discount_type'];
 				$discountValue = $infoPromocao['discount_value'];
+                $grupoClientes = $infoPromocao["grupo_clientes"];
+                $cTypeEnglobamento = $infoPromocao["ctype_englobamento"];
 				$status = $infoPromocao['status'];
 				$setProdutos = $infoPromocao['set_produtos'];
 				
@@ -751,9 +768,9 @@
 				$possibleTypes[2]['titulo'] = "Subcategoria";
 				$possibleTypes[2]['value'] = 2;
 				
-				/*$possibleTypes[3] = array();
+				$possibleTypes[3] = array();
 				$possibleTypes[3]['titulo'] = "Cupom";
-				$possibleTypes[3]['value'] = 3;*/
+				$possibleTypes[3]['value'] = 3;
 				
 				$possibleTypes[4] = array();
 				$possibleTypes[4]['titulo'] = "Produtos";
@@ -768,6 +785,46 @@
 				$possibleDiscounts[1] = array();
 				$possibleDiscounts[1]['titulo'] = "Valor Fixo";
 				$possibleDiscounts[1]['value'] = 1;
+
+                $possibleGrupos = array();
+
+                $possibleGrupos[0] = array();
+                $possibleGrupos[0]['titulo'] = "Todos";
+                $possibleGrupos[0]['value'] = "todos";
+
+                $possibleGrupos[1] = array();
+                $possibleGrupos[1]['titulo'] = "Pessoa Física";
+                $possibleGrupos[1]['value'] = "pf";
+
+                $possibleGrupos[2] = array();
+                $possibleGrupos[2]['titulo'] = "Pessoa Jurídica";
+                $possibleGrupos[2]['value'] = "pj";
+
+                $possibleGrupos[3] = array();
+                $possibleGrupos[3]['titulo'] = "Clube de Descontos";
+                $possibleGrupos[3]['value'] = "clube_descontos";
+
+                $possibleGrupos[4] = array();
+                $possibleGrupos[4]['titulo'] = "Inscritos newsletter";
+                $possibleGrupos[4]['value'] = "newsletter";
+
+                $possibleEnglobamento = array();
+
+                $possibleEnglobamento[0] = array();
+                $possibleEnglobamento[0]['titulo'] = "Departamento";
+                $possibleEnglobamento[0]['value'] = 0;
+
+                $possibleEnglobamento[1] = array();
+                $possibleEnglobamento[1]['titulo'] = "Categoria";
+                $possibleEnglobamento[1]['value'] = 1;
+                
+                $possibleEnglobamento[2] = array();
+                $possibleEnglobamento[2]['titulo'] = "Subcategoria";
+                $possibleEnglobamento[2]['value'] = 2;
+
+                $possibleEnglobamento[3] = array();
+                $possibleEnglobamento[3]['titulo'] = "Produtos";
+                $possibleEnglobamento[3]['value'] = 3;
 				
 				$possibleStatus = array();
 				
@@ -779,11 +836,12 @@
 				$possibleStatus[1]['titulo'] = "Inativa";
 				$possibleStatus[1]['value'] = 0;
 				
-				$class_departamentos = $promoType == 0 ? null : "js-hidden";
-				$class_categorias = $promoType == 1 ? null : "js-hidden";
-				$class_subcategorias = $promoType == 2 ? null : "js-hidden";
+				$class_departamentos = $promoType == 0 || $promoType == 3 && $cTypeEnglobamento == 0 ? null : "js-hidden";
+				$class_categorias = $promoType == 1 || $promoType == 3 && $cTypeEnglobamento == 1 ? null : "js-hidden";
+				$class_subcategorias = $promoType == 2 || $promoType == 3 && $cTypeEnglobamento == 2 ? null : "js-hidden";
+				$class_prod = $promoType == 4 || $promoType == 3 && $cTypeEnglobamento == 3 ? null : "js-hidden";
 				$class_cupom = $promoType == 3 ? null : "js-hidden";
-				$class_prod = $promoType == 4 ? null : "js-hidden";
+                $class_englobamento = $promoType == 3 ? null : "js-hidden";
 			?>
 			<article class="group mbottom">
 				Se o tipo de desconto for <b>Valor Fixo</b> e o preço dos produtos selecionados forem menor (ou próximos a 70%) do valor fixo cadastrado, então será adicionado <b>25%</b> de desconto sobre o preço do produto ao invés do valor fixo.
@@ -807,7 +865,7 @@
                         <h3 class="label-title" align=left>Valor desconto</h3>
 						<input type="number" class="label-input" name="discount_value" id="promoValorDesconto" value="<?= $discountValue; ?>">
                     </label>
-					<label class="label small">
+					<label class="label xsmall">
                         <h3 class="label-title" align=left>Tipo do desconto</h3>
 						<select name="discount_type" class="label-input" id="promoTipoDesconto">
 							<?php
@@ -818,8 +876,34 @@
 							?>
 						</select>
                     </label>
+                    <label class="label xsmall">
+                        <h3 class="label-title" align=left>Grupo de Clientes</h3>
+						<select name="grupo_clientes" class="label-input" id="promoGrupos">
+							<?php
+                            foreach ($possibleGrupos as $infoGrupo) {
+                                $selected = $infoGrupo['value'] == $grupoClientes ? "selected" : null;
+                                echo "<option value='{$infoGrupo['value']}' $selected>{$infoGrupo['titulo']}</option>";
+                            }
+                            ?>
+						</select>
+                    </label>
+                    <label class="label xsmall <?= $class_cupom; ?> js-select-hide js-cupom-code">
+                        <h3 class="label-title" align=left>Código do cupom</h3>
+                        <input type="text" class="label-input" name="cupom_code" id="promoCodigoCupom" value="<?= $cupomCode; ?>">
+                    </label>
+                    <label class="label xsmall <?= $class_englobamento; ?> js-select-hide js-cupom-code">
+                        <h3 class="label-title" align=left>Regra de Englobamento</h3>
+                        <select name="ctype_englobamento" class="label-input" id="cTypeEnglobamento">
+							<?php
+                            foreach ($possibleEnglobamento as $infoEnglobamento) {
+                                $selected = $infoEnglobamento['value'] == $cTypeEnglobamento ? "selected" : null;
+                                echo "<option value='{$infoEnglobamento['value']}' $selected>{$infoEnglobamento['titulo']}</option>";
+                            }
+                            ?>
+						</select>
+                    </label>
 					<!--SHOW BY TYPE SELECT-->
-					<label class="label small <?= $class_departamentos; ?> js-select-hide js-departamento-promocao">
+					<label class="label small <?= $class_departamentos; ?> js-select-hide js-alter-hide js-departamento-promocao">
                         <h3 class="label-title" align=left>Departamento</h3>
 						<select name="departamento" class="label-input" id="promoTipoDepartamento">
 							<?php
@@ -830,7 +914,7 @@
 							?>
 						</select>
                     </label>
-					<label class="label small <?= $class_categorias; ?> js-select-hide js-categoria-promocao">
+					<label class="label small <?= $class_categorias; ?> js-select-hide js-alter-hide js-categoria-promocao">
                         <h3 class="label-title" align=left>Categoria</h3>
 						<select name="categoria" class="label-input" id="promoTipoCategoria">
 							<?php
@@ -841,7 +925,7 @@
 							?>
 						</select>
                     </label>
-					<label class="label small <?= $class_subcategorias; ?> js-select-hide js-subcategoria-promocao">
+					<label class="label small <?= $class_subcategorias; ?> js-select-hide js-alter-hide js-subcategoria-promocao">
                         <h3 class="label-title" align=left>Subcategoria</h3>
 						<select name="subcategoria" class="label-input" id="promoTipoSubcategoria">
 							<?php
@@ -851,10 +935,6 @@
 							}
 							?>
 						</select>
-                    </label>
-					<label class="label small <?= $class_cupom; ?> js-select-hide js-cupom-code">
-                        <h3 class="label-title" align=left>Código do cupom</h3>
-                        <input type="text" class="label-input" name="cupom_code" id="promoCodigoCupom" value="<?= $cupomCode; ?>">
                     </label>
 					<!--END SHOW BY TYPE SELECT-->
 					
@@ -898,7 +978,7 @@
 					<!--END SELECT PRODUTOS-->
                 </div>
 				
-                <div class="group clear">
+                <div class="group clear" style='padding-top: 30px;'>
 					<h3 class='title-description'>Duração da promoção</h3>
 					<label class="label medium">
 						<label class="half">
@@ -935,14 +1015,14 @@
 					</label>
 				</div>
 				
-				<div class="group clear mbottom">
-					<h3 class='title-description'>Informações da vitrine</h3>
+				<div class="group clear mbottom" style='padding-top: 30px;'>
+					<h3 class='title-description'>Informações de visualização</h3>
 					<label class="half">
-						<h3 class="label-title" align=left>Titulo da vitrine</h3>
+						<h3 class="label-title" align=left>Titulo</h3>
 						<input type="text" name="titulo_vitrine" class='label-input' id='tituloPromocao' value="<?= $tituloVitrine; ?>">
 					</label>
 					<label class="half">
-						<h3 class="label-title" align=left>Descrição da vitrine</h3>
+						<h3 class="label-title" align=left>Descrição</h3>
 						<textarea name="descricao_vitrine" class='label-textarea' id='descricaoPromocao'><?= $descricaoVitrine; ?></textarea>
 					</label>
 				</div>

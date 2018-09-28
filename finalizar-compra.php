@@ -162,6 +162,91 @@
                 cursor: pointer;
                 text-align: right;
             }
+            .main-content .display-carrinho .display-cupom{
+                width: 100%;
+            }
+            .main-content .display-carrinho .display-cupom .inputs-field{
+                padding: 5px 15px;   
+            }
+            .main-content .display-carrinho .display-cupom .inputs-field input{
+                padding: 10px 5px;
+                outline: none;
+            }
+            .main-content .display-carrinho .display-cupom .inputs-field .js-cupom-input{
+                border: 1px solid #ccc;
+                background-color: #eee;
+            }
+            .main-content .display-carrinho .display-cupom .inputs-field .js-cupom-confirm{
+                background-color: #222;
+                color: #fff;
+                border: none;
+                cursor: pointer;
+            }
+            .main-content .display-carrinho .display-cupom .inputs-field .js-cupom-confirm:hover{
+                background-color: #000;
+            }
+            .main-content .display-carrinho .display-cupom .js-cupom-view{
+                position: fixed;
+                width: 248px;
+                background-color: #fff;
+                border: 1px solid #ccc;
+                padding: 0 10px;
+                margin: 0 auto;
+                top: 150px;
+                left: 0;
+                right: 0;
+                visibility: hidden;
+                opacity: 0;
+                transition: .3s;
+                transform: scale(0.5);
+                z-index: 200;
+                border-radius: 4px;
+            }
+            .main-content .display-carrinho .display-cupom .js-cupom-view .title{
+                margin: 10px 0px;
+                font-size: 16px;
+                color: #333;
+                text-align: center;
+            }
+            .main-content .display-carrinho .display-cupom .js-cupom-view .article{
+                margin: 10px 0;
+                font-size: 14px;
+                color: #555;
+                text-align: justify;
+            }
+            .main-content .display-carrinho .display-cupom .js-cupom-view .date{
+                font-size: 12px;
+                color: #555;
+            }
+            .main-content .display-carrinho .display-cupom .js-cupom-view .final-message{
+                margin: 15px 0;
+            }
+            .main-content .display-carrinho .display-cupom .js-cupom-view .final-message .error{
+                color: #c23838;
+            }
+            .main-content .display-carrinho .display-cupom .js-cupom-view .final-message .true{
+                color: #53ca3d;
+            }
+            .main-content .display-carrinho .display-cupom .js-cupom-view .bottom-controller{
+                padding: 5px 0 15px 0;
+                text-align: center;
+            }
+            .main-content .display-carrinho .display-cupom .js-cupom-view .bottom-controller .js-close-cupom{
+                background-color: #6abd45;
+                color: #fff;
+                padding: 5px 15px;
+                border-radius: 4px;
+                border: none;
+                cursor: pointer;
+            }
+            .main-content .display-carrinho .display-cupom .js-cupom-view .bottom-controller .js-close-cupom:hover{
+                background-color: #469e1f;
+            }
+            .main-content .display-carrinho .display-cupom .js-cupom-view-active{
+                visibility: visible;
+                opacity: 1;
+                transform: scale(1);
+            }
             .main-content .display-carrinho .endereco-alternativo{
                 display: none;
             }
@@ -183,7 +268,7 @@
             }
             .main-content .display-carrinho .display-resultados-frete{
                 width: calc(40% - 20px);
-				margin-top: 20px;
+				margin-top: 5px;
             }
             .main-content .display-carrinho .display-resultados-frete .span-frete{
                 margin: 0px 20px 0px 20px;
@@ -491,7 +576,13 @@
                         var urlFrete = "@calcular-transporte.php";
                         var cepDestino = typeof $("#cepDestino").val() != "undefined" ? $("#cepDestino").val() : 0;
                         var codigosServico = ["7777", "8888", "41106", "40010", "40215", "40290"];
-                        displayResultadoFrete.html(iconLoading + " Calculando frete");
+                        var totalQuantidadeProdutos = 0;
+                        jsonProduto.forEach(function(field){
+                            totalQuantidadeProdutos = parseInt(totalQuantidadeProdutos) + parseInt(field.quantidade);
+                        });
+                        
+                        var mensagemCalculo = totalQuantidadeProdutos >= 15 ? " Calculando frete <h5>Existem muitos produtos no carrinho, pode demorar um pouco.</h5>" : " Calculando frete";
+                        displayResultadoFrete.html("<br>" + iconLoading + mensagemCalculo);
                         
                         cepDestino = cepDestino.length == 9 ? cepDestino.replace("-", "") : cepDestino;
                         
@@ -920,8 +1011,93 @@
 						mensagemAlerta("Não é possível usar pontos do Clube nesta compra. Você precisa gastar no mínimo R$" + minBrlClube);
 					}
 				});
+
+                var bgInteratividade = $(".background-interatividade");
+                var inputCupom = $(".js-cupom-input");
+                var inputConfirmCupom = $(".js-cupom-confirm");
+                var inputRemoveCupom = $(".js-remove-cupom");
+                var cupomView = $(".js-cupom-view");
+                var validandoCupom = false;
+
+                function toggle_view_cupom(view = null){
+
+                    if(view != null){
+                        cupomView.html(view);
+                        var closeCupom = $(".js-close-cupom");
+                        var finalAction = closeCupom.attr("js-action");
+                        closeCupom.off().on("click", function(){
+                            toggle_view_cupom();
+                            if(finalAction == "reload"){
+                                window.location.reload();
+                            }
+                        });
+                    }
+
+                    if(cupomView.hasClass("js-cupom-view-active") == false){
+                        bgInteratividade.css("display", "block");
+                        setTimeout(function(){
+                            bgInteratividade.css("opacity", ".5");
+                        }, 10);
+                        cupomView.addClass("js-cupom-view-active");
+                    }else{
+                        bgInteratividade.css("opacity", "0");
+                        setTimeout(function(){
+                            bgInteratividade.css("display", "none");
+                        }, 300);
+                        cupomView.removeClass("js-cupom-view-active");
+                    }
+
+                }
+
+                function remove_cupom(){
+                    $.ajax({
+                        type: "POST",
+                        url: "@classe-carrinho-compras.php",
+                        data: {acao_carrinho: "reset_cupom"},
+                        complete: function(){
+                            window.location.reload();
+                        }
+                    });
+                }
+
+                inputConfirmCupom.off().on("click", function(){
+                    var cupom_code = inputCupom.val();
+
+                    if(validandoCupom == false){
+                        validandoCupom = true;
+                        inputConfirmCupom.val("Validando");
+                        if(cupom_code.length > 0){
+                            $.ajax({
+                                type: "POST",
+                                url: "@classe-carrinho-compras.php",
+                                data: {acao_carrinho: "check_cupom", cupom_code: cupom_code},
+                                error: function(){
+                                    mensagemAlerta("Ocorreu um erro ao adicionar o cupom. Recarregue a página e tente novamente.");
+                                },
+                                success: function(response){
+                                    console.log(response);
+                                    if(response != "invalido"){
+                                        toggle_view_cupom(response);
+                                    }else{
+                                        mensagemAlerta("O cupom que você digitou é invalido");
+                                    }
+                                    inputConfirmCupom.val("Adicionar");
+                                },
+                                complete: function(){
+                                    validandoCupom = false;
+                                }
+                            });
+                        }else{
+                            mensagemAlerta("Digite um código válido", inputConfirmCupom);
+                            validandoCupom = false;
+                        }
+                    }
+                });
+
+                inputRemoveCupom.off().on("click", function(){
+                    mensagemConfirma("Tem certeza que deseja remover o cupom?", remove_cupom);
+                });
             });
-            
         </script>
         <!--END PAGE JS-->
     </head>
@@ -946,15 +1122,13 @@
 			}
 			
 			$points_discount = isset($_SESSION['carrinho']['points_discount']) ? $_SESSION['carrinho']['points_discount'] : null;
-			
 			$brl_discount = isset($_SESSION['carrinho']['brl_discount']) ? $_SESSION['carrinho']['brl_discount'] : null;
-			
 			if($points_discount > 0){
 				echo "<article>Você está utilizando <b>$points_discount pontos</b> do Clube de Desconto. Foi adicionado um desconto total de <b>R$ ".$pew_functions->custom_number_format($brl_discount)."</b> nos produtos da sua compra.</article>";
 			}
 			?>
             <!--redirect login-->
-			<input type="hidden" class="js-custom-login" value="carrinho/"> 
+			<input type="hidden" class="js-custom-redirect" value="carrinho/">
 			
             <!--DISPLAY ITENS-->
             <div class="display-carrinho">
@@ -1069,6 +1243,20 @@
 						//print_r($_SESSION);
 						echo "<input type='hidden' value='$json_cart' id='carrinhoFinalizar'>";
 						
+                        echo "<div class='display-cupom'>";
+                            echo "<h5 class='info-title'>Cupom de Desconto</h5>";
+                            echo "<div class='inputs-field'>";
+                                $cupom_code = isset($_SESSION['carrinho']['cupom_desconto']) ? $_SESSION['carrinho']['cupom_desconto'] : null;
+                                $button_text = $cupom_code == null ? "Adicionar" : "Atualizar";
+                                echo "<input type='text' placeholder='Código cupom' class='js-cupom-input' value='$cupom_code'>";
+                                echo "<input type='button' value='$button_text' class='js-cupom-confirm'>";
+                                if($cupom_code != null){
+                                    echo "<br><a class='js-remove-cupom link-padrao'>Remover cupom</a>";
+                                }
+                            echo "</div>";
+                            echo "<div class='js-cupom-view'></div>"; // JQuery.html()
+                        echo "</div>";
+
 						echo "<div class='display-resultados-frete before-checkout-area'>";
 						
 							if($clube_ativo){

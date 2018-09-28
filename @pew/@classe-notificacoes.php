@@ -179,7 +179,7 @@
 			$titulo = addslashes($titulo);
 			$article = addslashes($article);
 			$redirect = addslashes($redirect);
-			$type = addslashes($type);
+			$type = addslashes($type); // Types = global, finances, contact, system
 			$dataAtual = date("Y-m-d H:i:s");
 			
 			mysqli_query($conexao, "insert into $tabela_notificacoes (id_franquia, titulo, article, redirect, type, data) values ('$idFranquia', '$titulo', '$article', '$redirect', '$type', '$dataAtual')");

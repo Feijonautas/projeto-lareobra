@@ -11,6 +11,8 @@
         private $preco_custo;
         private $preco_sugerido;
         private $preco_promocao;
+        private $preco_promocao_pj;
+        private $qtd_min_pj;
         private $promocao_ativa;
         private $desconto_relacionado;
         private $marca;
@@ -22,6 +24,7 @@
         private $descricao_longa;
         private $url_video;
         private $peso;
+        private $peso_pj;
         private $comprimento;
         private $largura;
         private $altura;
@@ -65,14 +68,18 @@
                 $this->codigo_barras = $info["codigo_barras"];
                 $this->nome = $info["nome"];
                 $this->preco = $this->pew_functions->custom_number_format($info["preco"]);
+                $this->preco_pj = $this->pew_functions->custom_number_format($info["preco_pj"]);
                 $this->preco_custo = $this->pew_functions->custom_number_format($info["preco_custo"]);
                 $this->preco_custo = $this->preco_custo <= 0 ? '0.00' : $this->preco_custo;
                 $this->preco_sugerido = $this->pew_functions->custom_number_format($precoSugerido);
                 $this->preco_sugerido = $this->preco_sugerido <= 0 ? '0.00' : $this->preco_sugerido;
                 $this->preco_promocao = $this->pew_functions->custom_number_format($info["preco_promocao"]);
                 $this->preco_promocao = $this->preco_promocao <= 0 ? '0.00' : $this->preco_promocao;
+                $this->preco_promocao_pj = $this->pew_functions->custom_number_format($info["preco_promocao_pj"]);
+                $this->preco_promocao_pj = $this->preco_promocao_pj <= 0 ? '0.00' : $this->preco_promocao_pj;
+                $this->qtd_min_pj = $info['qtd_min_pj'];
                 $this->promocao_ativa = $this->pew_functions->custom_number_format($info["promocao_ativa"]);
-                $this->desconto_relacionado = $this->pew_functions->custom_number_format($info["desconto_relacionado"]);
+                $this->desconto_relacionado = 0;
                 $this->marca = $info["marca"];
                 $this->id_cor = $info["id_cor"];
                 $this->estoque = $info["estoque"];
@@ -117,9 +124,12 @@
                 $infoProduto["nome"] = $this->get_nome_produto();
                 $infoProduto["preco_ativo"] = $this->get_preco_ativo();
                 $infoProduto["preco"] = $this->get_preco_produto();
+                $infoProduto["preco_pj"] = $this->get_preco_pj_produto();
                 $infoProduto["preco_custo"] = $this->get_preco_custo_produto();
                 $infoProduto["preco_sugerido"] = $this->get_preco_sugerido_produto();
                 $infoProduto["preco_promocao"] = $this->get_preco_promocao_produto();
+                $infoProduto["preco_promocao_pj"] = $this->get_preco_promocao_pj_produto();
+                $infoProduto["qtd_min_pj"] = $this->get_qtd_min_pj();
                 $infoProduto["promocao_ativa"] = $this->get_promocao_ativa();
                 $infoProduto["desconto_relacionado"] = $this->get_desconto_relacionado();
                 $infoProduto["marca"] = $this->get_marca_produto();
@@ -187,6 +197,27 @@
 				return false;
 			}
 		}
+
+        function get_produto_pj($idProduto){
+            $pew_functions = $this->pew_functions;
+            $tabela_produtos = $this->global_vars["tabela_produtos"];
+
+            $returnArray = array();
+
+            if($pew_functions->contar_resultados($tabela_produtos, "id = '$idProduto'") > 0){
+                $queryPrecoPJ = mysqli_query($this->conexao(), "select estoque, preco, preco_promocao, preco_pj, preco_promocao_pj, promocao_ativa, qtd_min_pj, status from $tabela_produtos where id = '$idProduto'");
+                $infoPJ = mysqli_fetch_array($queryPrecoPJ);
+
+                $returnArray["preco_pj"] = $infoPJ["preco_pj"] > 0 ? $infoPJ["preco_pj"] : $infoPJ["preco"];
+                $returnArray["preco_promocao_pj"] = $infoPJ["preco_promocao_pj"] > 0 ? $infoPJ["preco_promocao_pj"] : $infoPJ["preco_promocao"];
+                $returnArray["qtd_min_pj"] = $infoPJ["qtd_min_pj"] > 0 ? $infoPJ["qtd_min_pj"] : 1;
+                $returnArray["promocao_ativa"] = $infoPJ["promocao_ativa"];
+                $returnArray["estoque"] = $infoPJ["estoque"];
+                $returnArray["status"] = $infoPJ["status"];
+            }
+
+            return $returnArray;
+        }
 		
 		function full_search_string($queryString = "all_products"){
 			$tabela_produtos = $this->global_vars["tabela_produtos"];
@@ -361,7 +392,11 @@
         function get_preco_produto(){
             return $this->preco;
         }
-		
+
+        function get_preco_pj_produto(){
+            return $this->preco_pj;
+        }
+
         function get_preco_custo_produto(){
             return $this->preco_custo;
         }
@@ -372,6 +407,14 @@
 		
         function get_preco_promocao_produto(){
             return $this->preco_promocao;
+        }
+
+        function get_preco_promocao_pj_produto(){
+            return $this->preco_promocao_pj;
+        }
+
+        function get_qtd_min_pj(){
+            return $this->qtd_min_pj;
         }
 		
         function get_promocao_ativa(){

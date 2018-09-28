@@ -58,7 +58,7 @@
             <br><br>
             <h4>Acesse:</h4>
             <a href="quem-somos.php" class="link-padrao">Quem somos</a>
-            <a href="frete-gratis.php" class="link-padrao">Frete Grátis</a>
+            <!-- <a href="frete-gratis.php" class="link-padrao">Frete Grátis</a> -->
         </div>
         <!--END THIS PAGE CONTENT-->
         <?php

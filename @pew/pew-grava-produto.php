@@ -1,6 +1,6 @@
 <?php
 
-    $post_fields = array("sku", "nome", "marca", "id_cor", "preco", "preco_custo", "preco_sugerido", "preco_promocao", "promocao_ativa", "desconto_relacionado", "estoque", "estoque_baixo", "tempo_fabricacao", "descricao_curta", "descricao_longa", "url_video", "peso", "comprimento", "largura", "altura", "status");
+    $post_fields = array("sku", "nome", "marca", "id_cor", "preco_pf", "preco_pj", "preco_custo", "preco_sugerido", "preco_promocao_pf", "preco_promocao_pj", "qtd_min_pj", "promocao_ativa", "estoque", "estoque_baixo", "tempo_fabricacao", "descricao_curta", "descricao_longa", "url_video", "peso", "comprimento", "largura", "altura", "status");
     $file_fields = array();
     $invalid_fields = array();
     $gravar = true;
@@ -31,17 +31,20 @@
         $nomeProduto = addslashes($_POST["nome"]);
         $marcaProduto = addslashes($_POST["marca"]);
         $idCor = (int)$_POST["id_cor"];
-        $precoProduto = $_POST["preco"];
-        $precoProduto = $pew_functions->custom_number_format($precoProduto);
+        $precoPFProduto = $_POST["preco_pf"];
+        $precoPFProduto = $pew_functions->custom_number_format($precoPFProduto);
+        $precoPJProduto = $_POST["preco_pj"];
+        $precoPJProduto = $pew_functions->custom_number_format($precoPJProduto);
         $precoCustoProduto = $_POST["preco_custo"];
         $precoCustoProduto = $pew_functions->custom_number_format($precoCustoProduto);
         $precoSugeridoProduto = $_POST["preco_sugerido"];
         $precoSugeridoProduto = $pew_functions->custom_number_format($precoSugeridoProduto);
-        $precoPromocaoProduto = $_POST["preco_promocao"];
-        $precoPromocaoProduto = $pew_functions->custom_number_format($precoPromocaoProduto);
+        $precoPromocaoProdutoPF = $_POST["preco_promocao_pf"];
+        $precoPromocaoProdutoPF = $pew_functions->custom_number_format($precoPromocaoProdutoPF);
+        $precoPromocaoProdutoPJ = $_POST["preco_promocao_pj"];
+        $precoPromocaoProdutoPJ = $pew_functions->custom_number_format($precoPromocaoProdutoPJ);
+        $qtdMinPJ = $_POST["qtd_min_pj"];
         $promocaoAtiva = intval($_POST["promocao_ativa"]) == 1 ? 1 : 0;
-        $descontoRelacionado = isset($_POST["desconto_relacionado"]) && $_POST["desconto_relacionado"] ? $_POST["desconto_relacionado"] : 0;
-        $descontoRelacionado = $pew_functions->custom_number_format($descontoRelacionado);
         $estoqueProduto = (int)($_POST["estoque"]) != "" ? (int)$_POST["estoque"] : 0;
         $estoqueBaixoProduto = (int)($_POST["estoque_baixo"]) != "" ? (int)$_POST["estoque_baixo"] : 1;
         $tempoFabricacaoProduto = (int)$_POST["tempo_fabricacao"];
@@ -55,7 +58,7 @@
         $categoriasProduto = isset($_POST["categorias"]) ? $_POST["categorias"] : "";
         $subcategoriasProduto = isset($_POST["subcategorias"]) ? $_POST["subcategorias"] : "";
         $especificacoes = isset($_POST["especicacao_produto"]) ? $_POST["especicacao_produto"] : "";
-        $produtosRelacionados = isset($_POST["produtos_relacionados"]) ? $_POST["produtos_relacionados"] : "";
+        $produtosRelacionados = isset($_POST["produtos_relacionados"]) ? $_POST["produtos_relacionados"] : null;
         $coresRelacionadas = isset($_POST["cores_relacionadas"]) ? $_POST["cores_relacionadas"] : "";
         $statusProduto = intval($_POST["status"]) == 1 ? 1 : 0;
         $urlVideoProduto = addslashes($_POST["url_video"]);
@@ -92,7 +95,7 @@
             $idCor = $pew_functions->contar_resultados($tabela_cores, $condicaoCor) > 0 ? $idCor : null;
             
             /*INSERE DADOS PRODUTO*/
-            mysqli_query($conexao, "insert into $tabela_produtos (sku, nome, marca, id_cor, preco, preco_custo, preco_promocao, preco_sugerido, promocao_ativa, desconto_relacionado, estoque, estoque_baixo, tempo_fabricacao, descricao_curta, descricao_longa, url_video, peso, comprimento, largura, altura, data, status) values ('$skuProduto', '$nomeProduto', '$marcaProduto', '$idCor', '$precoProduto', '$precoCustoProduto', '$precoPromocaoProduto', '$precoSugeridoProduto', '$promocaoAtiva', '$descontoRelacionado', '$estoqueProduto', '$estoqueBaixoProduto', '$tempoFabricacaoProduto', '$descricaoCurtaProduto', '$descricaoLongaProduto', '$urlVideoProduto', '$pesoProduto', '$comprimentoProduto', '$larguraProduto', '$alturaProduto', '$dataAtual', '$statusProduto')");
+            mysqli_query($conexao, "insert into $tabela_produtos (sku, nome, marca, id_cor, preco, preco_pj, preco_custo, preco_promocao, preco_promocao_pj, qtd_min_pj, preco_sugerido, promocao_ativa, estoque, estoque_baixo, tempo_fabricacao, descricao_curta, descricao_longa, url_video, peso, comprimento, largura, altura, data, status) values ('$skuProduto', '$nomeProduto', '$marcaProduto', '$idCor', '$precoPFProduto', '$precoPJProduto', '$precoCustoProduto', '$precoPromocaoProdutoPF', '$precoPromocaoProdutoPJ', '$qtdMinPJ', '$precoSugeridoProduto', '$promocaoAtiva', '$estoqueProduto', '$estoqueBaixoProduto', '$tempoFabricacaoProduto', '$descricaoCurtaProduto', '$descricaoLongaProduto', '$urlVideoProduto', '$pesoProduto', '$comprimentoProduto', '$larguraProduto', '$alturaProduto', '$dataAtual', '$statusProduto')");
 
             /*PEGA ID PRODUTO INSERIDO*/
             $queryID = mysqli_query($conexao, "select last_insert_id()");

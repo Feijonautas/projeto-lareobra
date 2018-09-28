@@ -1,5 +1,6 @@
 $(document).ready(function(){
 	var clocks = $(".js-clock");
+
 	function transform(time, type, s_type = null){
 		var returnVal = 0;
 
