@@ -20,19 +20,32 @@
     }
     .display-vitrine-categoria .botao{
         display: block;
-        background-color: #155c3c;
-        color: #fff;
         width: 100px;
-        height: 25px;
-        line-height: 25px;
-        margin: 0 auto;
         text-decoration: none;
         text-align: center;
+        font-size: 14px;
+        height: 25px;
+        line-height: 25px;
+        font-weight: bold;
+        transition: .2s;
+        background-color: #fff;
+        color: #999;
+        border: 1px solid #999;
         border-radius: 5px;
+        margin: 0 auto;
     }
     .display-vitrine-categoria .botao:hover{
-        background-color: #10462e;
-        transform: scale(1.1);
+        background-color: #155c3c;
+        border-color: #155c3c;
+        color: #fff;
+    }
+    .display-vitrine-categoria .banner .botao{
+        background-color: #155c3c;
+        border: none;
+        color: #fff;
+    }
+    .display-vitrine-categoria .banner .botao:hover{
+        background-color: #0b422a;
     }
     .display-vitrine-categoria .banner{
         position: relative;

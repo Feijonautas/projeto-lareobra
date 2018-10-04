@@ -43,8 +43,10 @@
 	position: relative;
 	width: calc(100% - 20px);
 	padding: 10px;
-	border-bottom: 2px solid #eee;
+	border-top: 1px solid #ccc;
+	border-bottom: 1px solid #ccc;
 	z-index: 50;
+	flex-flow: row wrap;
 }
 .box-pedido .line-display{
 	width: 100%;
@@ -181,4 +183,27 @@
 	top: 50vh;
 	align-self: center;
 	width: 100%;
+}
+
+@media screen and (max-width: 1100px){
+	.box-pedido .right{
+		width: 100%;
+		margin-bottom: 20px;
+	}
+	.box-pedido .right .descricao{
+		width: 100%;
+	}
+	.box-pedido .middle{
+		width: 100%;
+		margin-bottom: 20px;
+	}
+	.box-pedido .left{
+		width: 100%;
+	}
+	.box-pedido .display-info-pedido .lista-produtos{
+		width: calc(100% - 41px);
+	}
+	.box-pedido .display-info-pedido .info-frete{
+		width: calc(100% - 40px);
+	}
 }

@@ -757,6 +757,184 @@
 				echo "Você não finalizou nenhuma compra ainda.";
 			}
 		}
+
+		function get_body_email_pedido($id_pedido){
+			global $pew_functions;
+			$cls_paginas = new Paginas();
+			$cls_pedidos = new Pedidos();
+			$full_path = $cls_paginas->get_full_path();
+
+
+			if($cls_pedidos->montar($id_pedido, false) == true){
+				$infoPedido = $cls_pedidos->montar_array();
+				$dataPedido = $pew_functions->inverter_data(substr($infoPedido['data_controle'], 0, 10));
+				$horaPedido = substr($infoPedido["data_controle"], 11);
+				$strStatus = $cls_pedidos->get_status_string($infoPedido['status'], true);
+				$strTransporte = $cls_pedidos->get_transporte_string($infoPedido['codigo_transporte']);
+
+				$queryTelefone = $this->query("id = '{$infoPedido['id_cliente']}'", "celular, telefone");
+				$infoTelefone  = $queryTelefone[0];
+				$celularCliente = $infoTelefone['celular'];
+				$telefoneCliente = $infoTelefone['telefone'] != null ? $infoTelefone['telefone'] : "Não especificado";
+				$strComplemento = $infoPedido["complemento"] == "" ? "" : ", " . $infoPedido["complemento"];
+				$enderecoCompleto = $infoPedido["rua"] . ", " . $infoPedido["numero"] . $strComplemento . " - " . $infoPedido["cep"];
+
+				$body = 
+				"<!DOCTYPE html>
+				<html lang='en'>
+				<head>
+					<meta charset='UTF-8'>
+					<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+					<meta http-equiv='X-UA-Compatible' content='ie=edge'>
+					<style>
+						@font-face{
+							font-family: 'Montserrat', sans-serif;
+							src: url('https://fonts.googleapis.com/css?family=Montserrat');
+						}
+						body{
+							font-family: 'Montserrat', sans-serif;
+							color: #555;
+						}
+						.main-content{
+							width: 448px;
+							margin: 0 auto;
+							background-color: #fff;
+							border-radius: 10px;
+							border: 1px solid #ccc;
+						}
+						.main-content .display-content{
+							padding: 20px 10px;
+						}
+						.main-content .box-content{
+							text-align: center;
+						}
+						.main-content .display-content .box-content h1{
+							color: #4d9b29;
+							font-size: 25px;
+						}
+						.main-content .display-content .box-content h3{
+							margin: 0;
+						}
+						.main-content .box-content-bk{
+							background: #eee;
+							padding: 10px;
+						}
+						.main-content .box-content-bk h2{
+							font-size: 15px;
+							margin: 0 0 5px 0;
+						}
+						.main-content .display-content .table-content{
+							width: 100%;
+							text-align: left;
+							border: 1px solid #ccc;
+							margin: 15px 0;
+						}
+						.main-content .display-content .table-content thead{
+							background-color: #eee;
+						}
+						.subtitulo{
+							font-size: 16px;
+							margin: 5px 0;
+						}
+					</style>
+				</head>
+				<body>
+					<section class='main-content'>
+						<div class='display-content'>
+							<div class='box-content'>
+								<img src='$full_path/imagens/identidadeVisual/logo-lareobra.png'>
+							</div>
+							<div class='box-content'>
+								<h1>Confirmação do pedido</h1>
+							</div>
+							<div class='box-content'>
+								<span>Data da compra $dataPedido</span> 
+							</div>
+						</div>
+						<div class='box-content box-content-bk'>
+							<h2>Código da transação</h2>
+							<span>{$infoPedido['codigo_transacao']}</span>
+						</div>
+						<div class='display-content'>
+							<div class='box-content'>
+								<span>Olá <b>{$infoPedido['nome_cliente']}</b></span>
+								<p>Seu pedido foi realizado com sucesso e agora falta pouco para você ter os seus produtos!</p>
+								<p>O seu pedido no valor de R$ {$infoPedido['valor_total']} está em analise, aguardando confirmação de pagamento. Mas fique tranquilo(a), após a confirmação enviaremos o produto para você.</p>
+							</div>
+							<h4 class='subtitulo'>Resumo do pedido</h4>
+							<table class='table-content'>
+								<thead>
+									<td>Produto</td>
+									<td align=center>QTD.</td>
+									<td align=right>Preço</td>
+									<td align=right>Subtotal</td>
+								</thead>
+								<tbody>";
+
+								$produtosPedido = $cls_pedidos->get_produtos_pedido($infoPedido['token_carrinho']);
+								foreach($produtosPedido as $infoProduto){
+									$nomeProduto = $infoProduto['nome'];
+									$precoProduto = $infoProduto['preco'];
+									$quantidadeProduto = $infoProduto['quantidade'];
+									$subtotalProduto = $precoProduto * $quantidadeProduto;
+									$body .= 
+									"<tr>
+										<td>$nomeProduto</td>
+										<td align=center>{$quantidadeProduto}x</td>
+										<td align=right>$precoProduto</td>
+										<td align=right>$subtotalProduto</td>
+									</tr>";
+								}
+				$body      .= "</tbody>
+							</table>
+							<table class='table-content'>
+								<tbody>
+									<tr>
+										<td>E-mail</td>
+										<td>{$infoPedido['email_cliente']}</td>
+									</tr>
+									<tr>
+										<td>Celular</td>
+										<td>$celularCliente</td>
+									</tr>
+									<tr>
+										<td>Telefone</td>
+										<td>$telefoneCliente</td>
+									</tr>
+									<tr>
+										<td>Endereço</td>
+										<td>$enderecoCompleto</td>
+									</tr>
+									<tr>
+										<td>Transporte</td>
+										<td>$strTransporte - R$ {$infoPedido['valor_frete']}</td>
+									</tr>
+								</tbody>
+							</table>
+							<table class='table-content'>
+								<tbody>
+									<tr>
+										<td>Pedido</td>
+										<td>{$infoPedido['referencia']}</td>
+									</tr>
+									<tr>
+										<td>Data</td>
+										<td>$dataPedido - $horaPedido</td>
+									</tr>
+									<tr>
+										<td>Status</td>
+										<td>$strStatus</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</section>
+				</body>
+				</html>";
+
+				return $body;
+			}
+		}
     }
 
 

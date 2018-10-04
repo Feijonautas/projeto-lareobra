@@ -1,4 +1,7 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
     $jsonData = json_decode(file_get_contents('php://input'), true);
     if($jsonData != null){
         $codigoCorreios = isset($jsonData["codigo_correios"]) ? $jsonData["codigo_correios"] : null;
@@ -35,8 +38,7 @@
         
         if(!function_exists("is_json")){
             function is_json($string){
-                json_decode($string);
-                return (json_last_error() == JSON_ERROR_NONE);
+                return true;
             }
         }
         

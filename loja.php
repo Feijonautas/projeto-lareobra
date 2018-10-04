@@ -98,7 +98,7 @@ error_reporting(E_ALL);
             .background-loja{
                 width: 100%;
                 min-height: 300px;
-                background-color: #eee;
+                background-color: #fff;
             }
             .background-loja img{
                 width: 100%;
@@ -114,8 +114,14 @@ error_reporting(E_ALL);
                 background-color: #fff;
                 overflow: hidden;
             }
+            .vitrine-standard{
+                width: 95%;
+            }
             .vitrine-standard .titulo-vitrine{
                 text-align: left;
+            }
+            .navigation-tree{
+                width: 95%;
             }
             @media screen and (max-width: 1100px){
                 .main-content{
@@ -123,16 +129,26 @@ error_reporting(E_ALL);
                     margin-bottom: -100px;
                 }
                 @media screen and (max-width: 720px){
+                    .background-loja{
+                        min-height: 0px;
+                    }
                     .main-content{
                         top: -100px;
                         margin-bottom: -50px;
+                    }
+                    .navigation-tree{
+                        padding-top: 20px;
+                    }
+                    .navigation-tree a{
+                        margin: 0px 5px 0px 0px;
+                        padding-bottom: 8px;
                     }
                     @media screen and (max-width: 480px){
                          .main-content{
                             width: 100%;
                             padding: 0px;
-                            top: 0px;
-                            margin: 0 auto;
+                            top: -50px;
+                            margin-bottom: 50px;
                         }
                     }
                 }

@@ -397,6 +397,9 @@
                     .display-formulario .small{
                         width: 100%;
                     }
+                    .main-content .display-carrinho .info-title{
+                        padding: 0;
+                    }
                     .main-content .display-carrinho .item-carrinho{
                         padding: 10px;
                         height: auto;
@@ -449,6 +452,12 @@
                     }
                     .main-content .display-carrinho .display-resultados-frete .msg-endereco{
                         margin: 10px 0px 10px 0px;   
+                    }
+                    .main-content .display-carrinho .display-cupom .inputs-field{
+                        padding: 5px 0 10px 0;
+                    }
+                    .main-content .display-carrinho .display-cupom .inputs-field .js-cupom-input{
+                        width: 140px;
                     }
                     .main-content .display-carrinho .bottom-info{
                         width: 100%;
@@ -607,7 +616,7 @@
 											displayResultadoFrete.html("Ocorreu um erro ao calcular o frete. Recarregue a página e tente novamente.");
 										},
 										success: function(resultado){
-											//console.log(resultado)
+											console.log(resultado)
 											var tituloServico = get_titulo_servico(codigo);
 
 											if(resultado != false){
@@ -1243,7 +1252,7 @@
 						//print_r($_SESSION);
 						echo "<input type='hidden' value='$json_cart' id='carrinhoFinalizar'>";
 						
-                        echo "<div class='display-cupom'>";
+                        echo "<div class='display-cupom before-checkout-area'>";
                             echo "<h5 class='info-title'>Cupom de Desconto</h5>";
                             echo "<div class='inputs-field'>";
                                 $cupom_code = isset($_SESSION['carrinho']['cupom_desconto']) ? $_SESSION['carrinho']['cupom_desconto'] : null;

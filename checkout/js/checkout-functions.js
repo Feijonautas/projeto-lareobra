@@ -141,6 +141,7 @@ $(document).ready(function(){
         if(CheckoutPagseguro.session_id != null){
             PagSeguroDirectPayment.getSenderHash();
             PagSeguroDirectPayment.onSenderHashReady(function(response){
+                //console.log(response)
                 if(response.status == 'error') {
                     console.log(response.message);
                     return false;
@@ -351,36 +352,38 @@ $(document).ready(function(){
                         break;
                 }
                 
+                var redirect = "carrinho/true";
                 if(response == "aguardando"){
-                    var redirect = "finalizar-compra.php?clear=true";
+
                     mensagemAlerta("Sua compra foi finalizada com sucesso! Assim que o pagamento for confirmado novas informações estarão disponíveis.", false, "limegreen", redirect);
+
                 }else if(response == "pago"){
+
                     mensagemAlerta("Seu pagamento foi confirmado com sucesso! Logo informações sobre o rastreamento de sua compra serão adicionadas no seu pedido.", false, "limegreen", redirect);
+
                 }else if(response == "pontos_insuficientes"){
-					mensagemAlerta("Seus pontos do Clube de Descontos são insuficientes para finalizar essa compra", false, false, "carrinho/");	
+
+                    redirect = "carrinho/";
+					mensagemAlerta("Seus pontos do Clube de Descontos são insuficientes para finalizar essa compra", false, false, redirect);	
+
 				}else if(typeof JSON.parse(response) != "undefined"){
-                    // CUSTOMIZE FINISH
+
+                    // CUSTOM REDIRECT FINISH
                     var json_response = JSON.parse(response);
                     
-                    if(typeof json_response.paymentLink != "undefined"){
-                        var paymentLink = json_response.paymentLink;
-                        refresh_checkout(buttonCheckout, false);
-                        
-                        function imprimirBoleto(){
-                            window.open(paymentLink);
-                        }
-                        
-                        function voltar(){
-                            window.location.href = "finalizar-compra.php?clear=true";
-                        }
-                        
-                        mensagemConfirma("Sua compra foi finalizada com sucesso! Deseja imprimir o boleto agora?", imprimirBoleto, voltar);
+                    if(typeof json_response.referencia != "undefined"){
+                        redirect = "pedido-finalizado/" + json_response.referencia;
                     }
-                    // END CUSTOMIZE FINISH
+                    // END CUSTOM REDIRECT FINISH
+
                 }else{
-                    refresh_checkout(buttonCheckout);
+
                     mensagemAlerta("Verifique se os dados do cartão estão corretos.");
+                    
                 }
+
+                refresh_checkout(buttonCheckout, false);
+                window.location.href = redirect;
             }
         });
     }

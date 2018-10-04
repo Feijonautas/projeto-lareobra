@@ -51,9 +51,12 @@
 				margin-bottom: 20px;
 			}
 			.main-content .display-cont .box-cont{
-				flex: 0 0 25%;
+				flex: 0 0 300px;
 				margin: 40px 10px 0px 10px;
 				transition: .2s;
+				-webkit-box-shadow: 0px 0px 6px 1px rgba(0, 0, 0, .1);
+				-moz-box-shadow: 0px 0px 6px 1px rgba(0, 0, 0, .1);
+				box-shadow: 0px 0px 6px 1px rgba(0, 0, 0, .1);
 			}
 			.main-content .display-cont .box-cont .item-thumb{
 				transition: .3s;
@@ -70,10 +73,8 @@
 				transform: scale(1.05);
 			}
 			.main-content .display-cont .box-cont .item-desc{
-				-webkit-box-shadow: 0px 0px 6px 1px rgba(0, 0, 0, .1);
-				-moz-box-shadow: 0px 0px 6px 1px rgba(0, 0, 0, .1);
-				box-shadow: 0px 0px 6px 1px rgba(0, 0, 0, .1);
-				height: 168px;
+				height: auto;
+				padding: 0 0 15px 0;
 			}
 			.main-content .display-cont .box-cont .item-int-desc{
 				width: 90%;
@@ -145,7 +146,7 @@
         ?>
         <!--THIS PAGE CONTENT-->
         <div class="background-loja">
-            <img src="imagens/estrutura/background-dicas.png">
+            <img src="imagens/estrutura/background-dicas-update.png">
         </div>
         <div class="main-content">
         	<div class="display-cont">
@@ -180,7 +181,7 @@
 							echo "</div>";
 							echo "<div class='item-desc'>";
 								echo "<div class='item-int-desc'>";
-									echo "<a href='$urlDica'><h2 class='titulo'>$titulo</h2>";
+									echo "<h2 class='titulo'><a href='$urlDica'>$titulo</a></h2>";
 									echo "<p>$descricaoCurta</p>";
 									echo "<a href='$urlDica' class='btn-dicas'>Continuar lendo</a>";
 								echo "</div>";

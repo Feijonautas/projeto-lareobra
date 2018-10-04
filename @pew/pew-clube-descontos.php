@@ -6,13 +6,13 @@ error_reporting(E_ALL);
     
     $thisPageURL = substr($_SERVER["REQUEST_URI"], strpos($_SERVER["REQUEST_URI"], '@pew'));
     $_POST["next_page"] = str_replace("@pew/", "", $thisPageURL);
-    $_POST["invalid_levels"] = array(5);
+    $_POST["invalid_levels"] = array(5, 4, 3, 2);
     
     require_once "@link-important-functions.php";
     require_once "@valida-sessao.php";
 
-    $navigation_title = "Lista de Clientes - " . $pew_session->empresa;
-    $page_title = "Lista de Clientes";
+    $navigation_title = "Clientes Clube de Descontos - " . $pew_session->empresa;
+    $page_title = "Clientes Clube de Descontos";
 ?>
 <!DOCTYPE html>
 <html>
@@ -35,9 +35,14 @@ error_reporting(E_ALL);
             if(isset($block_level) && $block_level == true){
                 $pew_session->block_level();
             }
+
+            $tabela_minha_conta = $pew_custom_db->tabela_minha_conta;
 		
 			require_once "../@classe-minha-conta.php";
+            require_once "../@classe-clube-descontos.php";
+
 			$cls_conta = new MinhaConta();
+            $cls_clube = new ClubeDescontos();
         ?>
         <!--PAGE CONTENT-->
         <h1 class="titulos"><?php echo $page_title; ?></h1>
@@ -61,12 +66,21 @@ error_reporting(E_ALL);
             </form>
 			<div style="display: block;" class='clear'>
             <?php
-                $tabela_minha_conta = $pew_custom_db->tabela_minha_conta;
+                $selected_usuarios_clube = $cls_clube->query("true", "id_usuario");
+
 				$mainCondition = "true";
                 if(isset($_GET["busca"]) && $_GET["busca"] != ""){
                     $getSEARCH = addslashes($_GET["busca"]);
                     $mainCondition = "usuario like '%".$getSEARCH."%' or telefone like '%".$getSEARCH."%' or celular like '%".$getSEARCH."%' or email like '%".$getSEARCH."%' or cpf like '%".$getSEARCH."%' or cnpj like '%".$getSEARCH."%'";
                     echo "<h3>Exibindo resultados para: $getSEARCH</h3>";
+                }
+
+                function cadastrado_clube($id_cliente){
+                    global $cls_clube;
+
+                    $cadastrado = count($cls_clube->query_id("id_usuario = '$id_cliente'")) > 0 ? true : false;
+
+                    return $cadastrado;
                 }
 			
 				$queryClientes = $cls_conta->query($mainCondition, "id, usuario, email, cpf, cnpj, tipo_pessoa, telefone, celular, data_cadastro");
@@ -75,30 +89,35 @@ error_reporting(E_ALL);
 						echo "<thead>";
 							echo "<td>Cadastro</td>";
 							echo "<td>Nome</td>";
-							echo "<td>E-mail</td>";
 							echo "<td>CPF/CNPJ</td>";
-							echo "<td>Pessoa</td>";
-							echo "<td>Celular</td>";
+							echo "<td>Pontos</td>";
+							echo "<td>Reais</td>";
 							echo "<td>Info.</td>";
 						echo "</thead>";
 						echo "<tbody>";
 						foreach($queryClientes as $infoCliente){
-							$str_tipo_pessoa = $infoCliente['tipo_pessoa'] == 0 ? "Física" : "Jurídica";
-								
-							$final_cpf_cnpj = $infoCliente["tipo_pessoa"] == 0 ? $infoCliente['cpf'] : $infoCliente['cnpj'];
-							$final_cpf_cnpj = $infoCliente['tipo_pessoa'] == 0 ? $pew_functions->mask($final_cpf_cnpj, "###.###.###-##") : $pew_functions->mask($final_cpf_cnpj, "##.###.###.####.##");
-							
-							$dataCadastro = $pew_functions->inverter_data(substr($infoCliente['data_cadastro'], 0, 10));
-							
-							echo "<tr>";
-								echo "<td>$dataCadastro</td>";
-								echo "<td>{$infoCliente['usuario']}</td>";
-								echo "<td>{$infoCliente['email']}</td>";
-								echo "<td>$final_cpf_cnpj</td>";
-								echo "<td>$str_tipo_pessoa</td>";
-								echo "<td>{$infoCliente['celular']}</td>";
-								echo "<td><a href='pew-interna-cliente.php?id_cliente={$infoCliente['id']}' class='link-padrao'>Ver mais</td>";
-							echo "</tr>";
+                            $idCliente = $infoCliente['id'];
+                            if(cadastrado_clube($idCliente) == true){
+                                $queryInfoClube = $cls_clube->query("id_usuario = '$idCliente'", "id, data_cadastro");
+                                $infoClube = $queryInfoClube[0];
+
+                                $final_cpf_cnpj = $infoCliente["tipo_pessoa"] == 0 ? $infoCliente['cpf'] : $infoCliente['cnpj'];
+                                $final_cpf_cnpj = $infoCliente['tipo_pessoa'] == 0 ? $pew_functions->mask($final_cpf_cnpj, "###.###.###-##") : $pew_functions->mask($final_cpf_cnpj, "##.###.###.####.##");
+                                
+                                $cadastroClube = $pew_functions->inverter_data(substr($infoClube['data_cadastro'], 0, 10));
+
+                                $totalPontos = $cls_clube->get_total_pontos($idCliente);
+                                $totalBRL = $cls_clube->converter_pontos("reais", $totalPontos);
+                                
+                                echo "<tr>";
+                                    echo "<td>$cadastroClube</td>";
+                                    echo "<td>{$infoCliente['usuario']}</td>";
+                                    echo "<td>$final_cpf_cnpj</td>";
+                                    echo "<td align=center>$totalPontos</td>";
+                                    echo "<td class='prices'>R$ $totalBRL</td>";
+                                    echo "<td align=center><a href='pew-interna-clube-descontos.php?id_clube={$infoClube['id']}' class='link-padrao'>Ver mais</td>";
+                                echo "</tr>";
+                            }
 						}
 						echo "</tbody>";
 					echo "</table>";

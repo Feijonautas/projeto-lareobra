@@ -546,7 +546,10 @@
                 <span>
                     <a href="formas-de-pagamento.php" class="link-principal">FORMAS DE PAGAMENTO</a>
                     <ul class="sub-menu">
-                        <li class="social-media"><img src="imagens/estrutura/icone-cartao-de-credito.png" style='width: 30px;' title="Cartão de crédito e Débito"><img src="imagens/estrutura/icone-transferencia-bancaria.png" style='width: 30px;' title="Transferência bancária"><img src="imagens/estrutura/icone-boleto.png" style='width: 30px;' title="Boleto"></li>
+                        <li class="social-media">
+                            <img src="imagens/estrutura/icone-cartao-de-credito.png" style='width: 30px;' title="Cartão de crédito e Débito">
+                            <!-- <img src="imagens/estrutura/icone-transferencia-bancaria.png" style='width: 30px;' title="Transferência bancária"> -->
+                            <img src="imagens/estrutura/icone-boleto.png" style='width: 30px;' title="Boleto"></li>
                         <li class="social-media"></li>
                     </ul>
                 </span>

@@ -350,6 +350,13 @@
                     <i class="fas fa-spinner fa-spin icone-loading"></i>
                 </div>
                 <div class="displays display-info-contato">
+                    <div class="small">
+                        <h4 class="input-title">Tipo de pessoa</h4>
+                        <select name="tipo_pessoa" id="tipoPessoa">
+							<option value="0">Física</option>
+							<option value="1">Jurídica</option>
+						</select>
+                    </div>
                     <div class="half js-pessoa-juridica">
                         <h4 class="input-title">Razão Social</h4>
                         <input type="text" placeholder="Razão Social" name="razao_social" id="razaoSocial">
@@ -364,13 +371,6 @@
                         <h4 class="input-title">E-mail</h4>
                         <input type="text" placeholder="contato@bolsasemcouro.com.br" name="email" id="email" value="<?= $modalEmail; ?>">
                         <h6 class="msg-input"></h6>
-                    </div>
-					<div class="small">
-                        <h4 class="input-title">Tipo de pessoa</h4>
-                        <select name="tipo_pessoa" id="tipoPessoa">
-							<option value="0">Física</option>
-							<option value="1">Jurídica</option>
-						</select>
                     </div>
                     <div class="small">
                         <h4 class="input-title">Senha</h4>

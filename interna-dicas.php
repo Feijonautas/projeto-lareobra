@@ -84,10 +84,27 @@
                 text-decoration: none;
             }
             .main-content .display{
-                width: 75vw;
+                text-align: justify;
+                width: 80%;
                 margin: 10vh auto;
                 color: #aaa;
                 color: #333;
+            }
+            @media screen and (max-width: 1024px){
+                .main-content .box .breadcrumb{
+                    font-size: 1.3vw;
+                }
+            }
+            @media screen and (max-width: 425px){
+                .main-content .display{
+                    width: 90%;
+                }
+                .main-content .box .breadcrumb{
+                    font-size: 2.1vw;
+                }
+                .main-content .box img{
+                    height: 130px;
+                }
             }
         </style>
         <!--END PAGE CSS-->

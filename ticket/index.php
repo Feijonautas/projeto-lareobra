@@ -17,6 +17,21 @@
     .tickets-table .table-link{
         color: #333;
     }
+
+    .responsive{
+        display: none;
+    }
+    @media screen and (max-width: 600px) {
+        .no-responsive{
+            display: none;
+        }
+        .responsive{
+            display: block;
+        }
+        .ticket-line{
+            margin-bottom: 15px;
+        }
+    }
 </style>
 <br>
 <h1 align=center>Meus Tickets</h1>
@@ -35,7 +50,7 @@ if($cls_conta->auth($emailSessao, $senhaSessao)){
     <tr>
         <td colspan="7">Registrar novo ticket: <a href="ticket/adicionar/" class="link-padrao">adicionar</a></td>
     </tr>
-    <tr class="table-head">
+    <tr class="table-head no-responsive">
         <td>Referência</td>
         <td>Assunto</td>
         <td>Departamento</td>
@@ -86,13 +101,20 @@ if($cls_conta->auth($emailSessao, $senhaSessao)){
                 }
                 
                 echo "<tr class='ticket-line'>";
-                    echo "<td>#{$infoTicket['ref']}</td>";
-                    echo "<td>{$infoTicket['topic']}</td>";
-                    echo "<td>{$infoTicket['department']}</td>";
-                    echo "<td>$dataAno</td>";
-                    echo "<td>$prioridade</td>";
-                    echo "<td>$status</td>";
-                    echo "<td align=center><a href='ticket/interna/{$infoTicket['ref']}/' class='link-padrao table-link'><i class='fas fa-eye'></i></a></td>";
+                    echo "<td class='no-responsive'>#{$infoTicket['ref']}</td>";
+                    echo "<td class='no-responsive'>{$infoTicket['topic']}</td>";
+                    echo "<td class='no-responsive'>{$infoTicket['department']}</td>";
+                    echo "<td class='no-responsive'>$dataAno</td>";
+                    echo "<td class='no-responsive'>$prioridade</td>";
+                    echo "<td class='no-responsive'>$status</td>";
+                    echo "<td class='no-responsive' align=center><a href='ticket/interna/{$infoTicket['ref']}/' class='link-padrao table-link'><i class='fas fa-eye'></i></a></td>";
+                    echo "<td class='responsive'>Referencia: #{$infoTicket['ref']}</td>";
+                    echo "<td class='responsive'>Assunto: {$infoTicket['topic']}</td>";
+                    echo "<td class='responsive'>Departamento: {$infoTicket['department']}</td>";
+                    echo "<td class='responsive'>Enviado: $dataAno</td>";
+                    echo "<td class='responsive'>Prioridade: $prioridade</td>";
+                    echo "<td class='responsive'>Status: $status</td>";
+                    echo "<td class='responsive' style='text-align: center; margin-bottom: 35px'><a href='ticket/interna/{$infoTicket['ref']}/' class='link-padrao table-link' style='font-weight: bold; color: #0a5209; font-size: 18px;'>Ver tudo</a></td>";
                 echo "</tr>";
             }
         }else{

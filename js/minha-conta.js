@@ -74,6 +74,11 @@ $(document).ready(function(){
 	var objBairro = $("#bairroConta");
 	var objEstado = $("#estadoConta");
 	var objCidade = $("#cidadeConta");
+
+	objCep.off().blur(function(){
+		var cep = $(this).val().replace(/\D/g,'');
+		buscarCEP(cep, objRua, objEstado, objCidade, objBairro);
+	});
 	
 	objIsentoInscricao.off().on("change", function(){
 		var checked = $(this).prop("checked");

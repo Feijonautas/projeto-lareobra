@@ -50,45 +50,27 @@ function frete($produtos = null, $codigo_correios = "41106", $cep_envio = 0, $ce
                 $volumeItens = $infoCaixa->volume_itens;
                 $valorItens = $infoCaixa->valor_mercadoria;
                 $valorMercadoria = $declararValor == true ? $valorItens : 0;
-
-                $dadosFrete = [
-                    'cep_envio' => $cepEnvio,
-                    'cep_destino' => $cepDestino,
-                    'codigo_servico' => $servicoCorreios,
-                    'comprimento' => $comprimentoCaixa,
-                    'largura' => $larguraCaixa,
-                    'altura' => $alturaCaixa,
-                    'peso' => $pesoCaixa,
-                    'valor_mercadoria' => $valorMercadoria,
-                ];
-
-                $ch = curl_init();
-                curl_setopt($ch, CURLOPT_URL, $url_api_transportadora);
-                curl_setopt($ch, CURLOPT_POST, true);
-                curl_setopt($ch, CURLOPT_POSTFIELDS, $dadosFrete);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                 
-                $response = curl_exec($ch);
-				$print_response = $response;
+                $url_api = "http://ws.correios.com.br/calculador/CalcPrecoPrazo.asmx/CalcPrecoPrazo?nCdEmpresa=&sDsSenha=&nCdServico=$servicoCorreios&sCepOrigem=$cepEnvio&sCepDestino=$cepDestino&nVlPeso=$pesoCaixa&nCdFormato=1&nVlComprimento=$comprimentoCaixa&nVlAltura=$alturaCaixa&nVlLargura=$larguraCaixa&nVlDiametro=0&sCdMaoPropria=n&nVlValorDeclarado=$valorMercadoria&sCdAvisoRecebimento=n&StrRetorno=xml";
+
+                $xml = simplexml_load_string(file_get_contents($url_api));
+
+				$print_response = $xml;
                 
-                if($response != "false" && is_json($response)){
-                    
-                    $json_response = json_decode($response);
+                if($xml->Erro == 0){
                     
                     $frete_caixas[$ctrlFrete] = array();
-                    $frete_caixas[$ctrlFrete]["Valor"] = $json_response->valor;
-                    $frete_caixas[$ctrlFrete]["PrazoEntrega"] = $json_response->prazo;
+                    $frete_caixas[$ctrlFrete]["Valor"] = $xml->Servicos->cServico->Valor;
+                    $frete_caixas[$ctrlFrete]["PrazoEntrega"] = $xml->Servicos->cServico->PrazoEntrega;
 
                     $ctrlFrete++;
                 }
-
-                curl_close($ch);
             }
         }
 
         $freteFinal = 0;
         $prazoFinal = 0;
-        if(count($frete_caixas) > 0){
+        if(count($frete_caixas) == count($caixas)){
             foreach($frete_caixas as $arrayCaixa){
                 $valorFrete = $arrayCaixa["Valor"];
                 $prazoFinal = $arrayCaixa["PrazoEntrega"] > $prazoFinal ? $arrayCaixa["PrazoEntrega"] : $prazoFinal;

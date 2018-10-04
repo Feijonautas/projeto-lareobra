@@ -917,6 +917,7 @@
             .section-bottom .display-paineis .descricao{
                 text-align: justify;
                 color: #6d6d6d;
+                line-height: 24px;
             }
             .section-bottom .display-paineis .background-loading{
                 position: absolute;
@@ -951,7 +952,7 @@
                 z-index: 80;
             }
             .section-bottom .display-paineis .top-buttons{
-                height: 5vh;
+                height: 40px;
                 background-color: #fff;
                 border: none;
                 cursor: pointer;
@@ -1006,6 +1007,11 @@
                 background-color: #eee;
                 color: #333;
                 font-weight: bold;
+            }
+            @media screen and (max-width: 425px){
+                .section-bottom .display-paineis .top-buttons{
+                    height: 50px;
+                }
             }
         </style>
         <script>

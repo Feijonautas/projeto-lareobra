@@ -37,48 +37,28 @@
 }
 .vitrine-standard .display-produtos .box-produto{
     position: relative;
-    width: 16%;
-    margin: 10px 1% 50px 1%;
-    padding: 10px 1% 10px 1%;
-    transition: all .3s ease;
+    width: calc(20% - 62px);
+    margin: 20px 15px;
+    padding: 15px;
+    transition: all .2s ease, margin 0s, padding 0s;
     font-size: 16px;
     min-width: 0px;
     min-height: 0px;
+    margin-bottom: 55px;
+    border: 1px solid #ddd;
 }
 .vitrine-standard .display-produtos .box-produto:hover{
     transform: scale(1.1);
-    margin-bottom: 10px;
+    margin-bottom: 15px;
     padding-bottom: 50px;
-    -webkit-box-shadow: 0px 0px 18px 6px rgba(0, 0, 0, .1);
-    -moz-box-shadow: 0px 0px 18px 6px rgba(0, 0, 0, .1);
-    box-shadow: 0px 0px 18px 6px rgba(0, 0, 0, .1);
+    border: 1px solid #ccc;
+    -webkit-box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, .2);
+    -moz-box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, .2);
+    box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, .2);
 }
 .vitrine-standard .display-produtos .box-produto .image-head{
 	position: relative;
 	display: block;
-}
-.vitrine-standard .display-produtos .box-produto .image-head .js-clock{
-	position: absolute;
-	margin: 0 auto;
-	left: 0;
-	right: 0;
-	bottom: 0px;
-	text-decoration: none;
-	font-size: 22px;
-	text-align: center;
-	font-weight: bold;
-	color: #fff;
-	background-color: #6abd45;
-	height: 28px;
-	border-radius: 4px;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-}
-.vitrine-standard .display-produtos .box-produto .image-head .js-clock .info{
-	font-size: 12px;
-	font-weight: normal;
-	margin-right: 5px;
 }
 .vitrine-standard .display-produtos .box-produto img{
     width: 100%;
@@ -122,13 +102,17 @@
     font-size: 14px;
     height: 25px;
     line-height: 25px;
-    color: #fff;
     font-weight: bold;
     transition: .2s;
-    background-color: #155c3c;
+    background-color: #fff;
+    color: #999;
+    border: 1px solid #999;
+    border-radius: 5px;
 }
 .vitrine-standard .display-produtos .box-produto .call-to-action:hover{
-    background-color: #0f422b;
+    background-color: #155c3c;
+    border-color: #155c3c;
+    color: #fff;
 }
 .vitrine-standard .display-produtos .box-produto .display-cores{
     display: flex;
@@ -158,37 +142,65 @@
     border-radius: 50%;
 }
 .vitrine-standard .display-produtos .box-produto .display-cores .cor:hover{
-    opacity: .7;   
+    opacity: .7;
 }
+/* JS CLOCK */
+.box-produto .image-head .js-clock{
+	position: absolute;
+	margin: 0 auto;
+	left: 0;
+	right: 0;
+	bottom: 0px;
+	text-decoration: none;
+	font-size: 16px;
+	text-align: center;
+	font-weight: bold;
+	color: #fff;
+	background-color: #6abd45;
+	height: 28px;
+	border-radius: 4px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+    padding: 0 10px;
+}
+.box-produto .image-head .js-clock .info{
+	font-size: 12px;
+	font-weight: normal;
+	margin-right: 5px;
+}
+/* END JS CLOCK */
 @media screen and (max-width: 1100px){
     .vitrine-standard{
         width: 95%;
     }
     @media screen and (max-width: 980px){
         .vitrine-standard .display-produtos .box-produto{
-            width: 21%;
+            width: calc(25% - 62px);
         }
         @media screen and (max-width: 760px){
             .vitrine-standard .display-produtos .box-produto{
-                width: 29%;
+                width: calc(33.3% - 32px);
+                margin: 20px 5px;
+                padding: 10px;
+            }
+            .vitrine-standard .display-produtos .box-produto:hover{
+                margin: 20px 5px;
+                padding: 10px;
+                transform: scale(1);
+            }
+            .vitrine-standard .display-produtos .box-produto .image-head .js-clock{
+                font-size: 16px;
             }
             @media screen and (max-width: 640px){
                 .vitrine-standard .display-produtos .box-produto{
-                    width: 46%;
-                    margin: 10px 2% 10px 2%;
-                    padding: 0px;
-                }
-                .vitrine-standard .display-produtos .box-produto:hover{
-                    box-shadow: none;
-                    margin: 10px 2% 10px 2%;
-                    padding: 0px;
+                    width: calc(50% - 32px);
                 }
                 .vitrine-standard .display-produtos .box-produto .display-cores{
                     position: relative;
                     visibility: visible;
                     opacity: 1;
                     width: 100%;
-                    margin: 20px 5px 10px 5px;
                 }
             }
         }
@@ -368,13 +380,15 @@
 }
 .vitrine-carrossel .display-produtos .box-produto{
     position: relative;
-    width: 160px;
+    width: 158px;
+    border: 1px solid #ddd;
     margin: 10px 10px 50px 15px;
     margin-bottom: 10px;
     padding: 10px;
     padding-bottom: 50px;
     transition: all .3s ease;
     font-size: 16px;
+    border-radius: 5px;
 }
 /*.vitrine-carrossel .display-produtos .box-produto:hover{
     transform: scale(1.1);
@@ -422,14 +436,17 @@
     font-size: 14px;
     height: 25px;
     line-height: 25px;
-    color: #fff;
     font-weight: bold;
     transition: .2s;
-    background-color: #155c3c;
-    cursor: pointer;
+    background-color: #fff;
+    color: #999;
+    border: 1px solid #999;
+    border-radius: 5px;
 }
 .vitrine-carrossel .display-produtos .box-produto .call-to-action:hover{
-    background-color: #0f422b;
+    background-color: #155c3c;
+    border-color: #155c3c;
+    color: #fff;
 }
 .vitrine-carrossel .display-produtos .box-produto .display-cores{
     display: flex;
@@ -459,7 +476,7 @@
     border-radius: 50%;
 }
 .vitrine-carrossel .display-produtos .box-produto .display-cores .cor:hover{
-    opacity: .7;   
+    opacity: .7;
 }
 @media screen and (max-width: 1000px){
     .vitrine-carrossel{
@@ -476,7 +493,8 @@
         margin-bottom: 30px;
     }
     .vitrine-carrossel .display-produtos .box-produto{
-        width: 132px;
+        width: 130px;
+        border: 1px solid #ddd;
         margin: 0px 8px 0px 5px;
         padding: 5px 5px 60px 5px;
     }
@@ -491,7 +509,8 @@
             width: 450px;
         }
         .vitrine-carrossel .display-produtos .box-produto{
-            width: 130px;
+            width: 128px;
+            border: 1px solid #ddd;
         }
         @media screen and (max-width: 480px){
             .vitrine-carrossel{
@@ -510,7 +529,8 @@
                 width: 320px;
             }
             .vitrine-carrossel .display-produtos .box-produto{
-                width: 200px;
+                width: 198px;
+                border: 1px solid #ddd;
                 padding: 5px 60px 60px 60px;
                 margin: 0px;
             }
@@ -523,9 +543,9 @@
     position: absolute;
     top: 0px;
     left: 0px;
-    padding: 3px 5px 3px 5px;
-    font-size: 12px;
-    border-radius: 5px;
+    padding: 3px 8px;
+    font-size: 14px;
+    border-radius: 3px;
     color: #fff;
     background-color: limegreen;
 	z-index: 40;

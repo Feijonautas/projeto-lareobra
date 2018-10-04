@@ -33,6 +33,11 @@
                 margin: 0 auto;
                 min-height: 300px;
             }
+            @media screen and (max-width: 425px){
+                .main-content{
+                    width: 90%;
+                }
+            }
         </style>
         <!--END PAGE CSS-->
         <!--PAGE JS-->
@@ -54,7 +59,8 @@
         <!--THIS PAGE CONTENT-->
         <div class="main-content">
             <h1 align=center class="titulo-principal">ENTREGA E DEVOLUÇÃO</h1>
-            <article>Ao contrário do que se acredita, Lorem Ipsum não é simplesmente um texto randômico. Com mais de 2000 anos, suas raízes podem ser encontradas em uma obra de literatura latina. Lorem Ipsum não é simplesmente um texto randômico. Com mais de 2000 anos, suas raízes podem ser encontradas em uma obra de literatura latina.</article>
+             A troca por desistência ou arrependimento deve ser efetuada dentro do prazo de <b>07 (sete) dias</b> contados do recebimento do produto, com a apresentação da respectiva <b>Nota Fiscal</b> de acordo com o artigo 49 do Código de Defesa do Consumidor.<br><br>  Não será efetuada troca ou devolução de produtos sob encomenda;<br><br>  Não será efetuada troca ou devolução que apresente vício por mau uso;<br><br>  Somente serão efetuadas trocas ou devoluções de produto(s) que contenham todos os acessórios, peças e embalagem original.<br><br>  Os produtos sob encomenda vendidos pela <b>Lar & Obra</b> não serão objetos de troca por motivo de arrependimento ou insatisfação, eis que são adquiridos mediante encomenda especial e exclusiva para o cliente.<br><br> Não trocamos Produtos de saldo, vencidos, fora de linha, sobra de obra, mercadorias de encomenda e tintas preparadas.<br><br>  Produtos com defeito ou vício de fabricação, com cobertura de assistência técnica, como: eletroeletrônicos, eletrodomésticos, ventiladores, aquecedores, máquinas e ferramentas, deverão ser encaminhados pelo próprio cliente à Assistência Técnica do fabricante, para atendimento, no prazo previsto na legislação, Art. 18 do Código de Defesa do Consumidor;<br><br>
+             <b>Em caso de troca, não serão reembolsados valores pagos a título de frete e serviços de instalação.</b><br><br><br><br> Os <b>produtos poderão ser trocados ou devolvidos em nossa loja no endereço abaixo:</b><br><br> R. Joao Doetzer nº 415. Jardim das Américas no horário comercial.<br> Mais informações sobre este serviço podem ser obtidas através do telefone <b>41 3365-9357.</b><br><br> <b>De Segunda à Sexta das 08:00h às 18:00h.</b><br><br> <b>Sábados das 08:00h às 12:00h.</b><br><br><br><br>
         </div>
         <!--END THIS PAGE CONTENT-->
         <?php

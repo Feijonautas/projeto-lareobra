@@ -57,7 +57,7 @@
         ?>
         <!--END DEFAULT LINKS-->
         <!--PAGE CSS-->
-		<link type="text/css" rel="stylesheet" href="css/minha-conta.css?v=1.1">
+		<link type="text/css" rel="stylesheet" href="css/minha-conta.css?v=<?= time(); ?>">
         <style>
 			.title-center{
 				text-align: center;

@@ -46,7 +46,7 @@
             $this->pew_functions = $pew_functions;            
         }
         
-        function montar($id){
+        function montar($id, $update = true){
             $conexao = $this->global_vars["conexao"];
             $tabela_pedidos = $this->global_vars["tabela_pedidos"];
             $tabela_carrinhos = $this->global_vars["tabela_carrinhos"];
@@ -84,20 +84,25 @@
 				$dataPedido = substr($info['data_controle'], 0, 10);
 				$dataPedido = $this->pew_functions->inverter_data($dataPedido);
                 
-                $_POST["console"] = false;
-                $_POST["codigo_referencia"] = $info["referencia"];
-                
-                global $diretorioAPI;
-                
-                require "{$diretorioAPI}pagseguro/ws-pagseguro-consulta-referencia.php"; // Retorna o $statusPagseguro
-                
-				if($statusPagseguro == 3 && $this->codigo_rastreamento == 0 || $statusPagseguro == 4 && $this->codigo_rastreamento == 0){
-					$code = $this->random_track_code($info['referencia']);
-					$transportStatus = 2;
-					mysqli_query($conexao, "update $tabela_pedidos set codigo_rastreamento = '$code', status_transporte = '$transportStatus' where id = '{$info['id']}'");
-					$this->codigo_rastreamento = $code;
-					$this->status_transporte = $transportStatus;
-				}
+                if($update == true){
+                    $_POST["console"] = false;
+                    $_POST["codigo_referencia"] = $info["referencia"];
+                    
+                    global $diretorioAPI;
+                    
+                    require "{$diretorioAPI}pagseguro/ws-pagseguro-consulta-referencia.php"; // Retorna o $statusPagseguro
+                    
+                    if(isset($statusPagseguro)){
+
+                        if($statusPagseguro == 3 && $this->codigo_rastreamento == 0 || $statusPagseguro == 4 && $this->codigo_rastreamento == 0){
+                            $code = $this->random_track_code($info['referencia']);
+                            $transportStatus = 2;
+                            mysqli_query($conexao, "update $tabela_pedidos set codigo_rastreamento = '$code', status_transporte = '$transportStatus' where id = '{$info['id']}'");
+                            $this->codigo_rastreamento = $code;
+                            $this->status_transporte = $transportStatus;
+                        }
+                    }
+                }
                 
                 if(isset($statusPagseguro) && $statusPagseguro != $this->status){
                     switch($statusPagseguro){

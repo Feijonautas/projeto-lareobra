@@ -9,11 +9,15 @@ error_reporting(E_ALL);
 	require_once "../@valida-regiao.php";
 
 	$_POST['user_side'] = true;
+	require_once "../@classe-paginas.php";
 	require_once "../@classe-minha-conta.php";
 	require_once "../@classe-clube-descontos.php";
+	require_once "../@pew/@classe-system-functions.php";
 
 	$cls_conta = new MinhaConta();
 	$cls_clube = new ClubeDescontos();
+	$cls_paginas = new Paginas();
+    $pew_functions = new systemFunctions();
 
     if(isset($_POST["acao"])){
         
@@ -121,7 +125,6 @@ error_reporting(E_ALL);
 		$idConta = 0;
         $isPessoaJuridica = false;
         if(isset($_SESSION["minha_conta"])){
-            require_once "../@classe-minha-conta.php";
             $sessaoConta = $_SESSION["minha_conta"];
             
             $emailConta = isset($sessaoConta["email"]) ? $sessaoConta["email"] : null;
@@ -298,6 +301,7 @@ error_reporting(E_ALL);
 					$statusTransporte = 0;
                     
                     $paymentLink = isset($xml->paymentLink) ? $xml->paymentLink : null;
+                    $referenciaPedido = isset($xml->reference) ? $xml->reference : null;
                     
                     // Se pessoa Juridica = redirecionar pedido para Franquia Principal
                     $session_id_franquia = $isPessoaJuridica == true ? 0 : $session_id_franquia;
@@ -307,6 +311,15 @@ error_reporting(E_ALL);
 					
 					$idPedido = get_last_id();
 					$cls_notificacoes->insert($session_id_franquia, "Nova pedido", "Um cliente finalizou um pedido na loja", "pew-interna-pedido.php?id_pedido=$idPedido", "finances");
+
+                    $destinarios = array();
+                    $destinarios[0] = array();
+                    $destinarios[0]['email'] = $pagseguro['senderEmail'];
+                    $destinarios[0]['nome'] = $pagseguro['senderName'];
+
+                    $bodyEmailPedido = $cls_conta->get_body_email_pedido($idPedido);
+
+                    $pew_functions->enviar_email("Novo pedido - {$cls_paginas->empresa}", $bodyEmailPedido, $destinarios);
                     
                     switch($statusPagamento){
                         case 3:
@@ -325,8 +338,12 @@ error_reporting(E_ALL);
                             $resposta = "aguardando";
                     }
                     
-                    if($paymentLink != null){
-                        $resposta = '{"paymentLink": "'.$paymentLink.'"}';
+                    // if($paymentLink != null){
+                    //     $resposta = '{"paymentLink": "'.$paymentLink.'"}';
+                    // }
+
+                    if($referenciaPedido != null){
+                        $resposta = '{"referencia": "'.$referenciaPedido.'"}';
                     }
                     
                     //print_r($xml); exit;

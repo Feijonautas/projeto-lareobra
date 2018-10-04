@@ -48,7 +48,7 @@ error_reporting(E_ALL);
         ?>
         <!--END DEFAULT LINKS-->
         <!--PAGE CSS-->
-		<link type="text/css" rel="stylesheet" href="css/minha-conta.css?v=1.1">
+		<link type="text/css" rel="stylesheet" href="css/minha-conta.css?v=1.7">
         <style>
 			.title-center{
 				text-align: center;
@@ -75,6 +75,9 @@ error_reporting(E_ALL);
 				margin-right: 30px;
 				border-radius: 4px;
 				border: 1px solid #ddd;
+			}
+			.display-conta .side-navigation .mobile-button{
+				display: none;
 			}
 			.display-conta .side-navigation li{
 				list-style: none;
@@ -110,7 +113,7 @@ error_reporting(E_ALL);
 				margin-right: 15px;
 				text-decoration: none;
 				color: #666;
-				transition: .2s;
+				transition: .05s;
 			}
 			.display-conta .box-painel .sub-navigation .active{
 				color: #6abd45;
@@ -337,13 +340,90 @@ error_reporting(E_ALL);
 			.share-mailer-box .bottom .js-send-button:hover{
 				background-color: #008626;		
 			}
+			@media screen and (max-width: 1100px){
+				.display-conta .xsmall{
+					width: calc((100%/2) - 30px);
+					margin: 5px 15px 5px 15px;
+					float: left;
+				}
+				.display-conta .small{
+					width: calc(100% - 30px);
+					margin: 5px 15px 5px 15px;
+					float: left;
+				}
+				.display-conta .medium{
+					width: calc(100% - 30px);
+					margin: 5px 15px 5px 15px;
+					float: left;
+				}
+				.display-conta .half{
+					width: calc(100% - 30px);
+					margin: 5px 15px 5px 15px;
+					float: left;
+				}
+				.display-conta .large{
+					width: calc(100% - 30px);
+					margin: 5px 15px 5px 15px;
+					float: left;
+				}
+				.display-conta .xlarge{
+					width: calc(100% - 30px);
+					margin: 5px 15px 5px 15px;
+					float: left;
+				}
+				.display-conta .full{
+					width: calc(100% - 30px);
+					margin: 5px 15px 5px 15px;
+				}
+				.display-conta{
+					flex-direction: column;
+				}
+				.display-conta .list-table{
+					font-size: 12px;
+				}
+				.display-conta .list-table .hidden-mobile{
+					display: none;
+				}
+				.display-conta .side-navigation{
+					margin-bottom: 20px;
+				}
+				.display-conta .side-navigation .mobile-button{
+					display: block;
+				}
+				.display-conta .side-navigation .mobile-span{
+					display: none;
+					border: 1px solid #eee;
+					margin: 10px 0;
+				}
+				.display-conta .box-painel{
+					width: 100%;
+				}
+				.display-conta .box-painel .sub-navigation a{
+					display: block;
+					margin-bottom: 10px;
+				}
+				.display-conta .box-painel .media-field .media-box{
+					width: calc(100% - 30px);
+					margin-bottom: 20px;
+				}
+			}
 		</style>
         <!--END PAGE CSS-->
         <!--PAGE JS-->
-		<script type="text/javascript" src="js/minha-conta.js?v=2.1"></script>
+		<script type="text/javascript" src="js/minha-conta.js?v=<?= time(); ?>"></script>
         <script>
             $(document).ready(function(){
                 console.log("Página carregada");
+
+				var mobileButton = $(".side-navigation .mobile-button");
+				var mobileSpan = $(".side-navigation .mobile-span");
+				mobileButton.off().on('click', function(){
+					if(mobileSpan.css("display") == "none"){
+						mobileSpan.css("display", "block");
+					}else{
+						mobileSpan.css("display", "none");
+					}
+				});
 				
 				$(".js-copy-code").off().on("click", function(){
 					$(".js-ref-code").select();
@@ -662,9 +742,13 @@ error_reporting(E_ALL);
 				echo "<section class='display-conta'>";
 				if($showMinhaConta){
 					echo "<div class='side-navigation'>";
-						echo "<li><a href='$baseRoute/conta'>Meus dados</a></li>";
-						echo "<li><a href='$baseRoute/pedidos'>Pedidos</a></li>";
-						echo "<li><a href='$baseRoute/clube-de-descontos'><i class='fas fa-star'></i> Clube de Descontos</a></li>";
+						echo "<div class='mobile-button'><i class='fas fa-bars'></i> Menu conta</div>";
+						echo "<span class='mobile-span'>";
+							echo "<li><a href='$baseRoute/conta'>Meus dados</a></li>";
+							echo "<li><a href='$baseRoute/pedidos'>Pedidos</a></li>";
+							echo "<li><a href='$baseRoute/clube-de-descontos'><i class='fas fa-star'></i> Clube de Descontos</a></li>";
+							echo "<li><a href='ticket'>Central de Atendimento</a></li>";
+						echo "</span>";
 					echo "</div>";
 
 					echo "<div class='box-painel'>";

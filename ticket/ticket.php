@@ -202,6 +202,19 @@
     .ticket-images-zoom .close-button:hover{
         background-color: #fff;   
     }
+
+    @media screen and (max-width: 680px){
+        .display-ticket{
+            display: block;
+        }
+        .display-ticket .ticket-info{
+            width: 100%;
+        }
+        .display-ticket .ticket-content{
+            width: 100%;
+            padding: 10px 0px;
+        }
+    }
 </style>
 <script>
     $(document).ready(function(){

@@ -230,13 +230,13 @@ class ClubeDescontos
 		}
 	}
 
-	function converter_pontos($type = "reais", $value)
+	function converter_pontos($convert_to_type = "reais", $value)
 	{
 		global $pew_functions;
 		$returnVal = $value;
 
 		if ($value > 0) {
-			if ($type == "reais") {
+			if ($convert_to_type == "reais") {
 				$returnVal = $value * $this->brl_per_point;
 				$returnVal = $pew_functions->custom_number_format($returnVal);
 			} else {
@@ -499,12 +499,18 @@ class ClubeDescontos
 		echo "</article>";
 
 		echo "<div class='media-field'>";
-		echo "<div class='media-box'><img src='$dirImages/compartilhe-redes-sociais.png' class='image'></div>";
-		echo "<div class='media-box'><img src='$dirImages/pontos-pra-todo-mundo.png' class='image'></div>";
-		echo "<div class='media-box'><img src='$dirImages/aproveite-as-promocoes.png' class='image'></div>";
-		echo "<div class='media-box'><article>Você pode compartilhar seu Link de Referência com quantos amigos quiser!</article></div>";
-		echo "<div class='media-box'><article>Quando seu amigo faz parte do Clube você ganhará pontos pelas compras dele também!</article></div>";
-		echo "<div class='media-box'><article>Ofertas e cupons exclusivos para quem faz parte do Clube de Descontos</article></div>";
+			echo "<div class='media-box'>"; 
+				echo "<img src='$dirImages/compartilhe-redes-sociais.png' class='image'>";
+				echo "<article>Você pode compartilhar seu Link de Referência com quantos amigos quiser!</article>";
+			echo "</div>";
+			echo "<div class='media-box'>"; 
+				echo "<img src='$dirImages/pontos-pra-todo-mundo.png' class='image'>";
+				echo "<article>Quando seu amigo faz parte do Clube você ganhará pontos pelas compras dele também!</article>";
+			echo "</div>";
+			echo "<div class='media-box'>"; 
+				echo "<img src='$dirImages/aproveite-as-promocoes.png' class='image'>";
+				echo "<article>Ofertas e cupons exclusivos para quem faz parte do Clube de Descontos</article>";
+			echo "</div>";
 		echo "</div>";
 		echo "<div class='grid-box'>";
 		echo "<h4><i class='fas fa-link'></i> Link de Referência:</h4>";
@@ -623,7 +629,7 @@ class ClubeDescontos
 		echo "<table class='list-table'>";
 		echo "<thead>";
 		echo "<td>Nome</td>";
-		echo "<td>E-mail</td>";
+		echo "<td class='hidden-mobile'>E-mail</td>";
 		echo "<td>Data</td>";
 		echo "<td>Status</td>";
 		echo "</thead>";
@@ -649,7 +655,7 @@ class ClubeDescontos
 					$dataFinal = $account_status == 0 ? $dataCadastro : $dataAtivacao;
 
 					echo "<tr><td>$nomeIndicado</td>";
-					echo "<td>$emailIndicado</td>";
+					echo "<td class='hidden-mobile'>$emailIndicado</td>";
 					echo "<td>$dataFinal</td>";
 					echo "<td>$str_status</td></tr>";
 				}
