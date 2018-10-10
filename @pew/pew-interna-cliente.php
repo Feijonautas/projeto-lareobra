@@ -217,7 +217,7 @@
 						$horaAtualizacao = substr($infoEndereco['data_controle'], 10);
 						echo "<tr>";
 							echo "<td>Ultima atualização</td>";
-							echo "<td class='info'>$horaAtualizacao - $dataAtualizacao</td>";
+							echo "<td class='info'>$dataAtualizacao - $horaAtualizacao</td>";
 						echo "</tr>";
 					echo "</table>";
 				echo "</div>";

@@ -560,9 +560,9 @@ error_reporting(E_ALL);
             <?php
 				$countLinks = 0;
 			
-				$link_nav[$countLinks] = new NavLinks("Banners", "pew-banners.php", null, array(1, 4));
+				$link_nav[$countLinks] = new NavLinks("Banners", "pew-banners.php", null, array(4));
 				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fas fa-images'></i> Listar Banners", "pew-banners.php");
-				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fa fa-plus'></i> Cadastrar novo", "pew-cadastra-banner.php");
+				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fa fa-plus'></i> Cadastrar novo", "pew-cadastra-banner.php", array(5, 3, 2));
 				$countLinks++;
 				
 				$link_nav[$countLinks] = new NavLinks("Produtos", "pew-produtos.php", null, array(5));
@@ -620,6 +620,7 @@ error_reporting(E_ALL);
 				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fas fa-truck'></i> Opções de Transporte", "pew-opcoes-transporte.php", array(1));
 				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fas fa-hotel'></i> Franquias", "pew-franquias.php", array(3, 2));
 				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fas fa-tasks'></i> Solicitações de produtos", "pew-gerenciamento-solicitacoes-produtos.php", array(3, 2));
+				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fas fa-database'></i> Log Franquias", "pew-log-franquias.php", array(3, 2));
 				$countLinks++;
 			
                 $quantidadeLinks = count($link_nav);

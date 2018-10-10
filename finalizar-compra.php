@@ -59,135 +59,126 @@
         <!--PAGE CSS-->
         <style>
             .main-content{
-                width: 80%;
+                width: 55%;
                 margin: 0 auto;
                 min-height: 300px;
                 background-color: #fff;
                 margin: 80px auto 80px auto;
-                -webkit-box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.1);
-                -moz-box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.1);
-                box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.1);
+                border: 1px solid #ccc;
+                padding: 0 20px;
+                border-radius: 4px;
             }
             .main-content .titulo{
                 font-size: 24px;
-                padding: 20px 15px 20px 15px;
+                padding: 20px 0;
                 margin: 0px;
+                color: #555;
             }
             .main-content article{
                 margin: 15px 15px 35px 15px;  
             }
             .main-content .display-carrinho{
-                width: calc(100% - 30px);
-                margin: 15px;
+                width: 100%;
                 padding: 0px 0px 20px 0px;
                 display: flex;
                 flex-flow: row wrap;
                 align-items: flex-end;
+                justify-content: space-around;
             }
 			.main-content .display-carrinho .info-title{
                 font-size: 18px;
-				margin: 15px 0 5px 0;
-				padding: 0 15px;
+				margin: 20px 0 5px 0;
             }
             .main-content .display-carrinho .item-carrinho{
                 position: relative;
                 width: 100%;
                 display: flex;
-                height: 150px;
-                margin: 10px 0px 10px 0px;
+                margin: 10px 0px;
                 flex-flow: row wrap;
                 border-bottom: 1px solid #eee;
             }
-            .main-content .display-carrinho .item-carrinho .box-imagem{
-                width: 180px;
-                height: 150px;
+            .display-carrinho .item-carrinho .box-imagem{
+                width: 120px;
+                height: 160px;
             }
-            .main-content .display-carrinho .item-carrinho .box-imagem .imagem{
+            .display-carrinho .item-carrinho .box-imagem .imagem{
                 height: 100%;
             }
-            .main-content .display-carrinho .item-carrinho .information{
-                width: calc(60% - 180px);
-                margin: 0px;
-            }
-            .main-content .display-carrinho .item-carrinho .information a{
-				text-decoration: none;
-				color: #555;
-			}
-            .main-content .display-carrinho .item-carrinho .information a:hover{
-				color: #222;	
-			}
-            .main-content .display-carrinho .item-carrinho .information .titulo{
-                font-size: 18px;
-				line-height: 18px;
-                width: 100%;
-            }
-            .main-content .display-carrinho .item-carrinho .price-field{
-                width: calc(50% - 180px);
+            .display-carrinho .item-carrinho .product-info{
                 display: flex;
-                height: 40px;
-                margin: 15px 0px 0px 0px;
-                justify-content: flex-end;
-				flex-flow: row wrap;
+                justify-content: space-between;
+                width: calc(100% - 120px);
+                align-items: baseline;
             }
-            .main-content .display-carrinho .item-carrinho .price-field .controller-preco{
-                width: 60%;
+            .display-carrinho .item-carrinho .product-info .information a{
+                text-decoration: none;
+            }
+            .display-carrinho .item-carrinho .product-info .information a:hover{
+                text-decoration: underline;
+            }
+            .display-carrinho .item-carrinho .product-info .information .titulo{
+                font-size: 16px;
+                color: #333;
+            }
+            .display-carrinho .item-carrinho .product-info .price-field{
                 display: flex;
-                color: #999;
-                height: 40px;
-                line-height: 40px;
+            }
+            .display-carrinho .item-carrinho .product-info .price-field .controller-preco{
+                display: flex;
+                padding: 15px;
                 align-items: center;
             }
-            .main-content .display-carrinho .item-carrinho .price-field .controller-preco .price{
-                height: 40px;
-                margin: 0px 10px 0px 10px;
-            }
-            .main-content .display-carrinho .item-carrinho .price-field .controller-preco .quantidade-produto{
-                width: 38px;
-                height: 38px;
-                border: 1px solid #999;
-                color: #999;
-                text-align: center;
-                line-height: 38px;
-                outline: none;
-            }
-            .main-content .display-carrinho .item-carrinho .price-field .view-subtotal-produto{
-                height: 40px;
-                line-height: 40px; 
-            }
-            .main-content .display-carrinho .item-carrinho .price-field .view-subtotal-produto .subtotal{
-                margin: 0px;
-            }
-            .main-content .display-carrinho .item-carrinho .price-field .view-subtotal-produto .link-padrao{
-                padding: 0px;
+            .display-carrinho .item-carrinho .product-info .price-field .controller-preco .last-price{
                 font-size: 12px;
-                line-height: 12px;
-                cursor: pointer;
-                text-align: right;
+                text-decoration: line-through;
+                color: #555;
+                margin-right: 15px;
+                white-space: nowrap;
             }
-            .main-content .display-carrinho .display-cupom{
+            .display-carrinho .item-carrinho .product-info .price-field .controller-preco .price{
+                font-size: 16px;
+                margin-right: 20px;
+                white-space: nowrap;
+            }
+            .display-carrinho .item-carrinho .product-info .price-field .controller-preco .quantidade-produto{
+                width: 30px;
+                height: 20px;
+                padding: 10px;
+                text-align: center;
+            }
+            .display-carrinho .item-carrinho .product-info .price-field .view-subtotal-produto{
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-direction: column;
+            }
+            .display-carrinho .item-carrinho .product-info .price-field .view-subtotal-produto .subtotal{
+                font-size: 18px;
+                color: #216835;
+                margin: 10px 0 10px 5px;
+                white-space: nowrap;
+            }
+            .display-carrinho .display-cupom{
                 width: 100%;
             }
-            .main-content .display-carrinho .display-cupom .inputs-field{
-                padding: 5px 15px;   
-            }
-            .main-content .display-carrinho .display-cupom .inputs-field input{
+            .display-carrinho .display-cupom .inputs-field input{
                 padding: 10px 5px;
                 outline: none;
             }
-            .main-content .display-carrinho .display-cupom .inputs-field .js-cupom-input{
+            .display-carrinho .display-cupom .inputs-field .js-cupom-input{
                 border: 1px solid #ccc;
                 background-color: #eee;
             }
-            .main-content .display-carrinho .display-cupom .inputs-field .js-cupom-confirm{
+            .display-carrinho .display-cupom .inputs-field .js-cupom-confirm{
                 background-color: #222;
                 color: #fff;
                 border: none;
                 cursor: pointer;
             }
-            .main-content .display-carrinho .display-cupom .inputs-field .js-cupom-confirm:hover{
+            .display-carrinho .display-cupom .inputs-field .js-cupom-confirm:hover{
                 background-color: #000;
             }
-            .main-content .display-carrinho .display-cupom .js-cupom-view{
+            .display-carrinho .display-cupom .js-cupom-view{
                 position: fixed;
                 width: 248px;
                 background-color: #fff;
@@ -204,36 +195,36 @@
                 z-index: 200;
                 border-radius: 4px;
             }
-            .main-content .display-carrinho .display-cupom .js-cupom-view .title{
+            .display-carrinho .display-cupom .js-cupom-view .title{
                 margin: 10px 0px;
                 font-size: 16px;
                 color: #333;
                 text-align: center;
             }
-            .main-content .display-carrinho .display-cupom .js-cupom-view .article{
+            .display-carrinho .display-cupom .js-cupom-view .article{
                 margin: 10px 0;
                 font-size: 14px;
                 color: #555;
                 text-align: justify;
             }
-            .main-content .display-carrinho .display-cupom .js-cupom-view .date{
+            .display-carrinho .display-cupom .js-cupom-view .date{
                 font-size: 12px;
                 color: #555;
             }
-            .main-content .display-carrinho .display-cupom .js-cupom-view .final-message{
+            .display-carrinho .display-cupom .js-cupom-view .final-message{
                 margin: 15px 0;
             }
-            .main-content .display-carrinho .display-cupom .js-cupom-view .final-message .error{
+            .display-carrinho .display-cupom .js-cupom-view .final-message .error{
                 color: #c23838;
             }
-            .main-content .display-carrinho .display-cupom .js-cupom-view .final-message .true{
+            .display-carrinho .display-cupom .js-cupom-view .final-message .true{
                 color: #53ca3d;
             }
-            .main-content .display-carrinho .display-cupom .js-cupom-view .bottom-controller{
+            .display-carrinho .display-cupom .js-cupom-view .bottom-controller{
                 padding: 5px 0 15px 0;
                 text-align: center;
             }
-            .main-content .display-carrinho .display-cupom .js-cupom-view .bottom-controller .js-close-cupom{
+            .display-carrinho .display-cupom .js-cupom-view .bottom-controller .js-close-cupom{
                 background-color: #6abd45;
                 color: #fff;
                 padding: 5px 15px;
@@ -241,56 +232,65 @@
                 border: none;
                 cursor: pointer;
             }
-            .main-content .display-carrinho .display-cupom .js-cupom-view .bottom-controller .js-close-cupom:hover{
+            .display-carrinho .display-cupom .js-cupom-view .bottom-controller .js-close-cupom:hover{
                 background-color: #469e1f;
             }
-            .main-content .display-carrinho .display-cupom .js-cupom-view-active{
+            .display-carrinho .display-cupom .js-cupom-view-active{
                 visibility: visible;
                 opacity: 1;
                 transform: scale(1);
             }
-            .main-content .display-carrinho .endereco-alternativo{
+            .display-carrinho .endereco-alternativo{
                 display: none;
             }
-            .main-content .display-carrinho .msg-endereco{
-                margin: 5px 15px;
+            .display-carrinho .msg-endereco{
+                margin: 5px;
+                color: #777;
                 font-weight: normal;
+                font-size: 12px;
             }
-            .main-content .display-carrinho .label-edita-endereco{
-                margin: 0px 15px;
+            .display-carrinho .label-edita-endereco{
                 display: block;
                 font-size: 14px;
                 cursor: pointer;
             }
-            .main-content .display-carrinho .label-frete{
+            .display-carrinho .label-frete{
                 cursor: pointer;
             }
-            .main-content .display-carrinho .label-frete:hover{
+            .display-carrinho .label-frete:hover{
                 background-color: #eee;   
             }
-            .main-content .display-carrinho .display-resultados-frete{
+            .display-carrinho .display-resultados-frete{
                 width: calc(40% - 20px);
 				margin-top: 5px;
+                margin-left: -12px;
             }
-            .main-content .display-carrinho .display-resultados-frete .span-frete{
-                margin: 0px 20px 0px 20px;
+            .display-carrinho .display-resultados-frete .span-frete{
+                margin: 0;
                 font-size: 14px;
             }
-            .main-content .display-carrinho .display-clube-options{
+            .display-carrinho .display-resultados-frete .display-observacoes{
+                width: 100;
+            }
+            .display-carrinho .display-resultados-frete .display-observacoes .observacoes-pedido{
+                border: 1px solid #ccc;
+                border-radius: 3px;
+                outline: none;
+                width: calc(100% - 30px);
+                padding: 15px;
+                resize: none;
+            }
+            .display-carrinho .display-clube-options{
 				width: 100%;
 				margin-bottom: 30px;
 			}
-            .main-content .display-carrinho .display-clube-options .option-label{
-				padding: 5px 15px;	
-			}
-            .main-content .display-carrinho .display-clube-options .js-input-points-field{
-				padding: 0 15px;
+            .display-carrinho .display-clube-options .js-input-points-field{
 				display: none;
 			}
-            .main-content .display-carrinho .display-clube-options .js-input-points-field .descricao{
+            .display-carrinho .display-clube-options .js-input-points-field .descricao{
 				margin: 5px 0;	
 			}
-            .main-content .display-carrinho .display-clube-options .js-input-points-field .js-points{
+            .display-carrinho .display-clube-options .js-input-points-field .js-points{
 				height: 28px;
 				padding: 5px;
 				width: 98px;
@@ -298,7 +298,7 @@
 				background-color: #eee;
 				outline: none;
 			}
-            .main-content .display-carrinho .display-clube-options .js-input-points-field .js-confirm{
+            .display-carrinho .display-clube-options .js-input-points-field .js-confirm{
 				height: 40px;
 				padding: 5px 10px;
 				border: none;
@@ -306,13 +306,13 @@
 				color: #fff;
 				cursor: pointer;
 			}
-            .main-content .display-carrinho .display-clube-options .js-input-points-field .js-confirm:hover{
+            .display-carrinho .display-clube-options .js-input-points-field .js-confirm:hover{
 				background-color: #000;	
 			}
-            .main-content .display-carrinho .display-clube-options .js-input-points-field .view-brl-points{
+            .display-carrinho .display-clube-options .js-input-points-field .view-brl-points{
 				padding: 10px;
 			}
-            .main-content .display-carrinho .bottom-info{
+            .display-carrinho .bottom-info{
                 position: relative;
                 padding-bottom: 40px;
                 width: calc(60% - 20px);
@@ -320,27 +320,27 @@
                 text-align: right;
                 align-items: flex-end;
             }
-            .main-content .display-carrinho .bottom-info .display-prices{
+            .display-carrinho .bottom-info .display-prices{
                 text-align: right;
             }
-            .main-content .display-carrinho .bottom-info .info{
+            .display-carrinho .bottom-info .info{
                 color: #888;
                 display: block;
                 font-weight: normal;
             }
-            .main-content .display-carrinho .bottom-info .info .title{
+            .display-carrinho .bottom-info .info .title{
                 margin: 0px 40px 0px 0px;
             }
-            .main-content .display-carrinho .bottom-info .info .title-bold{
+            .display-carrinho .bottom-info .info .title-bold{
                 font-weight: bold;
             }
-            .main-content .display-carrinho .bottom-info .display-total{
+            .display-carrinho .bottom-info .display-total{
                 text-align: right;
             }
-            .main-content .display-carrinho .bottom-info .display-total .view-total .title{
+            .display-carrinho .bottom-info .display-total .view-total .title{
                 margin: 0px 25px 0px 0px;
             }
-            .main-content .display-carrinho .bottom-info .botao-continuar{
+            .display-carrinho .bottom-info .botao-continuar{
                 position: absolute;
                 width: auto;
                 background-color: #6abd45;
@@ -355,7 +355,7 @@
                 bottom: 0px;
                 right: 0px;
             }
-            .main-content .display-carrinho .bottom-info .botao-continuar .icon-button{
+            .display-carrinho .bottom-info .botao-continuar .icon-button{
                 position: absolute;
                 right: 15px;
                 top: 0px;
@@ -363,111 +363,103 @@
                 line-height: 30px;
                 transition: .2s;
             }
-            .main-content .display-carrinho .bottom-info .botao-continuar:hover{
+            .display-carrinho .bottom-info .botao-continuar:hover{
                 background-color: #518d36;   
             }
-            .main-content .display-carrinho .bottom-info .botao-continuar:hover .icon-button{
+            .display-carrinho .bottom-info .botao-continuar:hover .icon-button{
                 right: 8px;
             }
-            @media only all and (max-width: 1200px){
-                .main-content .display-carrinho .item-carrinho{
-                    flex-direction: column;
+                
+            @media only all and (max-width: 1400px){
+                .main-content{
+                    width: 75%;
                 }
-                .main-content .display-carrinho .item-carrinho .information{
-                    width: calc(100% - 180px);  
-                    line-height: normal;
+            }
+            @media only all and (max-width: 1100px){
+                .main-content{
+                    width: 85%;
                 }
-                .main-content .display-carrinho .item-carrinho .information .titulo{
-                    white-space: normal;
-                    font-size: 1.3vw;
+            }
+
+            @media only all and (max-width: 768px){
+                .main-content{
+                    margin: 0px;
+                    width: calc(100% - 20px);
+                    padding: 0 10px;
+                    border: none;
                 }
-                .main-content .display-carrinho .item-carrinho .price-field{
-                    font-size: 1.5vw;
-                    width: calc(100% - 180px);  
+                article{
+                    margin: 15px;  
                 }
-                @media only all and (max-width: 480px){
-                    .main-content{
-                        margin: 0px auto 0px auto;
-                        width: 90%;
-                    }
-                    .main-content article{
-                        margin: 15px;  
-                    }
-                    .main-content .titulo{
-                        font-size: 18px;
-                    }
-                    .display-formulario .small{
-                        width: 100%;
-                    }
-                    .main-content .display-carrinho .info-title{
-                        padding: 0;
-                    }
-                    .main-content .display-carrinho .item-carrinho{
-                        padding: 10px;
-                        height: auto;
-                        flex-direction: row;
-                    }
-                    .main-content .display-carrinho .item-carrinho .box-imagem{
-                        width: 25%;
-                        height: auto;
-                    }
-                    .main-content .display-carrinho .item-carrinho .box-imagem .imagem{
-                        width: 100%;
-                        height: auto;
-                    }
-                    .main-content .display-carrinho .item-carrinho .information{
-                        width: calc(75% - 20px);
-                        padding: 10px;
-                        height: auto;
-                    }
-                    .main-content .display-carrinho .item-carrinho .information .titulo{
-                        font-size: 16px;
-                        margin: 0px;
-                        padding: 0px;
-                    }
-                    .main-content .display-carrinho .item-carrinho .price-field{
-                        font-size: 100%;
-                        width: 100%;
-                        margin: 0px;
-                        justify-content: center;
-                    }
-                    .main-content .display-carrinho .item-carrinho .price-field .controller-preco .quantidade-produto{
-                        width: 25px;
-                        height: 25px;
-                    }
-                    .main-content .display-carrinho .item-carrinho .price-field .botao-remover{
-                        position: relative;
-                        top: -22px;
-                    }
-                    .main-content .display-carrinho .display-resultados-frete{
-                        width: 100%;
-                        padding: 0px;
-                    }
-                    .main-content .display-carrinho .display-resultados-frete .info-title{
-                        margin: 0px;
-                    }
-                    .main-content .display-carrinho .display-resultados-frete .label-edita-endereco{
-                        margin: 0px;   
-                    }
-                    .main-content .display-carrinho .display-resultados-frete .span-frete{
-                        margin: 0px;   
-                    }
-                    .main-content .display-carrinho .display-resultados-frete .msg-endereco{
-                        margin: 10px 0px 10px 0px;   
-                    }
-                    .main-content .display-carrinho .display-cupom .inputs-field{
-                        padding: 5px 0 10px 0;
-                    }
-                    .main-content .display-carrinho .display-cupom .inputs-field .js-cupom-input{
-                        width: 140px;
-                    }
-                    .main-content .display-carrinho .bottom-info{
-                        width: 100%;
-                        padding: 0px 0px 40px 0px;
-                    }
-                    .main-content .display-carrinho .bottom-info .botao-continuar{
-                        font-weight: normal;
-                    }
+                .titulo{
+                    font-size: 18px;
+                }
+                .main-content .display-carrinho .info-title{
+                    font-size: 18px;
+                    margin: 15px 0 5px 0;
+                    padding: 0px;
+                }
+                .display-formulario .small{
+                    width: 100%;
+                }
+                .display-carrinho .item-carrinho{
+                    height: auto;
+                    justify-content: flex-start;
+                }
+                .display-carrinho .item-carrinho .box-imagem{
+                    width: 60px;
+                }
+                .display-carrinho .item-carrinho .box-imagem .imagem{
+                    width: 100%;
+                }
+                .display-carrinho .item-carrinho .product-info{
+                    width: calc(100% - 60px);
+                    flex-flow: row wrap;
+                }
+                .display-carrinho .item-carrinho .product-info .information{
+                    width: 100%;
+                }
+                .display-carrinho .item-carrinho .product-info .price-field{
+                    justify-content: flex-end;
+                    flex-flow: row wrap;
+                }
+                .display-carrinho .item-carrinho .product-info .price-field .controller-preco .last-price{
+                    font-size: 10px;
+                }
+                .display-carrinho .item-carrinho .product-info .price-field .controller-preco .price{
+                    font-size: 12px;
+                }
+                .display-carrinho .item-carrinho .product-info .price-field .controller-preco .quantidade-produto{
+                    width: 20px;
+                }
+                .display-carrinho .item-carrinho .product-info .price-field .view-subtotal-produto{
+                    padding: 0 15px;
+                }
+                .display-carrinho .display-resultados-frete{
+                    width: 100%;
+                    padding: 0px;
+                }
+                .display-carrinho .display-resultados-frete .label-edita-endereco{
+                    margin: 0px;   
+                }
+                .display-carrinho .display-resultados-frete .span-frete{
+                    margin: 0px;   
+                }
+                .display-carrinho .display-resultados-frete .msg-endereco{
+                    margin: 10px 0px 10px 0px;   
+                }
+                .display-carrinho .display-cupom .inputs-field{
+                    padding: 5px 0 10px 0;
+                }
+                .display-carrinho .display-cupom .inputs-field .js-cupom-input{
+                    width: 140px;
+                }
+                .display-carrinho .bottom-info{
+                    width: 100%;
+                    padding: 0px 0px 40px 0px;
+                }
+                .display-carrinho .bottom-info .botao-continuar{
+                    font-weight: normal;
                 }
             }
             .botao-salvar{
@@ -513,6 +505,7 @@
                 var viewCarrinhoFrete = $(".view-frete");
 				var pontosClube = $("#jsPointsClube").val();
                 var stringTransporte = $("#stringTransporte").val();
+                var objObservacoesPedido = $("#jsObservacoesPedido");
                 
                 // DADOS COMPRA
                 var displayDados = $(".dados-compra");
@@ -735,6 +728,7 @@
 									valor_final: totalCarrinho,
 									metodos_envio: metodosEnvio,
 									codigo_transporte: transportCode,
+                                    observacoes_pedido: objObservacoesPedido.val(),
 									acao: "get_view_checkout"
 								}, 
                                 function(){
@@ -997,7 +991,7 @@
 					set_view_points();
 					
 					if(maxPoints > minPoints){
-						if(points_value >= minPoints && points_value <= maxPoints){
+						if(parseInt(points_value) >= parseInt(minPoints) && parseInt(points_value) <= parseInt(maxPoints) || parseInt(points_value) == 0){
 							$.ajax({
 								type: "POST",
 								url: "@classe-carrinho-compras.php",
@@ -1014,7 +1008,7 @@
 									}
 								}
 							});
-						}else if(points_value < minPoints){
+						}else if(parseInt(points_value) < parseInt(minPoints)){
 							mensagemAlerta("Você precisa usar no mínimo " + minPoints + " pontos");
 						}else{
 							mensagemAlerta("Você não pode usar mais que " + maxPoints + " pontos nessa compra");
@@ -1182,7 +1176,7 @@
                     }else{
                         $carrinho_finalizar = $cls_carrinho->get_carrinho();
                     }
-                
+
                     $dirImagens = "imagens/produtos";
                     if(count($carrinho_finalizar["itens"]) > 0){
                         $totalItens = 0;
@@ -1196,7 +1190,6 @@
                             $preco = $pew_functions->custom_number_format($preco);
                             $quantidade = $item_carrinho["quantidade"];
                             $subtotal = $preco * $quantidade;
-                            $subtotal = $pew_functions->custom_number_format($subtotal);
                             $condicao = "id_produto = '$idProduto'";
                             $queryImagem = mysqli_query($conexao, "select * from $tabela_imagens_produtos where $condicao order by posicao asc");
                             $infoImagem = mysqli_fetch_array($queryImagem);
@@ -1220,25 +1213,32 @@
                                     echo "<div class='promo-tag'>-$porcentDesconto%</div>";
 								}
                                 echo "<div class='box-imagem'><img class='imagem' src='$dirImagens/$imagem'></div>";
-                                echo "<div class='information'>";
-                                    echo "<a href='$padrao_url_produto'><h2 class='titulo'>$nome</h2></a>";
-                                echo "</div>";
-                                echo "<div class='price-field'>";
-									if($item_carrinho['status'] == 1){
-										echo "<div class='controller-preco'>";
-											echo "<h5 class='price'>R$ $preco</h5>";
-											echo "<input type='text' class='quantidade-produto' placeholder='Qtd' value='$quantidade' carrinho-id-produto='$idProduto'>";
-										echo "</div>";
-										echo "<div class='view-subtotal-produto' align=right>";
-											echo "<h4 class='subtotal'>R$ <span class='view-price'>$subtotal</span></h4>";
-											echo "<a class='link-padrao botao-remover' carrinho-id-produto='$idProduto'>Remover</a>";
-										echo "</div>";
-									}else{
-										echo "<div class='view-subtotal-produto' align=right>";
-											echo "<h5 style='margin: 5px;'>Este produto não está disponível nesta região.</h5>";
-											echo "<a class='link-padrao botao-remover' carrinho-id-produto='$idProduto'>Remover</a>";
-										echo "</div>";
-									}
+                                echo "<div class='product-info'>";
+                                    echo "<div class='information'>";
+                                        echo "<a href='$padrao_url_produto'><h2 class='titulo'>$nome</h2></a>";
+                                    echo "</div>";
+                                    echo "<div class='price-field'>";
+                                        if($item_carrinho['status'] == 1){
+                                            echo "<div class='controller-preco'>";
+                                                if($lastPrice > $preco){
+                                                    echo "<h6 class='last-price'>R$ " . number_format($lastPrice, 2, ",", ".") . "</h6>";
+                                                    echo "<h5 class='price'>por R$ " . number_format($preco, 2, ",", ".") . "</h5>";
+                                                }else{
+                                                    echo "<h5 class='price'>R$ " . number_format($preco, 2, ",", ".") . "</h5>";
+                                                }
+                                                echo "<input type='text' class='quantidade-produto' placeholder='Qtd' value='$quantidade' carrinho-id-produto='$idProduto'>";
+                                            echo "</div>";
+                                            echo "<div class='view-subtotal-produto' align=right>";
+                                                echo "<h4 class='subtotal'>R$ <span class='view-price'>" . number_format($subtotal, 2, ",", ".") . "</span></h4>";
+                                                echo "<a class='link-padrao botao-remover' carrinho-id-produto='$idProduto'>Remover</a>";
+                                            echo "</div>";
+                                        }else{
+                                            echo "<div class='view-subtotal-produto' align=right>";
+                                                echo "<h5 style='margin: 5px;'>Este produto não está disponível nesta região.</h5>";
+                                                echo "<a class='link-padrao botao-remover' carrinho-id-produto='$idProduto'>Remover</a>";
+                                            echo "</div>";
+                                        }
+                                    echo "</div>";
                                 echo "</div>";
 								if($item_carrinho['status'] == 1){
 									$totalItens += $subtotal;
@@ -1360,7 +1360,7 @@
 								echo "<label class='label-edita-endereco'>";
 									echo "<input type='checkbox' name='endereco_diferente' id='enderecoDiferente'> Enviar para outro endereço";
 								echo "</label>";
-								echo "<br><h5 class='msg-endereco'>Enviando para:<br><b>$rua, $numero $complemento</b></h5>";
+								echo "<h5 class='msg-endereco'>Enviando para:<br><b>$rua, $numero $complemento</b></h5>";
 								echo "<div class='span-frete'></div>";
 								echo "<input type='hidden' id='cepDestino' value='$cepConta'>";
 								echo "<input type='hidden' id='ruaDestino' value='$rua'>";
@@ -1372,34 +1372,41 @@
 							}else{
 								echo "<h6 style='margin: 0px 0px 0px 15px; font-weight: normal;'>Entre com sua conta para calcular</h6>";
 							}
+                            
+                            echo "<div class='display-observacoes'>";
+                                echo "<h3 class='info-title'>Observações pedido</h3>";
+                                echo "<textarea class='observacoes-pedido' name='observacoes_pedido' placeholder='Melhor horário para entrega, deixar encomenda no vizinho...' id='jsObservacoesPedido'></textarea>";
                             echo "</div>";
-                            echo "<div class='bottom-info before-checkout-area'>";
-                                echo "<input type='hidden' id='totalCarrinho' value='$totalItens'>";
-                                echo "<div class='display-prices'>";
-                                    echo "<h5 class='info'><span class='title'>Subtotal</span><span class='value view-subtotal'>R$ $totalItens</span></h5>";
-                                    echo "<h5 class='info'><span class='title title-bold'>Frete</span><span class='value view-frete'>R$ 0.00</span></h5>";
-                                echo "</div>";
-                                echo "<div class='display-total'>";
-                                    echo "<h4 class='view-total'><span class='title title-bold'>Total</span> R$ <span class='final-value view-total'>$totalItens</span></h4>";
-                                echo "</div>";
-								if($logged_user){
-									echo "<span class='dados-compra'>";
-										echo "<input type='hidden' id='tokenCarrinho' value='{$carrinho_finalizar["token"]}'>";
-										echo "<input type='hidden' id='idCliente' value='{$infoConta["id"]}'>";
-										echo "<input type='hidden' id='nomeCliente' value='{$infoConta["usuario"]}'>";
-										echo "<input type='hidden' id='cpfCliente' value='{$infoConta["cpf"]}'>";
-										echo "<input type='hidden' id='emailCliente' value='{$infoConta["email"]}'>";
-										echo "<input type='hidden' id='zonaInicial' value='$zonaInicial'>";
-										echo "<input type='hidden' id='zonaFinal' value='$zonaFinal'>";
-										echo "<input type='hidden' id='estadoLoja' value='$estadoLoja'>";
-										echo "<input type='hidden' id='cidadeLoja' value='$cidadeLoja'>";
-									echo "</span>";
-									echo "<button type='button' class='botao-continuar botao-finalizar-compra' id='botaoFinalizarCompra'>Continuar <i class='fas fa-angle-double-right icon-button'></i></button>";
-                                }else{
-                                    echo "<button type='button' class='botao-continuar botao-login-compra' id='botaoLoginCompra'><i class='fas fa-lock icon-button'></i> Faça login para continuar</button>";
-                                }
 
+                        echo "</div>";
+
+
+                        echo "<div class='bottom-info before-checkout-area'>";
+                            echo "<input type='hidden' id='totalCarrinho' value='$totalItens'>";
+                            echo "<div class='display-prices'>";
+                                echo "<h5 class='info'><span class='title'>Subtotal</span><span class='value view-subtotal'>R$ $totalItens</span></h5>";
+                                echo "<h5 class='info'><span class='title title-bold'>Frete</span><span class='value view-frete'>R$ 0.00</span></h5>";
                             echo "</div>";
+                            echo "<div class='display-total'>";
+                                echo "<h4 class='view-total'><span class='title title-bold'>Total</span> R$ <span class='final-value view-total'>$totalItens</span></h4>";
+                            echo "</div>";
+                            if($logged_user){
+                                echo "<span class='dados-compra'>";
+                                    echo "<input type='hidden' id='tokenCarrinho' value='{$carrinho_finalizar["token"]}'>";
+                                    echo "<input type='hidden' id='idCliente' value='{$infoConta["id"]}'>";
+                                    echo "<input type='hidden' id='nomeCliente' value='{$infoConta["usuario"]}'>";
+                                    echo "<input type='hidden' id='cpfCliente' value='{$infoConta["cpf"]}'>";
+                                    echo "<input type='hidden' id='emailCliente' value='{$infoConta["email"]}'>";
+                                    echo "<input type='hidden' id='zonaInicial' value='$zonaInicial'>";
+                                    echo "<input type='hidden' id='zonaFinal' value='$zonaFinal'>";
+                                    echo "<input type='hidden' id='estadoLoja' value='$estadoLoja'>";
+                                    echo "<input type='hidden' id='cidadeLoja' value='$cidadeLoja'>";
+                                echo "</span>";
+                                echo "<button type='button' class='botao-continuar botao-finalizar-compra' id='botaoFinalizarCompra'>Continuar <i class='fas fa-angle-double-right icon-button'></i></button>";
+                            }else{
+                                echo "<button type='button' class='botao-continuar botao-login-compra' id='botaoLoginCompra'><i class='fas fa-lock icon-button'></i> Faça login para continuar</button>";
+                            }
+                        echo "</div>";
                         
                         // CHECKOUT TRANSPARENTE
                             

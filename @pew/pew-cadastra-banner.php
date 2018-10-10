@@ -32,6 +32,8 @@
             require_once "header-efectus-web.php";
             require_once "pew-interatividade.php";
             /*FIM PADRAO*/
+
+            $tabela_franquias = $pew_custom_db->tabela_franquias;
         ?>
         <h1 class="titulos"><?php echo $page_title; ?><a href="pew-banners.php" class="btn-voltar"><i class="fa fa-arrow-left" aria-hidden="true"></i> Voltar</a></h1>
         <section class="conteudo-painel">
@@ -51,6 +53,17 @@
                 <div class="half">
                     <h2 class="label-title">Selecione a imagem do banner: (1200px : 450px)</h2>
                     <input type="file" name="imagem" class="label-input" required>
+                </div>
+                <div class="small">
+                    <h2 class="label-title">Selecione a franquia</h2>
+                    <select class="label-input" name='id_franquia'>
+                    <?php
+                    $queryFranquias = mysqli_query($conexao, "select id, cidade, estado from $tabela_franquias where status = 1");
+                    while($infoFranquia = mysqli_fetch_array($queryFranquias)){
+                        echo "<option value='{$infoFranquia['id']}'>{$infoFranquia['cidade']} - {$infoFranquia['estado']}</option>";
+                    }
+                    ?>
+                    </select>
                 </div>
                 <div class="small clear">
                     <input type="submit" class="btn-submit label-input" value="Cadastrar Banner">

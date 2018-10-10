@@ -2,7 +2,7 @@
 	session_start();
 	require_once "@valida-sessao.php";
 
-    $post_fields = array("titulo", "link");
+    $post_fields = array("id_franquia", "titulo", "link");
     $file_fields = array("imagem");
     $invalid_fields = array();
     $gravar = true;
@@ -39,6 +39,7 @@
         /*SET VARS*/
         $titulo = addslashes($_POST["titulo"]);
         $descricao = addslashes($_POST["descricao"]);
+        $idFranquia = (int) $_POST["id_franquia"];
         $link = $_POST["link"] != "" ? addslashes($_POST["link"]) : false;
         $imagemBanner = $_FILES["imagem"]["name"];
         /*END SET VARS*/
@@ -71,7 +72,7 @@
             }
         }
         
-        mysqli_query($conexao, "insert into $tabela_banners (id_franquia, titulo, descricao, imagem, link, posicao, status) values ('{$pew_session->id_franquia}', '$titulo', '$descricao', '$nomeFoto', '$link', 1, 1)");
+        mysqli_query($conexao, "insert into $tabela_banners (id_franquia, titulo, descricao, imagem, link, posicao, status) values ('$idFranquia', '$titulo', '$descricao', '$nomeFoto', '$link', 1, 1)");
 		
         echo "<script>window.location.href = 'pew-banners.php?msg=O banner foi cadastrado com sucesso!&msgType=success';</script>";
     }else{

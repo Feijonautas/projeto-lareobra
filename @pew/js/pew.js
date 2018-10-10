@@ -366,39 +366,59 @@ $(document).ready(function(){
             });
         });
     }
-	
-	function toggle_painel_background(){
-		var background = $(".background-paineis");
-		if(background.css("display") == "block"){
-			background.css("opacity", "0");
-			setTimeout(function(){
-				background.css("display", "none");
-			}, 300);
-		}else{
-			background.css("display", "block");
-			setTimeout(function(){
-				background.css("opacity", ".7");
-			}, 10);
-		}
-	}
+});
 
-	$(".btn-show-div").each(function(){
-		var button = $(this);
-		var targetID = button.attr("js-target-id");
-		button.off().on("click", function(){
-			var controllDiv = $("#"+targetID);
-			toggle_painel_background();
-			controllDiv.css("display", "block");
-		});
-	});
+function toggle_painel_background(active = false, zIndex = null){
+    var background = $(".background-paineis");
+    if(background.css("display") == "block" && active == false){
+        background.css("opacity", "0");
+        setTimeout(function(){
+            background.css("display", "none");
+        }, 300);
+    }else{
+        background.css("display", "block");
+        setTimeout(function(){
+            background.css("opacity", ".7");
+        }, 10);
+        if(zIndex != null){
+            background.css("z-index", zIndex);
+        }
+    }
+}
 
-	$(".btn-exit-div").each(function(){
-		var button = $(this);
-		var targetID = button.attr("js-target-id");
-		button.off().on("click", function(){
-			var controllDiv = $("#"+targetID);
-			toggle_painel_background();
-			controllDiv.css("display", "none");
-		});
-	});
+function show_div(targetID, zIndex = 300){
+    var controllDiv = $("#"+targetID);
+    toggle_painel_background(true, parseInt(zIndex) - 1);
+    controllDiv.css({
+        display: "block",
+        zIndex: zIndex,
+    });
+}
+
+function hide_div(targetID, restarBackground = true){
+    var controllDiv = $("#"+targetID);
+    if(restarBackground){
+        toggle_painel_background();
+    }
+    controllDiv.css("display", "none");
+}
+
+$(document).ready(function(){
+
+    $(".btn-show-div").each(function(){
+        var button = $(this);
+        var targetID = button.attr("js-target-id");
+        button.off().on("click", function(){
+            show_div(targetID);
+        });
+    });
+
+    $(".btn-exit-div").each(function(){
+        var button = $(this);
+        var targetID = button.attr("js-target-id");
+        button.off().on("click", function(){
+            hide_div(targetID);
+        });
+    });
+
 });

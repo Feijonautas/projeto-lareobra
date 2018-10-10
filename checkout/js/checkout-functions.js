@@ -32,6 +32,7 @@ $(document).ready(function(){
     sendDataForm.shippingAddressComplement = null;
     sendDataForm.jsonProdutos = null;
     sendDataForm.cartTotalPrice = null;
+    sendDataForm.cartObservacoesPedido = null;
     sendDataForm.pontosClube = 0;
     // END STANDARD FORM
     
@@ -226,6 +227,12 @@ $(document).ready(function(){
             sendDataForm.cartTotalPrice = $("#checkoutTotalPrice").val() > 0 ? $("#checkoutTotalPrice").val() : null;
         }
     }
+
+    function set_observacoes_pedido(){
+        if(sendDataForm.cartObservacoesPedido == null && typeof $("#checkoutObservacoes").val() != "undefined"){
+            sendDataForm.cartObservacoesPedido = $("#checkoutObservacoes").val().length > 0 ? $("#checkoutObservacoes").val() : null;
+        }
+    }
     
     function play_button_loading(btn){
         btn.html(loadingIcon + " VALIDANDO");
@@ -234,6 +241,8 @@ $(document).ready(function(){
     setInterval(function(){
         
         set_total_price();
+
+        set_observacoes_pedido();
         
         set_transport_info();
         

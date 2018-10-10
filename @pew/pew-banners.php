@@ -68,6 +68,9 @@
                 line-height: 50px;
                 background: rgba(255, 255, 255, 0.4);
             }
+            .title-franquias{
+                margin: 50px 0 0px 0;
+            }
         </style>
         <script>
             $(document).ready(function(){
@@ -127,18 +130,16 @@
                 <a href="pew-cadastra-banner.php" class="btn-flat" title="Cadastre um novo banner"><i class="fas fa-plus"></i> Cadastrar banner</a>
             </div>
             <div class="lista-banners">
-                <h3 class="subtitulos" id="teste">Listagem de banners.</h3>
+                <h3 class="subtitulos">Listagem de banners.</h3>
                 <?php
                     $tabela_banners = $pew_db->tabela_banners;
-				
-					$pageMainCondition = "id_franquia = '{$pew_session->id_franquia}'";
-				
-                    $contarBanners = mysqli_query($conexao, "select count(id) as total_banners from $tabela_banners where $pageMainCondition");
-                    $contagemBanners = mysqli_fetch_assoc($contarBanners);
-                    $totalBanners = $contagemBanners["total_banners"];
-                    $i = 0;
-                    if($totalBanners > 0){
-                        $queryBanners = mysqli_query($conexao, "select * from $tabela_banners where $pageMainCondition order by posicao");
+                    $tabela_franquias = $pew_custom_db->tabela_franquias;
+
+                    function list_banners($idFranquia, $editBanner = true){
+                        global $conexao, $tabela_banners;
+
+                        $i = 0;
+                        $queryBanners = mysqli_query($conexao, "select * from $tabela_banners where id_franquia = '$idFranquia' order by posicao");
                         while($banners = mysqli_fetch_array($queryBanners)){
                             $i++;
                             $id = $banners["id"];
@@ -156,15 +157,37 @@
                                     echo "<div class='small'>";
                                         echo $btnStatus;
                                     echo "</div>";
-                                    echo "<div class='small'>";
-                                        echo "<a href='pew-edita-banner.php?id_banner=$id' class='btn-alterar' title='Clique para alterar o banner'>Alterar</a>";
-                                    echo "</div>";
+                                    if($editBanner){
+                                        echo "<div class='small'>";
+                                            echo "<a href='pew-edita-banner.php?id_banner=$id' class='btn-alterar' title='Clique para alterar o banner'>Alterar</a>";
+                                        echo "</div>";
+                                    }
                                 echo "</div>";
                             echo "</div>";
                         }
-                    }else{
-                        echo "<h3 align='center'>Nenhum banner foi cadastrado. <a href='pew-cadastra-banner.php' class='link-padrao'>Clique aqui e cadastre</a></h3>";
                     }
+
+                    if($pew_session->nivel == 1){
+
+                        $ctrlFranquias = 0;
+                        $queryFranquias = mysqli_query($conexao, "select id, cidade, estado from $tabela_franquias where status = 1");
+                        while($infoFranquia = mysqli_fetch_array($queryFranquias)){
+                            if($pew_functions->contar_resultados($tabela_banners, "id_franquia = '{$infoFranquia['id']}'") > 0){
+                                echo "<br class='clear'><h3 class='title-franquias clear'>{$infoFranquia['cidade']} - {$infoFranquia['estado']}</h3>";
+                                list_banners($infoFranquia['id']);
+                                $ctrlFranquias++;
+                            }
+                        }
+
+                    }else{
+                        $ctrlFranquias = $pew_functions->contar_resultados($tabela_banners, "id_franquia = '{$pew_session->id_franquia}'");
+                        list_banners($pew_session->id_franquia, false);
+                    }
+
+                    if($ctrlFranquias == 0){
+                        echo "<h3 align=center>Nenhum banner foi cadastrado. <a href='pew-cadastra-banner.php'>Cadastre aqui</a></h3>";
+                    }
+				
                 ?>
             </div>
             <br class='clear'>

@@ -1,6 +1,9 @@
 <?php
 	require_once "pew-system-config.php";
 	require_once "@classe-system-functions.php";
+	require_once "@classe-notificacoes.php";
+
+	$cls_notificacoes = new Notificacoes();
 
 	$tabela_requisicoes = "franquias_requisicoes";
 	$tabela_produtos_franquia = "franquias_produtos";
@@ -79,6 +82,7 @@
 						}
 						
 						mysqli_query($conexao, "update $tabela_requisicoes set estoque_adicionado = '$newEstoqueAdicionado' where $mainCondition");
+
 					}
 				}
 			}

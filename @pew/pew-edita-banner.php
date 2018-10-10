@@ -3,7 +3,7 @@
     
     $thisPageURL = substr($_SERVER["REQUEST_URI"], strpos($_SERVER["REQUEST_URI"], '@pew'));
     $_POST["next_page"] = str_replace("@pew/", "", $thisPageURL);
-    $_POST["invalid_levels"] = array(4);
+    $_POST["invalid_levels"] = array(5, 4, 3, 2);
     
     require_once "@link-important-functions.php";
     require_once "@valida-sessao.php";
@@ -56,7 +56,7 @@
         $idBanner = (int)$_GET["id_banner"];
         $idBanner = is_int($idBanner) ? $idBanner : 0;
 		
-		$pageMainCondition = "id_franquia = '{$pew_session->id_franquia}' && id = '$idBanner'";
+		$pageMainCondition = "id = '$idBanner'";
 		
         $contarBanner = mysqli_query($conexao, "select count(id) as total_banner from $tabela_banners where $pageMainCondition");
         $contagem = mysqli_fetch_assoc($contarBanner);

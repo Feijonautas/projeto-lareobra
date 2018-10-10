@@ -167,6 +167,7 @@
 					
 					mensagemConfirma("Tem certeza que deseja ativar todos os produtos?", active_all);
 				});
+
 			});
 		</script>
         <!--FIM THIS PAGE CSS-->
@@ -179,6 +180,104 @@
                 $pew_session->block_level();
             }
         ?>
+		<script>
+			$(document).ready(function(){
+				var formUPTProdutoFranquia = $(".update-product-form");
+
+				function validar_form_franquia(newEstoque, lastEstoque){
+
+					if(newEstoque > lastEstoque){
+						mensagemAlerta("<article style='font-weight: normal;'>A quantidade não pode ultrapassar seu último estoque de <b>" + lastEstoque + " produtos</b></article>");
+						return false;
+					}
+
+					return true;
+				}
+
+				var enviandoFormulario = false;
+				formUPTProdutoFranquia.each(function(){
+					var formOBJ = $(this);
+					var idProduto = formOBJ.attr("jsTargetID");
+					var lastEstoque = $("#jsLastEstoque"+idProduto).val();
+					var estoqueAtual = $("#jsEstoqueAtual"+idProduto).val();
+					var btnConfirmEstoque = $("#btnConfirmEstoque"+idProduto);
+					var btnCancelaEstoque = $("#btnCancelaEstoque"+idProduto);
+
+					formOBJ.off().on("submit", function(event){
+						event.preventDefault();
+
+						if(enviandoFormulario == false){
+							enviandoFormulario = true;
+
+							function final_submit(){
+								formOBJ.unbind("submit");
+								formOBJ.submit();
+							}
+
+							var newEstoque = $("#jsNewEstoque"+idProduto).val();
+							if(validar_form_franquia(newEstoque, lastEstoque)){
+
+								if(newEstoque > estoqueAtual){
+									// Display mensagem justificacao
+									hide_div("jsCtrlProduto"+idProduto, false);
+									show_div("jsAlterarEstoque"+idProduto, 400);
+
+									function confirm(){
+										var objMensagem = $("#jsMensagemEstoque"+idProduto);
+										var getMensagem = objMensagem.val();
+
+										var errMsg = "Ocorreu um erro ao gravar os dados. Recarregue a página e tente novamente.";
+
+										if(getMensagem.length < 6){
+											mensagemAlerta("O campo Mensagem deve conter no mínimo 6 caracteres", objMensagem);
+											return false;
+										}
+
+										$.ajax({
+											type: "POST",
+											url: "pew-status-produto.php",
+											data: {update_message: getMensagem, acao: "log_update_estoque", id_produto: idProduto, estoque_atual: estoqueAtual, new_estoque: newEstoque},
+											error: function(){
+												mensagemAlerta(errMsg);
+											},
+											success: function(response){
+												console.log(response)
+												if(response == "true"){
+													final_submit();
+												}else{
+													mensagemAlerta(errMsg);
+												}
+											}
+										});
+
+										return true;
+									}
+
+									function cancel(){
+										hide_div("jsAlterarEstoque"+idProduto);
+										enviandoFormulario = false;
+									}
+
+									btnCancelaEstoque.off().on("click", function(){
+										cancel();
+									});
+
+									btnConfirmEstoque.off().on("click", function(){
+										confirm();
+									});
+
+								}else{
+									submit();
+								}
+
+							}else{
+								enviandoFormulario = false;
+							}
+						}
+					});
+				});
+			});
+		</script>
         <!--PAGE CONTENT-->
         <h1 class="titulos"><?php echo $page_title; ?></h1>
 		<section class="conteudo-painel">
@@ -297,6 +396,7 @@
 								$franquia_preco_promocao = $infoFranquia["preco_promocao"];
 								$franquia_promocao_ativa = $infoFranquia["promocao_ativa"];
 								$franquia_estoque = $infoFranquia["estoque"];
+								$franquia_last_estoque = $infoFranquia["last_estoque"];
 								$franquia_status = $infoFranquia["status"];
 								
 								if($pew_session->nivel == 1){
@@ -305,7 +405,6 @@
 									$view_status_promocao = $padrao_promocao_ativa;
 									$view_estoque = $padrao_estoque;
 									$view_status = $padrao_status;
-									$view_status_string = $padrao_status;
 								}else{
 									$view_preco = $franquia_preco;
 									$view_preco_promocao = $franquia_preco_promocao;
@@ -398,8 +497,10 @@
 
 									$franquias_controll_divs .= "<div class='fixed-controll-div' id='jsCtrlProduto$idProduto'>
 										<h3 class='title'>$padrao_nome</h3>
-										<form class='form-field' method='post' action='pew-update-produto-franquia.php'>
+										<form class='form-field update-product-form' method='post' action='pew-update-produto-franquia.php' jsTargetID='$idProduto'>
 											<input type='hidden' name='id_produto' value='$idProduto'>
+											<input type='hidden' id='jsLastEstoque$idProduto' value='$franquia_last_estoque'>
+											<input type='hidden' id='jsEstoqueAtual$idProduto' value='$franquia_estoque'>
 											<div class='half'>
 												<h4 class='label-title'>Preço Sugerido</h4>
 												<input type='text' class='label-input disabled-input' value='$padrao_preco_sugerido' readonly>
@@ -414,7 +515,7 @@
 											</div>
 											<div class='half'>
 												<h4 class='label-title'>Estoque</h4>
-												<input type='number' class='label-input' placeholder='Estoque' name='ctrl_estoque' value='$view_estoque'>
+												<input type='number' class='label-input' placeholder='Estoque' name='ctrl_estoque' value='$view_estoque' id='jsNewEstoque$idProduto'>
 											</div>";
 									$franquias_controll_divs .= "<div class='half'>
 												<h4 class='label-title'>Promoção</h4>
@@ -440,10 +541,27 @@
 											</div>
 											<div class='label group jc-right'>
 												<div class='half'><input type='button' value='Voltar' class='label-input btn-exit-div' style='height: 40px;' js-target-id='jsCtrlProduto$idProduto'></div>
-												<div class='half'><input type='submit' value='Atualizar' class='label-input btn-submit'></div>
+												<div class='half'><input type='submit' value='Atualizar' class='label-input btn-submit btn-update-produto' jsTargetProduto='$idProduto'></div>
 											</div>
 										</form>
 									</div>";
+
+									$franquias_controll_divs .= "<div class='fixed-controll-div' id='jsAlterarEstoque$idProduto'>";
+
+										$franquias_controll_divs .= "<h3 style='font-weight: normal;'>A quantidade selecionada é maior que seu estoque anterior de <b>$franquia_estoque produtos</b>. Você precisa justificar essa alteração de estoque para continuar.</h3>";
+										$franquias_controll_divs .= "<textarea class='group label-textarea' placeholder='Mensagem' id='jsMensagemEstoque$idProduto'></textarea>";
+
+										$franquias_controll_divs .= 
+										"<div class='label group jc-right'>
+											<div class='half'>
+												<input type='button' value='Voltar' class='label-input btn-exit-div' style='height: 40px;' js-target-id='jsAlterarEstoque$idProduto' id='btnCancelaEstoque$idProduto'>
+											</div>
+											<div class='half'>
+												<input type='submit' value='Confirmar' class='label-input btn-submit' id='btnConfirmEstoque$idProduto'>
+											</div>
+										</div>";
+
+									$franquias_controll_divs .= "</div>";
 								}
 								// END APENAS FRANQUIA
 								

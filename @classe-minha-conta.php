@@ -1021,22 +1021,24 @@
                         $telefone = addslashes($_POST["telefone"]);
 						
 						//pf
-                        $nome = isset($_POST["nome"]) ? addslashes($_POST["nome"]) : null;
+                        $nomePF = isset($_POST["nome"]) ? addslashes($_POST["nome"]) : null;
                         $cpf = isset($_POST['cpf']) ? addslashes($_POST["cpf"]) : null;
                         $cpf = $cpf != null ? str_replace(".", "", $cpf) : null;
                         $dataNascimento = isset($_POST['data_nascimento']) ? addslashes($_POST["data_nascimento"]) : null;
                         $sexo = isset($_POST['sexo']) ? addslashes($_POST["sexo"]) : null;
 						//pj
-						$nome = isset($_POST['nome_fantasia']) ? addslashes($_POST['nome_fantasia']) : null;
+						$nomePJ = isset($_POST['nome_fantasia']) ? addslashes($_POST['nome_fantasia']) : null;
 						$cnpj = isset($_POST['cnpj']) ? addslashes($_POST['cnpj']) : null;
 						$cnpj = $cnpj != null ? str_replace(".", "", $cnpj) : null;
 						$inscricaoEstadual = isset($_POST['inscricao_estadual']) ? addslashes($_POST['inscricao_estadual']) : null;
 						$inscricaoEstadual = $inscricaoEstadual != null ? str_replace(".", "", $inscricaoEstadual) : null;
 						$razaoSocial = isset($_POST['razao_social']) ? addslashes($_POST['razao_social']) : null;
                         
+						$nome_final = strlen($nomePF) > 3 ? $nomePF : $nomePJ;
+
                         if($cls_conta->query_minha_conta("email = '$email' and id != '$idConta'") == false){
                             // Se não houver outros cadastros com o email informado
-                            $cls_conta->update_conta($idConta, $nome, $email, $novaSenha, $celular, $telefone, $cpf, $cnpj, $razaoSocial, $inscricaoEstadual, $sexo, $dataNascimento);
+                            $cls_conta->update_conta($idConta, $nome_final, $email, $novaSenha, $celular, $telefone, $cpf, $cnpj, $razaoSocial, $inscricaoEstadual, $sexo, $dataNascimento);
                         }else{
                             echo "false";
                         }

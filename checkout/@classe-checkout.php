@@ -14,7 +14,7 @@
             return $responseSessionID;
         }
         
-        function view_checkout($totalCompra, $totalFrete, $codigoFrete){
+        function view_checkout($totalCompra, $totalFrete, $codigoFrete, $observacoesPedido = null){
             if($totalCompra != null && $totalCompra > 0){
                 $cls_metodos_pagamento = new MetodosPagamento();
             
@@ -58,6 +58,7 @@
                         echo "<input type='hidden' id='checkoutTotalPrice' value='$totalCompra'>";
                         echo "<input type='hidden' id='checkoutTotalFrete' value='$totalFrete'>";
                         echo "<input type='hidden' id='checkoutCodigoFrete' value='$codigoFrete'>";
+                        echo "<input type='hidden' id='checkoutObservacoes' value='$observacoesPedido'>";
 
                         echo "<div class='checkout-painel selected-painel' id='checkoutCartaoCredito'>";
                             echo "<div class='full'>";

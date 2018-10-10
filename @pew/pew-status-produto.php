@@ -1,6 +1,10 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 session_start();
 require_once "@valida-sessao.php";
+require_once "@classe-system-functions.php";
 
 if(isset($_POST["acao"])){
 	require_once "pew-system-config.php";
@@ -12,9 +16,11 @@ if(isset($_POST["acao"])){
 	$tabela_subcategorias_produtos = $pew_custom_db->tabela_subcategorias_produtos;
 	$tabela_produtos_relacionados = $pew_custom_db->tabela_produtos_relacionados;
 	$tabela_especificacoes_produtos = $pew_custom_db->tabela_especificacoes_produtos;
-	$tabela_produtos_franquia = "franquias_produtos";
+	$tabela_produtos_franquia = $pew_custom_db->tabela_franquias_produtos;
+	$tabela_log_franquias = $pew_custom_db->tabela_log_franquias;
 	/*END SET TABLES*/
 	$dirImagens = "../imagens/produtos/";
+	$dataAtual = date("Y-m-d H:i:s");
 
 	$acao = $_POST["acao"];
 	$idProduto = isset($_POST["id_produto"]) ? $_POST["id_produto"] : false;
@@ -81,6 +87,41 @@ if(isset($_POST["acao"])){
 		mysqli_query($conexao, "delete from $tabela_imagens_produtos where id = '$idImagem'");
 
 		echo "imagem_excluida";
+
+	}else if($acao == "estoque_franquia"){
+
+		$updateCondition = "id =  '$idProduto' and id_franquia = '{$pew_session->id_franquia}'";
+
+		$updateEstoque = isset($_POST['upt_estoque']) ? (int) $_POST['upt_estoque'] : null;
+
+		if($pew_functions->contar_resultados($tabela_produtos_franquia, $updateCondition) > 0 && $updateEstoque != null){
+			
+			mysqli_query($conexao, "update $tabela_produtos_franquia set estoque = '$updateEstoque' where $updateCondition");
+
+			echo "true";
+
+		}else{
+			echo "false";
+		}
+
+	}else if($acao == "log_update_estoque"){
+
+		$mensagemAlteracao = isset($_POST['update_message']) ? addslashes($_POST['update_message']) : null;
+		$estoqueAtual = isset($_POST['estoque_atual']) ? (int) $_POST['estoque_atual'] : null;
+		$newEstoque = isset($_POST['new_estoque']) ? (int) $_POST['new_estoque'] : null;
+
+
+		if($mensagemAlteracao != null && $estoqueAtual != null && $newEstoque != null && $idProduto != null){
+
+			$jsonInfo = '{"id_produto": "'.$idProduto.'", "estoque_a": "'.$estoqueAtual.'", "estoque_b": "'.$newEstoque.'"}';
+
+			mysqli_query($conexao, "insert into $tabela_log_franquias (id_franquia, id_usuario, titulo, descricao, type, json_info, data_controle, status) values ('{$pew_session->id_franquia}', '{$pew_session->id_usuario}', 'Alteração de Estoque', '$mensagemAlteracao', 'estoque_upt', '$jsonInfo', '$dataAtual', 0)");
+
+			echo "true";
+
+		}else{
+			echo "false";
+		}
 
 	}else{
 		

@@ -38,6 +38,7 @@ error_reporting(E_ALL);
                 $valorCarrinho = isset($_POST["valor_final"]) ? $_POST["valor_final"] : null;
                 $metodosEnvio = isset($_POST["metodos_envio"]) ? $_POST["metodos_envio"] : null;
                 $codigoTransporte = isset($_POST["codigo_transporte"]) ? $_POST["codigo_transporte"] : null;
+                $observacoesPedido = isset($_POST["observacoes_pedido"]) ? addslashes($_POST["observacoes_pedido"]) : null;
                 
                 $valorTransporte = null;
 				
@@ -51,7 +52,7 @@ error_reporting(E_ALL);
                     }
                 }
                 
-                $info = $cls_checkout_acao->view_checkout($valorCarrinho, $valorTransporte, $codigoTransporte);
+                $info = $cls_checkout_acao->view_checkout($valorCarrinho, $valorTransporte, $codigoTransporte, $observacoesPedido);
                 break;
         }
     }
@@ -79,6 +80,7 @@ error_reporting(E_ALL);
         }
 		
         require_once "../pagseguro/ws-pagseguro-config.php";
+        $pagseguro = array();
         $pagseguro['token'] = $pagseguro_config->get_token();
         $pagseguro['email'] = $pagseguro_config->get_email();
         
@@ -97,6 +99,7 @@ error_reporting(E_ALL);
         $pagseguro['shippingAddressState'] = $sendDataForm["shippingAddressState"];
         $pagseguro['shippingAddressCountry'] = "BRA";
         $pagseguro['currency'] = "BRL";
+        $observacoesPedido = isset($sendDataForm['cartObservacoesPedido']) ? addslashes($sendDataForm['cartObservacoesPedido']) : null;
         
         // Produtos
         $ctrlProdutos = 1;
@@ -263,6 +266,7 @@ error_reporting(E_ALL);
 
                     $tabela_carrinhos = $pew_custom_db->tabela_carrinhos;
                     $tabela_pedidos = $pew_custom_db->tabela_pedidos;
+                    $tabela_pedidos_observacoes = $pew_custom_db->tabela_pedidos_observacoes;
                     $tabela_produtos = $pew_custom_db->tabela_produtos;
                     $tabela_franquias_produtos = $pew_custom_db->tabela_franquias_produtos;
                     
@@ -325,6 +329,10 @@ error_reporting(E_ALL);
                     mysqli_query($conexao, "insert into $tabela_pedidos (id_franquia, codigo_confirmacao, codigo_transacao, codigo_transporte, vlr_frete, codigo_pagamento, codigo_rastreamento, payment_link, referencia, token_carrinho, id_cliente, nome_cliente, cpf_cliente, email_cliente, cep, rua, numero, complemento, bairro, cidade, estado, data_controle, status_transporte, status) values ('$session_id_franquia', '$codigoConfirmacao', '$codigoTransacao', '{$sendDataForm["shippingCode"]}', '{$pagseguro["shippingCost"]}', '$codigoPagamento', '', '$paymentLink', '$referencia', '$tokenCarrinho', '$idConta', '{$pagseguro["senderName"]}', '$final_cpf_cnpj', '{$pagseguro["senderEmail"]}', '{$pagseguro["billingAddressPostalCode"]}', '{$pagseguro["billingAddressStreet"]}', '{$pagseguro["billingAddressNumber"]}', '{$pagseguro["billingAddressComplement"]}', '{$pagseguro["billingAddressDistrict"]}', '{$pagseguro["billingAddressCity"]}', '{$pagseguro["billingAddressState"]}', '$dataAtual', '$statusTransporte', '$statusPagamento')");
 					
 					$idPedido = get_last_id();
+
+                    if($observacoesPedido != null){
+                        mysqli_query($conexao, "insert into $tabela_pedidos_observacoes (id_pedido, mensagem, data_controle) values ('$idPedido', '$observacoesPedido', '$dataAtual')");
+                    }
 
 					$cls_notificacoes->insert($session_id_franquia, "Novo pedido", "Um cliente finalizou um pedido na loja", "pew-interna-pedido.php?id_pedido=$idPedido", "finances");
 
