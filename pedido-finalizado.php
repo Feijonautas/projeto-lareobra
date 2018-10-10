@@ -85,9 +85,12 @@
             require_once "@pew/pew-system-config.php";
             require_once "@pew/@classe-pedidos.php";
 
+            require_once "@classe-carrinho-compras.php";
+
             $tabela_pedidos = $pew_custom_db->tabela_pedidos;
 
             $cls_pedidos = new Pedidos();
+            $cls_carrinho = new Carrinho();
 
             $get_referencia = isset($_GET['referencia']) ? addslashes($_GET['referencia']) : null;
 
@@ -99,6 +102,7 @@
             }else{
 
                 echo "<h1 class='titulo-principal'>Pedido finalizado com sucesso</h1>";
+                $cls_carrinho->reset_carrinho();
 
                 $queryID = mysqli_query($conexao, "select id from $tabela_pedidos where referencia = '$get_referencia'");
                 $infoID = mysqli_fetch_array($queryID);
@@ -138,7 +142,7 @@
                                 if($taxaBoleto > 0){
                                     echo "<tr>";
                                         echo "<td>Taxa boleto</td>";
-                                        echo "<td>R$ ". number_format($taxaBoleto, 2)."</td>";
+                                        echo "<td>R$ ". number_format($taxaBoleto, 2, ",", ".")."</td>";
                                     echo "<tr>";
                                 }
                                 echo "<tr>";
@@ -151,11 +155,11 @@
                                 echo "<tr>";
                                 echo "<tr>";
                                     echo "<td>Frete</td>";
-                                    echo "<td>R$ {$infoPedido['valor_frete']}</td>";
+                                    echo "<td>R$ ". number_format($infoPedido['valor_frete'], 2, ',', '.') ."</td>";
                                 echo "<tr>";
                                 echo "<tr>";
                                     echo "<td>Total</td>";
-                                    echo "<td>R$ {$infoPedido['valor_total']}</td>";
+                                    echo "<td>R$ ". number_format($infoPedido['valor_total'], 2, ',', '.') ."</td>";
                                 echo "<tr>";
                             echo "<thead>";
                         echo "</table>";
@@ -172,7 +176,7 @@
                             echo "<tbody>";
                                 foreach($produtosCompra as $infoProduto){
                                     $subtotalProduto = $infoProduto['preco'] * $infoProduto['quantidade'];
-                                    $subtotalProduto = number_format($subtotalProduto, 2);
+                                    $subtotalProduto = number_format($subtotalProduto, 2, ",", ".");
                                     $totalQuantidade += $infoProduto['quantidade'];
                                     echo "<tr>";
                                         echo "<td>{$infoProduto['nome']}</td>";
@@ -184,7 +188,7 @@
                             echo "<tfoot>";
                                 echo "<td>TOTAL</td>";
                                 echo "<td>{$totalQuantidade}x</td>";
-                                echo "<td class='prices'>R$ {$infoPedido['valor_sfrete']}</td>";
+                                echo "<td class='prices'>R$ ". number_format($infoPedido['valor_sfrete'], 2, ",", ".") . "</td>";
                             echo "</tfoot>";
                         echo "</table>";
                     echo "</div>";

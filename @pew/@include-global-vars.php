@@ -26,6 +26,8 @@
         "tabela_pedidos_observacoes" => $pew_custom_db->tabela_pedidos_observacoes,
         "tabela_orcamentos" => $pew_custom_db->tabela_orcamentos,
         "tabela_clube_descontos" => $pew_custom_db->tabela_clube_descontos,
+        "tabela_franquias" => $pew_custom_db->tabela_franquias,
+        "tabela_franquias_produtos" => $pew_custom_db->tabela_franquias_produtos,
     );
     global $globalVars;
 ?>

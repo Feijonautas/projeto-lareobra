@@ -173,7 +173,7 @@
             	</div>
             	<div class="box-text">
             		<p>Se você é fabricante ou possui algum produto com preço justo, qualidade, e comercializa respeitando as leis de nosso país e o meio ambiente entre em contato através do nosso email comercial abaixo:</p>
-            		<span class="contato-email">comercial@lareobra.com.br</span>
+            		<span class="contato-email">rh@lareobra.com.br</span>
             	</div>
 				<a href="seja-fornecedor.php" class="link-padrao">Seja Fornecedor</a>
             </div>

@@ -119,9 +119,10 @@
 		<section class="conteudo-painel">
 			<div class="full">
 				<h4 class="subtitulos group clear" align=left>Lista de requisições</h4>
-				<article style="max-width: 700px;">
+				<article>
 					<p>Para que o estoque fique disponível para a franquia o status da solicitação deve ser alterado para <b>Entregue</b>.</p>
 					<p>Caso ocorra algum problema logístico após mudar o status para Entregue, você pode mudar o status para <b>Cancelado ou Negado</b> para voltar o estoque da franquia ao normal.</p>
+					<p>É possível alterar a quantidade de produtos enquanto o status for <b>Pendente</b></p>
 				</article>
 				<br>
 				<table class="table-padrao" cellspacing=0 style="padding: 0px;">
@@ -146,9 +147,16 @@
 						$mainCondition = "true";
 
 						$total = $pew_functions->contar_resultados($tabela_requisicoes, $mainCondition);
-					
-						$controll_divs = "";
 
+						$possible_status = array();
+						array_push($possible_status, array("string" => "Cancelado", "status" => 0));
+						array_push($possible_status, array("string" => "Pendente", "status" => 1));
+						array_push($possible_status, array("string" => "Confirmado", "status" => 2));
+						array_push($possible_status, array("string" => "Em transporte", "status" => 3));
+						array_push($possible_status, array("string" => "Entregue", "status" => 4));
+						array_push($possible_status, array("string" => "Negado", "status" => 5));
+
+						$controll_divs = "";
 						if($total > 0){
 							
 							$query = mysqli_query($conexao, "select * from $tabela_requisicoes where $mainCondition order by id desc");
@@ -163,38 +171,9 @@
 								$dataCadastro = $pew_functions->inverter_data(substr($info["data_cadastro"], 0, 10));
 								$str_disponibilidade = $info["estoque_adicionado"] == 1 ? "Sim" : "Não";
 								
-								$possible_status = array();
-								
-								$possible_status[0] = array();
-								$possible_status[0]["status"] = 0;
-								$possible_status[0]["string"] = "Cancelado";
-								
-								$possible_status[1] = array();
-								$possible_status[1]["status"] = 1;
-								$possible_status[1]["string"] = "Pendente";
-								
-								$possible_status[2] = array();
-								$possible_status[2]["status"] = 2;
-								$possible_status[2]["string"] = "Confirmado";
-								
-								$possible_status[3] = array();
-								$possible_status[3]["status"] = 3;
-								$possible_status[3]["string"] = "Em transporte";
-								
-								$possible_status[4] = array();
-								$possible_status[4]["status"] = 4;
-								$possible_status[4]["string"] = "Entregue";
-								
-								$possible_status[5] = array();
-								$possible_status[5]["status"] = 5;
-								$possible_status[5]["string"] = "Negado";
-								
 								$selected_status = array("status" => 1, "string" => "Pendente");
 								foreach($possible_status as $infoStatus){
 									if($info["status"] == $infoStatus["status"]){
-										$array = array();
-										$array["status"] = $infoStatus["status"];
-										$array["string"] = $infoStatus["string"];
 										$selected_status = array("status" => $infoStatus["status"], "string" => $infoStatus["string"]);
 									}
 								}
@@ -233,6 +212,8 @@
 								$total_price = $pew_functions->custom_number_format($total_price);
 
 								$hashID = uniqid();
+
+								$urlEditaSolicitacao = "pew-edita-solicitacao-produtos.php?id_solicitacao=$idSolicitacao&acao=update";
 								
 								echo "<tr valign=top>";
 									echo "<td>$dataCadastro</td>";
@@ -279,7 +260,15 @@
 										}
 										$controll_divs .= "</select>";
 									$controll_divs .= "</div>";
-									
+
+									$controll_divs .= "<div class='label group jc-left'>";
+									if($selected_status['status'] == 1){
+										$controll_divs .= "<div class='half'>";
+											$controll_divs .= "<a href='$urlEditaSolicitacao' class='link-padrao'>Alterar quantidade de produtos</a>";
+										$controll_divs .= "</div>";
+									}
+									$controll_divs .= "</div>";
+
 									$controll_divs .= "<div class='label group jc-right'>";
 										$controll_divs .= "<div class='half'><input type='button' value='Voltar' class='label-input btn-back-div' style='height: 40px;' js-target-franquia='$idFranquia'></div>";
 										$controll_divs .= "<div class='half'><input type='submit' value='Atualizar' class='label-input btn-submit'></div>";

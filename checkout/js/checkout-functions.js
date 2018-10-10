@@ -342,7 +342,17 @@ $(document).ready(function(){
                 mensagemAlerta("Ocorreu um erro ao processar a compra. O Pagamento NÃO foi efetuado. Recarregue a página e tente novamente.");
             },
             success: function(response){
-				console.log(response);
+				//console.log(response);
+
+                function isJson(str){
+                    try {
+                        JSON.parse(str);
+                    } catch (e) {
+                        return false;
+                    }
+                    return true;
+                }
+
                 switch(sendDataForm.paymentMethod){
                     case "creditCard":
                         var buttonCheckout = btnCheckoutCreditCard;
@@ -353,37 +363,62 @@ $(document).ready(function(){
                 }
                 
                 var redirect = "carrinho/true";
-                if(response == "aguardando"){
+                var jsRedirect = true;
+                var restartCheckout = false;
 
-                    mensagemAlerta("Sua compra foi finalizada com sucesso! Assim que o pagamento for confirmado novas informações estarão disponíveis.", false, "limegreen", redirect);
-
-                }else if(response == "pago"){
-
-                    mensagemAlerta("Seu pagamento foi confirmado com sucesso! Logo informações sobre o rastreamento de sua compra serão adicionadas no seu pedido.", false, "limegreen", redirect);
-
-                }else if(response == "pontos_insuficientes"){
+                if(response == "pontos_insuficientes"){
 
                     redirect = "carrinho/";
-					mensagemAlerta("Seus pontos do Clube de Descontos são insuficientes para finalizar essa compra", false, false, redirect);	
+                    jsRedirect = false;
+					mensagemAlerta("Seus pontos do Clube de Descontos são insuficientes para finalizar essa compra", false, false, redirect);
 
-				}else if(typeof JSON.parse(response) != "undefined"){
+				}else if(response == "cupom_utilizado"){
 
-                    // CUSTOM REDIRECT FINISH
-                    var json_response = JSON.parse(response);
+                    redirect = "carrinho/";
+                    jsRedirect = false;
+					mensagemAlerta("Você já utilizou este cupom em uma compra anterior. Tente novamente com outro cupom.", false, false, redirect);
+
+				}else if(sendDataForm.paymentMethod == "creditCard"){
                     
-                    if(typeof json_response.referencia != "undefined"){
-                        redirect = "pedido-finalizado/" + json_response.referencia;
-                    }
-                    // END CUSTOM REDIRECT FINISH
-
+                    mensagemAlerta("Verifique os dados do Cartão");
+                    jsRedirect = false;
+                    restartCheckout = true;
+                    
                 }else{
 
-                    mensagemAlerta("Verifique se os dados do cartão estão corretos.");
+
+                    function error_message(){
+                        console.log("ERROR: " + response);
+
+                        var error_article = "<article style='font-weight: normal;'>Parece que o ocorreu um erro no sistema. Cheque seus pedidos no menu <b>Minha Conta</b> para ver se o seu pedido foi <b>processado corretamente</b>. Caso ocorra algum problema entre na Central de Atendimento do site e <b>registre um ticket</b> para seu atendimento.</article>";
+
+                        redirect = "minha-conta/pedidos";
+                        jsRedirect = false;
+
+                        mensagemAlerta(error_article, false, false, redirect);
+                    }
+
+                    if(isJson(response)){
+                        // FINALIZAÇÃO PEDIDO
+                        var json_response = JSON.parse(response);
                     
+                        if(typeof json_response.referencia == "string"){
+                            redirect = "pedido-finalizado/" + json_response.referencia;
+                        }else{
+                            error_message();
+                        }
+
+
+                    }else{
+                        // CHECKOUT PROCESSADO -> Erro interno @controller-checkout.php
+                        error_message();
+                    }
                 }
 
-                refresh_checkout(buttonCheckout, false);
-                window.location.href = redirect;
+                refresh_checkout(buttonCheckout, restartCheckout);
+                if(jsRedirect){
+                    window.location.href = redirect;
+                }
             }
         });
     }
@@ -506,6 +541,7 @@ $(document).ready(function(){
 
     var validandoCheckout = false;
     function execute_checkout(type){
+        //console.log(type)
         
         set_shipping_info();
         

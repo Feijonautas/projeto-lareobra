@@ -32,6 +32,21 @@
 			.hidden-produtos{
 				display: none;
 			}
+			.controller-div{
+				position: fixed;
+				display: none;
+				background-color: #fff;
+				top: 100px;
+				margin: 0 auto;
+				left: 0;
+				right: 0;
+				width: 430px;
+				padding: 20px;
+				z-index: 300;
+			}
+			.controller-div .title{
+				margin: 15px;
+			}
 		</style>
         <!--END THIS PAGE CSS-->
 		<script>
@@ -128,6 +143,15 @@
 
 						$total = $pew_functions->contar_resultados($tabela_requisicoes, $mainCondition);
 
+						$possible_status = array();
+						array_push($possible_status, array("string" => "Cancelado", "status" => 0, "editable" => true));
+						array_push($possible_status, array("string" => "Pendente", "status" => 1, "editable" => true));
+						array_push($possible_status, array("string" => "Confirmado", "status" => 2, "editable" => false));
+						array_push($possible_status, array("string" => "Em transporte", "status" => 3, "editable" => false));
+						array_push($possible_status, array("string" => "Entregue", "status" => 4, "editable" => false));
+						array_push($possible_status, array("string" => "Negado", "status" => 5, "editable" => false));
+
+						$controll_divs = "";
 						if($total > 0){
 
 							$query = mysqli_query($conexao, "select * from $tabela_requisicoes where $mainCondition order by id desc");
@@ -139,38 +163,9 @@
 								
 								$str_disponibilidade = $info["estoque_adicionado"] == 1 ? "Sim" : "Não";
 								
-								$possible_status = array();
-								
-								$possible_status[0] = array();
-								$possible_status[0]["status"] = 0;
-								$possible_status[0]["string"] = "Cancelado";
-								
-								$possible_status[1] = array();
-								$possible_status[1]["status"] = 1;
-								$possible_status[1]["string"] = "Pendente";
-								
-								$possible_status[2] = array();
-								$possible_status[2]["status"] = 2;
-								$possible_status[2]["string"] = "Confirmado";
-								
-								$possible_status[3] = array();
-								$possible_status[3]["status"] = 3;
-								$possible_status[3]["string"] = "Em transporte";
-								
-								$possible_status[4] = array();
-								$possible_status[4]["status"] = 4;
-								$possible_status[4]["string"] = "Entregue";
-								
-								$possible_status[5] = array();
-								$possible_status[5]["status"] = 5;
-								$possible_status[5]["string"] = "Negado";
-								
 								$selected_status = array("status" => 1, "string" => "Pendente");
 								foreach($possible_status as $infoStatus){
 									if($info["status"] == $infoStatus["status"]){
-										$array = array();
-										$array["status"] = $infoStatus["status"];
-										$array["string"] = $infoStatus["string"];
 										$selected_status = array("status" => $infoStatus["status"], "string" => $infoStatus["string"]);
 									}
 								}
@@ -211,6 +206,10 @@
 								$hashID = uniqid();
 								
 								$strAlterar = $selected_status['status'] == 1 ?	"<a class='link-padrao js-cancel-button' js-target-id='$idSolicitacao'>Cancelar</a>" : null;
+
+								$urlEditaSolicitacao = "pew-edita-solicitacao-produtos.php?id_solicitacao=$idSolicitacao&acao=update";
+
+								$strAlterar = $selected_status['status'] == 1 || $selected_status['status'] == 0 ? "<a class='link-padrao btn-show-div' js-target-id='jsControllDiv$idSolicitacao'>Gerenciar</a>" : "<a href='$urlEditaSolicitacao&acao=clonar' class='link-padrao'><i class='fas fa-plus-circle'></i> Clonar</a>";
 								
 								echo "<tr valign=top>";
 									echo "<td>$dataCadastro</td>";
@@ -225,6 +224,61 @@
 									echo "<td>{$selected_status['string']}</td>";
 									echo "<td align=center>$strAlterar</td>";
 								echo "</tr>";
+
+								$controll_divs .= "<form class='controller-div' id='jsControllDiv$idSolicitacao' method='post' action='pew-status-solicitacao-produtos.php'>";
+									
+									$controll_divs .= "<input type='hidden' name='id_solicitacao' value='$idSolicitacao'>";
+									$controll_divs .= "<input type='hidden' name='edit_type' value='franquia'>";
+								
+									$controll_divs .= "<h3>Alterar solicitação</h3>";
+								
+									$controll_divs .= "<div class='half'>";
+										$controll_divs .= "<h4 class='label-title'>Total produtos</h4>";
+										$controll_divs .= "<input type='text' class='label-input disabled-input' readonly value='$total_quantity'>";
+									$controll_divs .= "</div>";
+								
+									$controll_divs .= "<div class='half'>";
+										$controll_divs .= "<h4 class='label-title'>Custo</h4>";
+										$controll_divs .= "<input type='text' class='label-input disabled-input' readonly value='R$ $total_price'>";
+									$controll_divs .= "</div>";
+								
+									$controll_divs .= "<div class='half'>";
+										$controll_divs .= "<h4 class='label-title'>Data</h4>";
+										$controll_divs .= "<input type='text' class='label-input disabled-input' readonly value='$dataControle'>";
+									$controll_divs .= "</div>";
+								
+									if($selected_status['status'] == 1 || $selected_status['status'] == 0){
+
+										$controll_divs .= "<div class='half'>";
+											$controll_divs .= "<h4 class='label-title'>Status</h4>";
+											$controll_divs .= "<select class='label-input' name='status_solicitacao'>";
+											foreach($possible_status as $infoStatus){
+												if($infoStatus['editable'] == true){
+													$selected = $infoStatus['status'] == $selected_status['status'] ? "selected" : null;
+													$controll_divs .= "<option value={$infoStatus['status']} $selected>{$infoStatus['string']}</option>";
+												}
+											}
+											$controll_divs .= "</select>";
+										$controll_divs .= "</div>";
+
+										$controll_divs .= "<div class='label group jc-left'>";
+											$controll_divs .= "<div class='half'>";
+												$controll_divs .= "<a href='$urlEditaSolicitacao' class='link-padrao'>Alterar quantidade de produtos</a>";
+											$controll_divs .= "</div>";
+										$controll_divs .= "</div>";
+									}else{
+										$controll_divs .= "<div class='half'>";
+											$controll_divs .= "<h4 class='label-title'>Status</h4>";
+											$controll_divs .= "<h4 style='font-weight: normal;'>{$selected_status['string']}</h4>";
+										$controll_divs .= "</div>";
+									}
+
+									$controll_divs .= "<div class='label group jc-right'>";
+										$controll_divs .= "<div class='half'><input type='button' value='Voltar' class='label-input btn-exit-div' style='height: 40px;' js-target-id='jsControllDiv$idSolicitacao'></div>";
+										$controll_divs .= "<div class='half'><input type='submit' value='Atualizar' class='label-input btn-submit'></div>";
+									$controll_divs .= "</div>";
+								
+								$controll_divs .= "</form>";
 							}
 
 						}else{
@@ -236,5 +290,6 @@
 				</table>
 			</div>
         </section>
+		<?= $controll_divs; ?>
     </body>
 </html>

@@ -29,7 +29,7 @@
                 
                 $this->smtp_user   = "contato=lareobra.com.br";
                 
-                $this->smtp_pass   = "admlareobra@123";
+                $this->smtp_pass   = "admcontatolareobra@123";
                 
                 $this->smtp_port   = 587;
             }

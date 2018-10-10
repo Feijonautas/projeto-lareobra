@@ -152,9 +152,9 @@
 				$dataPedido = $pew_functions->inverter_data(substr($infoPedido['data_controle'], 0, 10));
 				$horaPedido = substr($infoPedido['data_controle'], 10);
 				
-				$totalCobrado = $pew_functions->custom_number_format($infoPedido['valor_total']);
-				$totalSemFrete = $pew_functions->custom_number_format($infoPedido['valor_sfrete']);
-				$totalFrete = $pew_functions->custom_number_format($infoPedido['valor_frete']);
+				$totalCobrado = number_format($infoPedido['valor_total'], 2, ",", ".");
+				$totalSemFrete = number_format($infoPedido['valor_sfrete'], 2, ",", ".");
+				$totalFrete = number_format($infoPedido['valor_frete'], 2, ",", ".");
 				
 				$string_status = $cls_pedidos->get_status_string($infoPedido['status']);
 				$string_pagamento = $cls_pedidos->get_pagamento_string($infoPedido['codigo_pagamento']);
@@ -165,10 +165,17 @@
 				$strComplemento = $infoPedido['complemento'] == "" ? "" : ", " . $infoPedido['complemento'];
 				$enderecoEntrega = $infoPedido['rua'] . ", " . $infoPedido['numero'] . $strComplemento . " - " . $infoPedido['cep'];
 				
-				$queryFranquia = mysqli_query($conexao, "select cidade, estado from $tabela_franquias where id = '$idFranquia'");
-				$infoFranquia = mysqli_fetch_array($queryFranquia);
-				$estadoFranquia = $infoFranquia["estado"];
-				$cidadeFranquia = $infoFranquia["cidade"];
+				$string_franquia = null;
+				if($idFranquia != 0){
+					$queryFranquia = mysqli_query($conexao, "select cidade, estado from $tabela_franquias where id = '$idFranquia'");
+					$infoFranquia = mysqli_fetch_array($queryFranquia);
+					$estadoFranquia = $infoFranquia["estado"];
+					$cidadeFranquia = $infoFranquia["cidade"];
+
+					$string_franquia = $infoFranquia["estado"] . " - " . $infoFranquia["cidade"];
+				}else{
+					$string_franquia = "Franqueador";
+				}
 				
 				$selectedProdutos = $cls_pedidos->get_produtos_pedido();
 
@@ -188,7 +195,7 @@
 							echo "</tr>";
 							echo "<tr>";
 								echo "<td>Franquia</td>";
-								echo "<td class='info'>$estadoFranquia - $cidadeFranquia</td>";
+								echo "<td class='info'>$string_franquia</td>";
 							echo "</tr>";
 							echo "<tr>";
 								echo "<td>Código transação</td>";
@@ -306,7 +313,6 @@
 									$quantidade = $infoProduto["quantidade"];
 									$precoCobrado = $infoProduto["preco"];
 									$subtotal = $precoCobrado * $quantidade;
-									$subtotal = $pew_functions->custom_number_format($subtotal);
 									
 									$infoProdutoFranquia = $cls_produtos->produto_franquia($idProduto, $idFranquia);
 									$precoAtual = $infoProdutoFranquia['preco'];
@@ -321,9 +327,9 @@
 									echo "<tr>";
 										echo "<td>$produto</td>";
 										echo "<td align=center>{$quantidade}x</td>";
-										echo "<td class='info right'>R$ $precoAtual</td>";
-										echo "<td class='info right'>R$ $precoCobrado</td>";
-										echo "<td class='info right'>R$ $subtotal</td>";
+										echo "<td class='info right'>R$ " . number_format($precoAtual, 2, ",", ".") . "</td>";
+										echo "<td class='info right'>R$ " . number_format($precoCobrado, 2, ",", ".") . "</td>";
+										echo "<td class='info right'>R$ " . number_format($subtotal, 2, ",", ".") . "</td>";
 										echo "<td class='info right'>$discountPercent%</td>";
 									echo "</tr>";
 								}
@@ -332,7 +338,7 @@
 								
 								$taxaBoleto = 0;
 								if($infoPedido['codigo_pagamento'] == 2){
-									$taxaBoleto = $pew_functions->custom_number_format($cls_pedidos->taxa_boleto);
+									$taxaBoleto = number_format($cls_pedidos->taxa_boleto, 2, ",", ".");
 									echo "<tr>";
 										echo "<td>Taxa Boleto</td>";
 										echo "<td align=center>1x</td>";
@@ -343,7 +349,7 @@
 								}
 								
 								$totalFooter = $totalSemFrete + $taxaBoleto;
-								$totalFooter = $pew_functions->custom_number_format($totalFooter);
+								$totalFooter = number_format($totalFooter, 2, ",", ".");
 								echo "<tfoot>";
 									echo "<td>TOTAL</td>";
 									echo "<td align=center>{$footer_total_quantidade}x</td>";

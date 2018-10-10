@@ -859,3 +859,27 @@ input:focus, select:focus, textarea:focus{
 .fixed-controll-div .title{
 	margin: 15px;
 }
+.alter-table{
+    width: 100%;
+    color: #666;
+    font-size: 14px;
+}
+.alter-table td{
+    padding: 10px;
+}
+.alter-table .info{
+    font-weight: bold;
+}
+.alter-table .right{
+    text-align: right;
+}
+.alter-table thead{
+    color: #111;
+    background-color: #ccc;
+}
+.alter-table tbody{
+    background-color: #fff;
+}
+.alter-table tfoot{
+    background-color: #ddd;	
+}

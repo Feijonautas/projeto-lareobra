@@ -1175,7 +1175,7 @@ error_reporting(E_ALL);
                 <br class="clear">
                 
                 <div class="label full">
-                    <h2 class="label-title">Imagens do produto: (900px : 900px) OBRIGATÓRIO</h2>
+                    <h2 class="label-title">Imagens do produto: (500px : 750px) OBRIGATÓRIO</h2>
                     <?php
                         $contarImagens = mysqli_query($conexao, "select count(id) as total_imagens from $tabela_imagens_produtos where id_produto = '$idProduto'");
                         $contagem = mysqli_fetch_assoc($contarImagens);

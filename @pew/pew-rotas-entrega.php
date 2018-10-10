@@ -338,8 +338,12 @@
 							$strComplementoCliente = $infoPedido['complemento'] == "" ? "" : ", " . $infoPedido['complemento'];
 							$enderecoCliente = $infoPedido['rua'].", ".$infoPedido['numero'].$strComplementoCliente;
 
-							$infoFranquia = $cls_franquias->query_franquias("id = '{$infoPedido['id_franquia']}'");
-							$str_franquia = $infoFranquia[0]['cidade'] ." - ". $infoFranquia[0]['estado'];
+							if($infoPedido['id_franquia'] == 0){
+								$str_franquia = "Franqueador";
+							}else{
+								$infoFranquia = $cls_franquias->query_franquias("id = '{$infoPedido['id_franquia']}'");
+								$str_franquia = $infoFranquia[0]['cidade'] ." - ". $infoFranquia[0]['estado'];
+							}
 
 							$urlInternaPedido = "pew-interna-pedido.php?id_pedido=$idPedido";
 

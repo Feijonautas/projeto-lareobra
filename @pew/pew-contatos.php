@@ -53,23 +53,26 @@
                     </div>
                 </label>
             </form>
-            <table class="table-padrao" cellspacing="0">
             <?php
                 $tabela_contatos = $pew_db->tabela_contatos;
-                $tabela_franquias = "franquias_lojas";
+                $tabela_franquias = $pew_custom_db->tabela_franquias;
 				
 				$mainCondition = null;
+                $getSEARCH = null;
                 if(isset($_GET["busca"]) && $_GET["busca"] != ""){
                     $getSEARCH = addslashes($_GET["busca"]);
                     $mainCondition = "nome like '%".$getSEARCH."%' or telefone like '%".$getSEARCH."%' or email like '%".$getSEARCH."%' or mensagem like '%".$getSEARCH."%'";
-                    echo "<h3>Exibindo resultados para: $getSEARCH</h3>";
+                    echo "<div class='full clear'><h5>Exibindo resultados para: $getSEARCH &nbsp;&nbsp; <a href='pew-contatos.php' class='link-padrao'>Limpar</a></h5></div>";
                 }
 				
 				if($pew_session->nivel == 1){
-					$mainCondition = $mainCondition == null ? "true" : $mainCondition;
+					$mainCondition = $getSEARCH == null ? "true" : $mainCondition;
 				}else{
-					$mainCondition = $mainCondition == null ? "id_franquia = '{$pew_session->id_franquia}'" : str_replace("or", "and id_franquia = '{$pew_session->id_franquia}' or", $mainCondition);
+					$mainCondition = $getSEARCH == null ? "id_franquia = '{$pew_session->id_franquia}'" : str_replace("or", "and id_franquia = '{$pew_session->id_franquia}' or", $mainCondition);
 				}
+            ?>
+            <table class="table-padrao" cellspacing="0">
+            <?php
 				
                 $total = $pew_functions->contar_resultados($tabela_contatos, $mainCondition);
                 if($total > 0){
@@ -129,7 +132,7 @@
                     }
                     echo "</tbody></table>";
                 }else{
-                    $msg = $mainCondition != "true" ? "Nenhum resultado encontrado. <a href='pew-contatos.php' class='link-padrao'><b>Voltar<b></a>" : "Nenhuma mensagem foi enviada ainda.";
+                    $msg = $getSEARCH != null ? "Nenhum resultado encontrado. <a href='pew-contatos.php' class='link-padrao'><b>Voltar<b></a>" : "Nenhuma mensagem foi enviada ainda.";
                     echo "<br><br><br><br><br><h3 align='center'>$msg</h3>";
                 }
             ?>

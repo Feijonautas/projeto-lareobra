@@ -57,7 +57,7 @@
 						
 						if($totalProdFranquia > 0){
 							
-							mysqli_query($conexao, "update $tabela_produtos_franquia set estoque = '$newEstoque' where $condProdutos");	
+							mysqli_query($conexao, "update $tabela_produtos_franquia set estoque = '$newEstoque', last_estoque = '$newEstoque' where $condProdutos");
 							
 						}else{
 							
@@ -75,7 +75,7 @@
 							$padrao_promocao_ativa = $infoProduto["promocao_ativa"];
 							
 							
-							mysqli_query($conexao, "insert into $tabela_produtos_franquia (id_franquia, id_produto, preco_bruto, preco_promocao, promocao_ativa, estoque, status) values ('$idFranquia', '$idProduto', '$padrao_preco', '$padrao_preco_promocao', '$padrao_promocao_ativa', '$addQuantidade', 1)");	
+							mysqli_query($conexao, "insert into $tabela_produtos_franquia (id_franquia, id_produto, preco_bruto, preco_promocao, promocao_ativa, estoque, last_estoque, status) values ('$idFranquia', '$idProduto', '$padrao_preco', '$padrao_preco_promocao', '$padrao_promocao_ativa', '$addQuantidade', '$addQuantidade', 1)");	
 						}
 						
 						mysqli_query($conexao, "update $tabela_requisicoes set estoque_adicionado = '$newEstoqueAdicionado' where $mainCondition");

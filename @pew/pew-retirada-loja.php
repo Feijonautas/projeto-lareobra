@@ -155,15 +155,16 @@
                 if($total > 0){
                     echo "<thead>";
                         echo "<td>Pedido</td>";
-                        echo "<td>Data</td>";
+                        echo "<td>D. Pedido</td>";
                         echo "<td>Alteração</td>";
+                        echo "<td>D. Retirada</td>";
 						if($pew_session->nivel == 1){
 							echo "<td>Franquia</td>";
 						}
                         echo "<td>Nome</td>";
-                        echo "<td>CPF</td>";
+                        echo "<td>CPF/CNPJ</td>";
                         echo "<td>Código retirada</td>";
-                        echo "<td>Produtos</td>";
+                        // echo "<td>Produtos</td>";
                         echo "<td>Status</td>";
                         echo "<td>Gerenciar</td>";
                     echo "</thead>";
@@ -181,12 +182,17 @@
 						$dataModificacao = substr($infoPedido['data_modificacao'], 0, 10);
                     	$dataModificacao = $pew_functions->inverter_data($dataModificacao);
 						$dataModificacao = str_replace("/", "", $dataModificacao) > 0 ? $dataModificacao : "Não alterado";
+
+						$dataRetirada = $pew_functions->inverter_data($infoPedido['data_retirada']);
+						$horaRetirada = substr($infoPedido['hora_retirada'], 0, 5);
+						$strRetirada = str_replace("/", "", $dataRetirada) > 0 ? $dataRetirada."<br>".$horaRetirada : "Não retirado";
+
 						
 						$str_status_transporte = $infoPedido['status'] == 3 || $infoPedido['status'] == 4 ? "Pronto para retirar" : "Aguardando pagamento";
 						$str_status_transporte = $infoPedido['status_transporte'] == 3 ? "Pedido já retirado" : $str_status_transporte;
 						$str_status_transporte = $infoPedido['status'] == 5 || $infoPedido['status'] == 6 || $infoPedido['status'] == 7 ? "Pedido cancelado" : $str_status_transporte;
 						
-						$cpfCliente = $pew_functions->mask($infoPedido['cpf_cliente'], "###.###.###-##");
+						$CPF_CNPJ_CLIENTE = strlen($infoPedido['cpf_cliente']) == 11 ? $pew_functions->mask($infoPedido['cpf_cliente'], "###.###.###-##") : $pew_functions->mask($infoPedido["cpf_cliente"], "##.###.###/####-##");;
 						
 						$hashID = uniqid();
 						
@@ -208,22 +214,27 @@
 							$div_produtos .= "<div style='white-space: nowrap; padding: 10px; font-size: 14px;'>$quantidadeProduto x &nbsp; $nomeProduto &nbsp;&nbsp; <b>R$ $subtotal</b></div>";
 						}
 						
-						$infoFranquia = $cls_franquias->query_franquias("id = '{$infoPedido['id_franquia']}'");
-						$str_franquia = $infoFranquia[0]['cidade'] ." - ". $infoFranquia[0]['estado'];
+						if($infoPedido['id_franquia'] == 0){
+							$str_franquia = "Franqueador";
+						}else{
+							$infoFranquia = $cls_franquias->query_franquias("id = '{$infoPedido['id_franquia']}'");
+							$str_franquia = $infoFranquia[0]['cidade'] ." - ". $infoFranquia[0]['estado'];
+						}
 						
 						echo "<tr><td align=center><a href='pew-interna-pedido.php?id_pedido=$idPedido' class='link-padrao' target='_blank' title='Ver informações do pedido #$idPedido'>$idPedido</a></td>";
 						echo "<td>$dataPedido</td>";
 						echo "<td>$dataModificacao</td>";
+						echo "<td>$strRetirada</td>";
 						if($pew_session->nivel == 1){
 							echo "<td>$str_franquia</td>";
 						}
 						echo "<td>{$infoPedido['nome_cliente']}</td>";
-						echo "<td>$cpfCliente</td>";
+						echo "<td style='white-space: nowrap;'>$CPF_CNPJ_CLIENTE</td>";
 						echo "<td>{$infoPedido['codigo_rastreamento']}</td>";
-						echo "<td>";
-							echo "<a class='link-padrao toggle-button' target-hash='$hashID'>Exibir produtos</a>";
-							echo "<div class='display-lista-produtos hidden-produtos' id='$hashID'>$div_produtos</div>";
-						echo "</td>";
+						// echo "<td>";
+						// 	echo "<a class='link-padrao toggle-button' target-hash='$hashID'>Exibir produtos</a>";
+						// 	echo "<div class='display-lista-produtos hidden-produtos' id='$hashID'>$div_produtos</div>";
+						// echo "</td>";
 						echo "<td>$str_status_transporte</td>";
 						echo "<td><a class='btn-alterar btn-alterar-produto btn-controll-produto' js-target-produto='$idPedido'>Alterar</a></td></tr>";
 						
@@ -262,6 +273,14 @@
 									}
 						
 								$controll_divs .= "</select>";
+								$controll_divs .= "<div class='half'>";
+									$controll_divs .= "<h3 class='label-title'>Data retirada</h3>";
+									$controll_divs .= "<input type='date' class='label-input' name='data_retirada' value='{$infoPedido['data_retirada']}'>";
+								$controll_divs .= "</div>";
+								$controll_divs .= "<div class='half'>";
+									$controll_divs .= "<h3 class='label-title'>Hora retirada</h3>";
+									$controll_divs .= "<input type='time' class='label-input' name='hora_retirada' value='".substr($infoPedido['hora_retirada'], 0, 5)."'>";
+								$controll_divs .= "</div>";
 							$controll_divs .= "</div>";
 							$controll_divs .= 
 							"<div class='label group jc-right'>

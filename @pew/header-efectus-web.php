@@ -518,6 +518,9 @@ class NavLinks{
 			}
 		}
 	}
+	ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 ?>
 <section class="section-header">
     <header class="header-efectus-web">
@@ -529,7 +532,7 @@ class NavLinks{
                 <?php
                     switch($pew_session->nivel){
 						case 1:
-							$pew_nivel = "Franquia Principal";
+							$pew_nivel = "Franqueador";
 							break;
 						case 2:
 							$pew_nivel = "Franquia";
@@ -564,7 +567,7 @@ class NavLinks{
 				
 				$link_nav[$countLinks] = new NavLinks("Produtos", "pew-produtos.php", null, array(5));
 				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fa fa-th' aria-hidden='true'></i> Listar produtos", "pew-produtos.php");
-				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fas fa-tasks'></i> Atualizar lista de produtos", "pew-lista-produtos-franquia.php", array(1	));
+				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fas fa-tasks'></i> Solicitar produtos", "pew-lista-produtos-franquia.php", array(1));
 				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fa fa-plus' aria-hidden='true'></i> Cadastrar novo", "pew-cadastra-produto.php", array(4, 3, 2));
 				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fa fa-tag' aria-hidden='true'></i> Marcas", "pew-marcas.php", array(4, 3, 2));
 				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fas fa-paint-brush'></i> Cores", "pew-cores.php", array(4, 3, 2));
@@ -614,7 +617,9 @@ class NavLinks{
 				$link_nav[$countLinks] = new NavLinks("Loja", "pew-usuarios.php", null, array(5, 4));
 				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fa fa-users'></i> Usuários", "pew-usuarios.php");
 				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fa fa-plus'></i> Cadastrar usuário", "pew-cadastra-usuario.php");
+				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fas fa-truck'></i> Opções de Transporte", "pew-opcoes-transporte.php", array(1));
 				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fas fa-hotel'></i> Franquias", "pew-franquias.php", array(3, 2));
+				$link_nav[$countLinks]->add_sublink($countLinks, "<i class='fas fa-tasks'></i> Solicitações de produtos", "pew-gerenciamento-solicitacoes-produtos.php", array(3, 2));
 				$countLinks++;
 			
                 $quantidadeLinks = count($link_nav);
@@ -695,6 +700,14 @@ class NavLinks{
 				<div class="button-controll" title="Mensagens do sistema" js-notfy-type='system'>
 					<i class="fas fa-desktop"></i>
 				</div>
+				<?php
+				if($pew_session->nivel == 1){
+					echo 
+					"<div class='button-controll' title='Franquias' js-notfy-type='franquias'>
+						<i class='fas fa-hotel'></i>
+					</div>";
+				}
+				?>
 			</div>
 		</div>
 		<span class="notification-background"></span>
@@ -719,6 +732,7 @@ class NavLinks{
 		var totalNotifications = notificationsList.children(".js-total-notifications").val();
 		var lastSpan = notificationsList.children(".js-last-span").val();
 		var newMessagesInfo = notificationsList.children(".js-new-notifications");
+		var filterTypeActive = null;
 		var refreshDelay = 5000;
 		
 		var loading_notifications = false;
@@ -765,7 +779,7 @@ class NavLinks{
 							newMessagesInfo.addClass("show-after-filter").show();
 							notificationsSpan.prepend(response);
 						}
-						
+
 						if(count_box_views() == totalNotifications){
 							buttonLoadMore.remove();
 						}else{
@@ -777,6 +791,10 @@ class NavLinks{
 				},
 				complete: function(){
 					update_box_layout();
+					
+					if(filterTypeActive != null){
+						filter_by_type(filterTypeActive);
+					}
 				}
 			});
 		} 
@@ -841,8 +859,14 @@ class NavLinks{
 			}
 		}
 		
+		var loadNewMessages = false;
+		setTimeout(function(){
+			loadNewMessages = true;
+		}, 5000);
 		function toggle_notf_display(){
-			load_new_messages();
+			if(loadNewMessages){
+				load_new_messages();
+			}
 			toggle_notf_background();
 			if(displayNotifications.hasClass("display-notifications-active")){
 				update_controll_view();
@@ -860,6 +884,7 @@ class NavLinks{
 		
 		function filter_by_type(type){
 			var ctrl = 0;
+			filterTypeActive = type == "global" ? null : type;
 			notificationsList.children(".no-results").css("display", "none");
 			notificationsBox.each(function(){
 				var box = $(this);

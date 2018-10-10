@@ -225,6 +225,39 @@
 			.js-hidden{
 				display: none;
 			}
+            .display-cupons-utilizados{
+                position: fixed;
+                display: none;
+                width: 600px;
+                max-height: 460px;
+                overflow: hidden;
+                overflow-y: auto;
+                background-color: #fff;
+                top: 100px;
+                margin: 0 auto;
+                left: 0;
+                right: 0;
+                z-index: 200;
+                padding: 15px;
+                padding-bottom: 30px;
+            }
+            .display-cupons-utilizados .btn-exit-div{
+                position: fixed;
+                top: 55px;
+                margin: 0 auto;
+                background-color: #fff;
+                padding: 5px 10px;
+                color: #222;
+                right: 360px;
+                border-radius: 4px;
+                width: 100px;
+                transition: .2s;
+            }   
+            .display-cupons-utilizados .btn-exit-div:hover{
+                transform: scale(1.2);
+                border-bottom: 2px solid #f78a14;
+                color: #f78a14;
+            }
             /*END PRODUTOS RELACIONADOS CSS*/
         </style>
         <!--FIM THIS PAGE CSS-->
@@ -281,6 +314,10 @@
 						mensagemAlerta("O campo Valor desconto deve ser maior do que 0", objValorDesconto);
 						return false;
 					}
+                    if(objTipoDesconto.val() == 0 && objValorDesconto.val() > 50){
+                        mensagemAlerta("O campo Valor de desconto não pode ultrapassar 50%", objValorDesconto);
+						return false;
+                    }
 					switch(type){
 						case 1:
 							var idCategoria = objCategoria.val();
@@ -690,6 +727,8 @@
             if(isset($block_level) && $block_level == true){
                 $pew_session->block_level();
             }
+
+            require_once "../@classe-minha-conta.php";
 		
 			$tabela_produtos = $pew_custom_db->tabela_produtos;
 			$tabela_departamentos = $pew_custom_db->tabela_departamentos;
@@ -720,7 +759,11 @@
         <section class="conteudo-painel">
 			<?php
 			require_once "@classe-promocoes.php";
+			require_once "@classe-pedidos.php";
+
 			$cls_promocoes = new Promocoes();
+			$cls_conta = new MinhaConta();
+			$cls_pedidos = new Pedidos();
 			
 			$get_id_promocao = isset($_GET["id_promocao"]) ? (int) $_GET["id_promocao"] : 0;
 			
@@ -775,6 +818,10 @@
 				$possibleTypes[4] = array();
 				$possibleTypes[4]['titulo'] = "Produtos";
 				$possibleTypes[4]['value'] = 4;
+
+                $possibleTypes[5] = array();
+				$possibleTypes[5]['titulo'] = "Toda loja";
+				$possibleTypes[5]['value'] = 5;
 				
 				$possibleDiscounts = array();
 				
@@ -844,7 +891,7 @@
                 $class_englobamento = $promoType == 3 ? null : "js-hidden";
 			?>
 			<article class="group mbottom">
-				Se o tipo de desconto for <b>Valor Fixo</b> e o preço dos produtos selecionados forem menor (ou próximos a 70%) do valor fixo cadastrado, então será adicionado <b>25%</b> de desconto sobre o preço do produto ao invés do valor fixo.
+				O valor do desconto limita-se a 50% do preço do produto
 			</article>
             <form method="post" action="pew-update-promocao.php" class="formulario-cadastro-promocao clear" id="promoForm">
 				<input type="hidden" name="id_promocao" value="<?= $get_id_promocao; ?>">
@@ -976,6 +1023,50 @@
 						</div>
 					</div>
 					<!--END SELECT PRODUTOS-->
+
+                    <?php
+                    if($promoType == 3){
+                        // Lista cupons utilizados
+                        $infoCuponsUtilizados = $cls_promocoes->get_info_cupom_utilizado($get_id_promocao);
+                        echo "<div class='small'><br><br><a class='btn-show-div link-padrao' js-target-id='displayCupons'>Vizualizar cupons utilizados</a></div>";
+                        
+                        echo "<div class='display-cupons-utilizados' id='displayCupons'>";
+                        echo "<table class='table-padrao' cellspacing=0>";
+                            echo "<thead>";
+                                echo "<td>Data</td>";
+                                echo "<td>Horário</td>";
+                                echo "<td>Cliente</td>";
+                                echo "<td class='prices'>Total compra</td>";
+                            echo "</thead>";
+                            echo "<tbody>";
+                            if(count($infoCuponsUtilizados) > 0){
+                                rsort($infoCuponsUtilizados);
+                                foreach($infoCuponsUtilizados as $infoCupomU){
+                                    $cls_conta->montar_minha_conta($infoCupomU['id_usuario']);
+                                    $infoCliente = $cls_conta->montar_array();
+                                    
+                                    $dataUtilizacao = $pew_functions->inverter_data(substr($infoCupomU['data_controle'], 0, 10));
+                                    $horaUtilizacao = substr($infoCupomU['data_controle'], 11);
+
+                                    $cls_pedidos->montar($infoCupomU['id_pedido']);
+                                    $infoPedido = $cls_pedidos->montar_array();
+
+                                    echo "<tr>";
+                                        echo "<td>$dataUtilizacao</td>";
+                                        echo "<td>$horaUtilizacao</td>";
+                                        echo "<td>{$infoCliente['usuario']}</td>";
+                                        echo "<td class='prices'>R$ ". number_format($infoPedido['valor_total'], 2, ",", ".") ."</td>";
+                                    echo "</tr>";
+                                }
+                            }else{
+                                echo "<tr><td colspan=4>Nenhum cupom foi utilizado</td></tr>";
+                            }
+                            echo "</tbody>";
+                        echo "</table>";
+                        echo "<center><br><a class='btn-exit-div link-padrao' js-target-id='displayCupons'>Voltar</a></center>";
+                        echo "</div>";
+                    }
+                    ?>
                 </div>
 				
                 <div class="group clear" style='padding-top: 30px;'>

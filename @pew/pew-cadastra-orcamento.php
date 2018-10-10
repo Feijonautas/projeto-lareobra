@@ -223,6 +223,7 @@
                 phone_mask("#telefoneCliente");
                 input_mask("#rgCliente", "99.999.999-9");
                 input_mask("#cpfCliente", "999.999.999-99");
+                input_mask("#cnpjCliente", "00.000.000/0000-00", {reverse: true});
                 input_mask("#cepCliente", "99999-999");
 
                 /*PRODUTOS RELACIONADOS*/
@@ -585,14 +586,17 @@
                     event.preventDefault();
                     if(!cadastrando){
                         cadastrando = true;
+                        var objTipoPessoa = $("#tipoPessoa");
                         var objNome = $("#nomeCliente");
                         var objTelefone = $("#telefoneCliente");
                         var objEmail = $("#emailCliente");
-                        var objCpf = $("#cpfCliente");
+                        var objCPF = $("#cpfCliente");
+                        var objCNPJ = $("#cnpjCliente");
                         var nome = objNome.val();
                         var telefone = objTelefone.val();
                         var email = objEmail.val();
-                        var cpf = objCpf.val();
+                        var cpf = objCPF.val();
+                        var cnpj = objCNPJ.val();
                         function validarCampos(){
                             if(nome.length < 2){
                                 mensagemAlerta("O Campo Nome deve conter no mínimo 2 caracteres", objNome);
@@ -606,10 +610,19 @@
                                 mensagemAlerta("O Campo E-mail deve ser preenchido corretamente", objEmail);
                                 return false;
                             }
-                            if(cpf.length < 11){
-                                mensagemAlerta("O Campo CPF deve conter no mínimo 11 caracteres", objCpf);
-                                return false;
+                            if(objTipoPessoa.val() == "pf"){
+                                if(validarCPF(cpf) == false){
+                                    mensagemAlerta("O Campo CPF deve ser preenchido corretamente", objCPF);
+                                    return false;
+                                }
+                            }else{
+
+                                if(validarCNPJ(cnpj) == false){
+                                    mensagemAlerta("O Campo CNPJ deve ser preenchido corretamente", objCNPJ);
+                                    return false;
+                                }
                             }
+
                             return true;
                         }
                         if(validarCampos()){
@@ -617,6 +630,18 @@
                         }else{
                             cadastrando = false;
                         }
+                    }
+                });
+
+                $("#tipoPessoa").change(function(){
+                    var tipoPessoa = $(this).val();
+
+                    if(tipoPessoa == "pf"){
+                        $(".js-cpf-display").css("display", "block");
+                        $(".js-cnpj-display").css("display", "none");
+                    }else{
+                        $(".js-cpf-display").css("display", "none");
+                        $(".js-cnpj-display").css("display", "block");
                     }
                 });
             });
@@ -635,13 +660,24 @@
             $tabela_orcamentos = $pew_custom_db->tabela_orcamentos;
             $tabela_carrinhos = $pew_custom_db->tabela_carrinhos;
         
+            $tipoPessoa = "pf";
             $nomeCliente = null;
             $telefoneCliente = null;
             $emailCliente = null;
             $cpfCliente = null;
+            $cnpjCliente = null;
             $desconto = 0;
             $selectedProdutos = array();
             $ctrlProdutos = 0;
+
+            $possible_tipos = array();
+            $possible_tipos[0] = array();
+            $possible_tipos[0]['titulo'] = "Pessoa Física";
+            $possible_tipos[0]['value'] = "pf";
+
+            $possible_tipos[1] = array();
+            $possible_tipos[1]['titulo'] = "Pessoa Jurídica";
+            $possible_tipos[1]['value'] = "pj";
         
             $quantidadesProdutos = array();
         
@@ -650,10 +686,12 @@
                 $query = mysqli_query($conexao, "select * from $tabela_orcamentos where id = '$idOrcamento'");
                 $info = mysqli_fetch_array($query);
                 
+                $tipoPessoa = $info["tipo_pessoa"];
                 $nomeCliente = $info["nome_cliente"];
                 $telefoneCliente = $info["telefone_cliente"];
                 $emailCliente = $info["email_cliente"];
                 $cpfCliente = $info["cpf_cliente"];
+                $cnpjCliente = $info["cnpj_cliente"];
                 $tokenCarrinho = $info["token_carrinho"];
                 $desconto = $info["porcentagem_desconto"];
                 
@@ -672,21 +710,45 @@
             <form method="post" action="pew-grava-orcamento.php" class="formulario-cadastro-orcamento">
                 <div class="group clear">
                     <h3 align='left' style="margin: 0px;">Informações do cliente</h3>
-                    <label class="label half">
+                    <label class="label small">
+                        <h3 class="label-title" align=left>Tipo pessoa</h3>
+                        <select type="text" name="tipo_pessoa" id="tipoPessoa" class="label-input">
+                            <?php
+                            foreach($possible_tipos as $infoTipo){
+                                $selected = $infoTipo['value'] == $tipoPessoa ? "selected" : null;
+                                echo "<option value='{$infoTipo['value']}' $selected>{$infoTipo['titulo']}</option>";
+                            }
+                            ?>
+                        </select>
+                    </label>
+                    <label class="label small">
                         <h3 class="label-title" align=left>Nome</h3>
                         <input type="text" name="nome_cliente" id="nomeCliente" placeholder="Nome" class="label-input" value='<?php echo $nomeCliente; ?>'>
                     </label>
-                    <label class="label half">
-                        <h3 class="label-title" align=left>Telefone</h3>
-                        <input type="text" name="telefone_cliente" id="telefoneCliente" placeholder="(DDD) 99999-9999" class="label-input" value='<?php echo $telefoneCliente; ?>'>
-                    </label>
-                    <label class="label half">
+                    <label class="label small">
                         <h3 class="label-title" align=left>E-mail</h3>
                         <input type="text" name="email_cliente" id="emailCliente" placeholder="email@dominio.com.br" class="label-input" value='<?php echo $emailCliente; ?>'>
                     </label>
                     <label class="label small">
+                        <h3 class="label-title" align=left>Telefone</h3>
+                        <input type="text" name="telefone_cliente" id="telefoneCliente" placeholder="(DDD) 99999-9999" class="label-input" value='<?php echo $telefoneCliente; ?>'>
+                    </label>
+                    <?php
+                    if($tipoPessoa == "pf"){
+                        $styleCPF = "style='display: block;'";
+                        $styleCNPJ = "style='display: none;'";
+                    }else{
+                        $styleCPF = "style='display: none;'";
+                        $styleCNPJ = "style='display: block;'";
+                    }
+                    ?>
+                    <label class="label small js-cpf-display" <?= $styleCPF; ?>>
                         <h3 class="label-title" align=left>CPF</h3>
                         <input type="text" name="cpf_cliente" id="cpfCliente" placeholder="CPF Cliente" class="label-input" value='<?php echo $cpfCliente; ?>'>
+                    </label>
+                    <label class="label small js-cnpj-display" <?= $styleCNPJ; ?>>
+                        <h3 class="label-title" align=left>CNPJ</h3>
+                        <input type="text" name="cnpj_cliente" id="cnpjCliente" placeholder="CNPJ" class="label-input" value='<?php echo $cnpjCliente; ?>'>
                     </label>
                     <br style="clear: both;">
                 </div>

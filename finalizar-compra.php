@@ -14,6 +14,8 @@
     $cls_paginas->set_descricao("DESCRIÇÃO MODELO ATUALIZAR...");
 	$cls_paginas->require_dependences();
 
+    $tabela_transporte_franquias = $pew_custom_db->tabela_transporte_franquias;
+
     if(isset($_GET["clear"])){
         if($_GET["clear"] == "true" || $_GET["clear"] == true){
             unset($_SESSION["carrinho"]);
@@ -510,6 +512,7 @@
                 var viewTotalCompra = $(".final-value");
                 var viewCarrinhoFrete = $(".view-frete");
 				var pontosClube = $("#jsPointsClube").val();
+                var stringTransporte = $("#stringTransporte").val();
                 
                 // DADOS COMPRA
                 var displayDados = $(".dados-compra");
@@ -584,7 +587,7 @@
                         set_view_preco(totalCarrinho, "0.00");
                         var urlFrete = "@calcular-transporte.php";
                         var cepDestino = typeof $("#cepDestino").val() != "undefined" ? $("#cepDestino").val() : 0;
-                        var codigosServico = ["7777", "8888", "41106", "40010", "40215", "40290"];
+                        var codigosServico = stringTransporte.split("||");
                         var totalQuantidadeProdutos = 0;
                         jsonProduto.forEach(function(field){
                             totalQuantidadeProdutos = parseInt(totalQuantidadeProdutos) + parseInt(field.quantidade);
@@ -1123,12 +1126,28 @@
         <div class="main-content">
             <h1 class="titulo">Finalize sua compra</h1>
 			<?php
+
+            $session_id_franquia = $cls_franquias->id_franquia;
+
+            $strTransportes = null;
+            $queryTransportes = mysqli_query($conexao, "select codigo from $tabela_transporte_franquias where id_franquia = '$session_id_franquia' and status = 1");
+            while($infoTransporte = mysqli_fetch_array($queryTransportes)){
+                $strTransportes = $strTransportes == null ? $infoTransporte["codigo"] : $strTransportes."||".$infoTransporte["codigo"];
+            }
+
 			if(isset($_GET["clube_descontos"])){
 				unset($_SESSION['carrinho']['points_discount']);
 				unset($_SESSION['carrinho']['brl_discount']);
 				echo "<article>Aguarde...</article>";
 				echo "<script>window.location.href = 'carrinho/';</script>";
 			}
+
+            if(isset($_GET['token_carrinho'])){
+                $tokenCarrinho = addslashes($_GET['token_carrinho']);
+                echo "<input type='hidden' class='js-custom-redirect' value='carrinho/orcamento/$tokenCarrinho'";
+            }else{
+                echo "<input type='hidden' class='js-custom-redirect' value='carrinho/'";
+            }
 			
 			$points_discount = isset($_SESSION['carrinho']['points_discount']) ? $_SESSION['carrinho']['points_discount'] : null;
 			$brl_discount = isset($_SESSION['carrinho']['brl_discount']) ? $_SESSION['carrinho']['brl_discount'] : null;
@@ -1137,7 +1156,6 @@
 			}
 			?>
             <!--redirect login-->
-			<input type="hidden" class="js-custom-redirect" value="carrinho/">
 			
             <!--DISPLAY ITENS-->
             <div class="display-carrinho">
@@ -1226,6 +1244,7 @@
 									$totalItens += $subtotal;
 									array_push($json_cart, $item_carrinho);
 									echo "<span class='info-frete'>";
+                                        echo "<input type='hidden' id='stringTransporte' value='$strTransportes'>";
 										echo "<input type='hidden' id='freteIdProduto' value='$idProduto'>";
 										echo "<input type='hidden' id='freteTituloProduto' value='$nome'>";
 										echo "<input type='hidden' id='fretePrecoProduto' value='$precoFrete'>";

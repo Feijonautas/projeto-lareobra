@@ -4,6 +4,7 @@
 		require_once "@valida-sessao.php";
 	}
     require_once "@include-global-vars.php";
+    require_once __DIR__ . "/../@classe-paginas.php";
 
     $diretorioAPI = isset($_POST["diretorio"]) ? str_replace(" ", "", $_POST["diretorio"]) : "../";
 
@@ -30,6 +31,8 @@
         private $valor_total = 0;
         private $data_controle;
         private $data_modificacao;
+        private $data_retirada;
+        private $hora_retirada;
         private $status_transporte = 0;
         private $status = 0;
         public $id_franquia = 0;
@@ -75,6 +78,8 @@
                 $this->estado = $info["estado"];
                 $this->data_controle = $info["data_controle"];
                 $this->data_modificacao = $info["data_modificacao"];
+                $this->data_retirada = $info["data_retirada"];
+                $this->hora_retirada = $info["hora_retirada"];
                 $this->status_transporte = $info["status_transporte"];
                 $this->status = $info["status"];
                 $this->valor_frete = $info["vlr_frete"];
@@ -83,6 +88,11 @@
 				
 				$dataPedido = substr($info['data_controle'], 0, 10);
 				$dataPedido = $this->pew_functions->inverter_data($dataPedido);
+
+                $isOrderPaid = $this->is_order_paid($id);
+                $isOrderCanceled = $this->is_order_canceled($id);
+
+                $update = $isOrderPaid || $isOrderCanceled ? false : $update;
                 
                 if($update == true){
                     $_POST["console"] = false;
@@ -104,7 +114,7 @@
                     }
                 }
                 
-                if(isset($statusPagseguro) && $statusPagseguro != $this->status){
+                if(isset($statusPagseguro) && $statusPagseguro != $this->status){ // Se status do pedido foi atualizado
                     switch($statusPagseguro){
                         case 1:
                             $statusTransporte = 0;
@@ -136,6 +146,18 @@
 					$this->status = $statusPagseguro;
                     $this->status_transporte = $statusTransporte;
                     
+                    if($isOrderPaid == true && $this->codigo_rastreamento == null && $this->codigo_transporte == 7777){
+                        $destinatarios = array();
+                        $destinatarios[0] = array();
+                        $destinatarios[0]['email'] = $this->email_cliente;
+                        $destinatarios[0]['nome'] = $this->nome_cliente;
+
+                        $generated_code_retirada = $this->generate_codigo_retirada();
+                        $bodyEmail = $this->get_body_email_cd_retirada($this->referencia, $this->valor_total, $generated_code_retirada);
+                        $this->pew_functions->enviar_email("Codigo de retirada adicionado", $bodyEmail, $destinatarios);
+
+                        mysqli_query($conexao, "update $tabela_pedidos set codigo_rastreamento = '$generated_code_retirada' where id = '$id'");
+                    }
                 }
 				
                 $tokenCarrinho = $info["token_carrinho"];
@@ -149,13 +171,65 @@
 				
 				$taxaBoleto = $this->codigo_pagamento == 2 ? $this->taxa_boleto : 0; // Se pago por boleto adicionar taxa ao total da compra
 
-                $this->valor_sfrete = $valorTotal;
-                $this->valor_total = $valorTotal + $this->valor_frete + $taxaBoleto;
+                $this->valor_sfrete = $this->pew_functions->custom_number_format($valorTotal);
+                $this->valor_total = $this->pew_functions->custom_number_format($valorTotal + $this->valor_frete + $taxaBoleto);
                 
                 return true;
             }else{
                 return false;
             }
+        }
+
+        function is_order_paid($idPedido){
+            $conexao = $this->global_vars["conexao"];
+			$tabela_pedidos = $this->global_vars["tabela_pedidos"];
+
+            $condition = "id = '$idPedido' and status = 3 or id = '$idPedido' and status = 4";
+
+            $queryCount = mysqli_query($conexao, "select count(id) as total from $tabela_pedidos where $condition");
+            $totalInfo = mysqli_fetch_array($queryCount);
+
+            $isPaid = $totalInfo['total'] > 0 ? true : false;
+
+            return $isPaid;
+        }
+
+        function is_order_canceled($idPedido){
+            $conexao = $this->global_vars["conexao"];
+			$tabela_pedidos = $this->global_vars["tabela_pedidos"];
+
+            $condition = "id = '$idPedido' and status = 6 or id = '$idPedido' and status = 7";
+
+            $queryCount = mysqli_query($conexao, "select count(id) as total from $tabela_pedidos where $condition");
+            $totalInfo = mysqli_fetch_array($queryCount);
+
+            $isCanceled = $totalInfo['total'] > 0 ? true : false;
+
+            return $isCanceled;
+        }
+
+        function generate_codigo_retirada(){
+            $tabela_pedidos = $this->global_vars["tabela_pedidos"];
+            $controller = 0;
+
+            function get_code($ctrl){
+                $md5REF = substr(md5(time().$ctrl), 0, 8);
+                $code = "RTR".$md5REF;
+
+                return $code;
+            }
+
+            function is_valid($ref, $tb_pedidos, $pew_functions){
+                return $pew_functions->contar_resultados($tb_pedidos, "codigo_rastreamento = '$ref'") > 0 ? false : true;
+            }
+
+            $final_ref = get_code($controller);
+            while(is_valid($final_ref, $tabela_pedidos, $this->pew_functions) == false){
+                $controller++;
+                $final_ref = $this->get_code($controller);
+            }
+
+            return $final_ref;
         }
 		
 		function get_observacoes_pedido($idPedido = null){
@@ -176,6 +250,59 @@
 			
 			return $observacoesPedido;
 		}
+
+        function get_body_email_cd_retirada($referencia_pedido, $valor_total, $codigo_retirada){
+            $cls_paginas = new Paginas();
+            $full_path = $cls_paginas->get_full_path();
+
+            $body = "
+            <!DOCTYPE html>
+			<html lang='pt-br'>
+				<head>
+					<meta charset='utf-8'>
+					<style>
+						@font-face{
+							font-family: 'Montserrat', sans-serif;
+							src: url('https://fonts.googleapis.com/css?family=Montserrat');
+						}
+						.f-montserrat{
+							font-family: 'Montserrat', sans-serif;
+						}
+                        .container{
+                            color: #333;
+                        }
+					</style>
+				</head>
+				<body class='f-montserrat'>
+					<section class='main-container' style='width: 450px; margin: auto; background-color: #fefefe; border-radius: 5px; color: #333; border: 1px solid #ccc;'>
+						<div class='container' style='padding: 30px 0 0 0;'>
+							<img style='display: block; margin: auto; width: 50%;' src='$full_path/imagens/identidadeVisual/logo-lareobra.png'>
+						</div>
+						<div class='main-body' style='padding: 20px;'>
+							<div class='container' style='margin: 15px 0;'>
+								<h2 style='color: #dd2a2a; margin: 0; font-size: 24px;'>Código de retirada adicionado</h2>
+							</div>
+							<div class='container'>
+								<p style='text-align: justify; line-height: 24px;'>
+									Indetificamos o pagamento do pedido <b>$referencia_pedido</b> no valor de <b style='white-space: nowrap;'>R$ ". number_format($valor_total, 2, ",", ".") ."</b>, seu código de retirada é: <b>$codigo_retirada</b><br><br>
+									Para retirar seu pedido, você deve ir na Franquia selecionada e apresentar o código de retirada junto com
+                                    seu CPF.
+								</p>
+							</div>
+							<div class='container'>
+                                <br><br>
+								<p style='text-align: justify; margin: 0; font-size: 12px; line-height: 16px;'>
+									Todas as informações e regras da loja estão disponíveis no nosso site: <a href='$full_path'>www.lareobra.com.br</a><br><br>
+									Caso ainda esteja com dúvidas entre em contato pelo telefone <a href='tel:+5504130851500' style='text-decoration: none; color: #666; white-space: nowrap;'>(41) 3085-1500</a> ou pelo e-mail contato@lareobra.com.br
+								</p>
+							</div>
+						</div>
+					</section>
+				</body>
+			</html>";
+
+            return $body;
+        }
         
         function montar_array(){
             $array = array();
@@ -200,6 +327,8 @@
             $array["estado"] = $this->estado;
             $array["data_controle"] = $this->data_controle;
             $array["data_modificacao"] = $this->data_modificacao;
+            $array["data_retirada"] = $this->data_retirada;
+            $array["hora_retirada"] = $this->hora_retirada;
             $array["valor_sfrete"] = $this->valor_sfrete;
             $array["valor_total"] = $this->valor_total;
             $array["status"] = $this->status;
@@ -407,7 +536,7 @@
                     $pagamentoStr = $this->get_pagamento_string($this->codigo_pagamento);
                     $transporteStr = $this->get_transporte_string();
 					
-					$valorCobrado = $pew_functions->custom_number_format($this->valor_total);
+					$valorCobrado = number_format($this->valor_total, 2, ",", ".");
 					
 					$idCliente = $this->id_cliente;
 					$maxCaracteres = 21;
@@ -429,7 +558,7 @@
                                 $estado = $infoFranquia["estado"];
                                 echo "<td>$estado - $cidade</td>";
                             }else{
-                                echo "<td>Principal</td>";
+                                echo "<td>Franqueador</td>";
                             }
 						}
 						echo "<td>$data</td>";

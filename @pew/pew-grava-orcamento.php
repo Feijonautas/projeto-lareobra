@@ -1,7 +1,7 @@
 <?php
 
     session_start();
-    $post_fields = array("nome_cliente", "telefone_cliente", "email_cliente", "cpf_cliente", "total_desconto", "total_orcamento");
+    $post_fields = array("tipo_pessoa", "nome_cliente", "telefone_cliente", "email_cliente", "cpf_cliente", "cnpj_cliente", "total_desconto", "total_orcamento");
     $file_fields = array();
     $invalid_fields = array();
     $gravar = true;
@@ -28,10 +28,12 @@
         
         $dataAtual = date("Y-m-d H:i:s");
         /*POST DATA*/
+        $tipoPessoa = addslashes($_POST["tipo_pessoa"]);
         $nomeCliente = addslashes($_POST["nome_cliente"]);
         $telefoneCliente = addslashes($_POST["telefone_cliente"]);
         $emailCliente = addslashes($_POST["email_cliente"]);
-        $cpfCliente = addslashes($_POST["cpf_cliente"]);
+        $cpfCliente = preg_replace("/[^0-9]/", "", $_POST["cpf_cliente"]);
+        $cnpjCliente = preg_replace("/[^0-9]/", "", $_POST["cnpj_cliente"]);
         $totalPorcentagemDesconto = floatval($_POST["total_desconto"]);
         $totalOrcamento = floatval($_POST["total_orcamento"]);
         $produtosOrcamento = isset($_POST["produtos_orcamento"]) ? $_POST["produtos_orcamento"] : "";
@@ -129,7 +131,7 @@
             
             if($gravar){
                 /*INSERE DADOS ORCAMENTO*/
-                mysqli_query($conexao, "insert into $tabela_orcamentos (nome_cliente, telefone_cliente, email_cliente, cpf_cliente, token_carrinho, porcentagem_desconto, id_vendedor, data_pedido, data_vencimento, data_controle, modify_controle, status_orcamento) values ('$nomeCliente', '$telefoneCliente', '$emailCliente', '$cpfCliente', '$tokenCarrinho', '$totalPorcentagemDesconto', '$idVendedor', '$dataAtual', '$dataVencimento', '$dataAtual', '$idVendedor', '$statusOrcamento')");
+                mysqli_query($conexao, "insert into $tabela_orcamentos (tipo_pessoa, nome_cliente, telefone_cliente, email_cliente, cpf_cliente, cnpj_cliente, token_carrinho, porcentagem_desconto, id_vendedor, data_pedido, data_vencimento, data_controle, modify_controle, status_orcamento) values ('$tipoPessoa', '$nomeCliente', '$telefoneCliente', '$emailCliente', '$cpfCliente', '$cnpjCliente', '$tokenCarrinho', '$totalPorcentagemDesconto', '$idVendedor', '$dataAtual', '$dataVencimento', '$dataAtual', '$idVendedor', '$statusOrcamento')");
                 
                 echo "<script>window.location.href='pew-orcamentos.php?msg=Orçamento cadastrado com sucesso&msgType=success';</script>";
             }else{
@@ -137,7 +139,7 @@
             }
 
         }else{
-            //Erro de validação = Nome do cliente vazio
+            // Erro de validação = Nome do cliente vazio
             echo "<script>window.location.href='pew-orcamentos.php?erro=validação_do_orcamento&msg=Ocorreu um erro ao cadastrar o orçamento&msgType=error';</script>";
         }
         /*END VALIDACOES E SQL FUNCTIONS*/

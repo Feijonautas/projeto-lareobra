@@ -53,24 +53,26 @@
                     </div>
                 </label>
             </form>
-            <table class="table-padrao" cellspacing="0">
             <?php
                 $tabela_tickets = "tickets_register";
-				$tabela_franquias = "franquias_lojas";
+				$tabela_franquias = $pew_custom_db->tabela_franquias;
 				
                 if(isset($_GET["busca"]) && $_GET["busca"] != ""){
                     $getSEARCH = addslashes($_GET["busca"]);
                     $strBusca = "ref like '%".$getSEARCH."%'";
-                    echo "<h3>Exibindo resultados para: $getSEARCH</h3>";
+                    echo "<div class='full clear'><h5>Exibindo resultados para: $getSEARCH &nbsp;&nbsp; <a href='pew-tickets.php' class='link-padrao'>Limpar</a></h5></div>";
                 }else{
                     $strBusca = "";
                 }
 				
 				if($pew_session->nivel == 1){
-					$mainCondition = $mainCondition == null ? "true" : $mainCondition;
+					$mainCondition = $strBusca == null ? "true" : $strBusca;
 				}else{
-					$mainCondition = $mainCondition == null ? "id_franquia = '{$pew_session->id_franquia}'" : str_replace("or", "and id_franquia = '{$pew_session->id_franquia}' or", $mainCondition);
+					$mainCondition = $strBusca == null ? "id_franquia = '{$pew_session->id_franquia}'" : str_replace("or", "and id_franquia = '{$pew_session->id_franquia}' or", $strBusca);
 				}
+            ?>
+            <table class="table-padrao" cellspacing="0">
+            <?php
 				
                 $total = $pew_functions->contar_resultados($tabela_tickets, $mainCondition);
                 if($total > 0){
@@ -87,7 +89,7 @@
                         echo "<td>Ver</td>";
                     echo "</thead>";
                     echo "<tbody>";
-                    $query = mysqli_query($conexao, "select * from $tabela_tickets $strBusca order by id desc");
+                    $query = mysqli_query($conexao, "select * from $tabela_tickets where $mainCondition order by id desc");
                     while($infoTicket = mysqli_fetch_array($query)){
                         $ticketID = $infoTicket["id"];
                         $idFranquia = $infoTicket["id_franquia"];

@@ -53,17 +53,15 @@
                     </div>
                 </label>
             </form>
-            <table class="table-padrao" cellspacing="0">
             <?php
                 $tabela_contatos_servicos = $pew_custom_db->tabela_contatos_servicos;
                 $tabela_franquias = "franquias_lojas";
 				
+                $mainCondition = null;
                 if(isset($_GET["busca"]) && $_GET["busca"] != ""){
                     $getSEARCH = addslashes($_GET["busca"]);
                     $mainCondition = "nome like '%".$getSEARCH."%' or telefone like '%".$getSEARCH."%' or email like '%".$getSEARCH."%' or mensagem like '%".$getSEARCH."%' or tipo like '%".$getSEARCH."%'";
-                    echo "<h3>Exibindo resultados para: $getSEARCH</h3>";
-                }else{
-                    $mainCondition = "";
+                    echo "<div class='full clear'><h5>Exibindo resultados para: $getSEARCH &nbsp;&nbsp; <a href='pew-contatos-servicos.php' class='link-padrao'>Limpar</a></h5></div>";
                 }
 				
 				if($pew_session->nivel == 1){
@@ -71,6 +69,9 @@
 				}else{
 					$mainCondition = $mainCondition == null ? "id_franquia = '{$pew_session->id_franquia}'" : str_replace("or", "and id_franquia = '{$pew_session->id_franquia}' or", $mainCondition);
 				}
+            ?>
+            <table class="table-padrao" cellspacing="0">
+            <?php
 				
                 $totalContatos = $pew_functions->contar_resultados($tabela_contatos_servicos, $mainCondition);
                 if($totalContatos > 0){

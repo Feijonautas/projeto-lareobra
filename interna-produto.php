@@ -8,6 +8,7 @@
     /*SET TABLES*/
     $tabela_produtos = $pew_custom_db->tabela_produtos;
     $tabela_produtos_relacionados = $pew_custom_db->tabela_produtos_relacionados;
+    $tabela_transporte_franquias = $pew_custom_db->tabela_transporte_franquias;
     /*END SET TABLES*/
 
     /*DEFAULT VARS*/
@@ -457,6 +458,7 @@
                 var iconLoading = "<i class='fas fa-spinner fa-spin icone-loading'></i>";
                 var calculandoFrete = false;
                 var infoCalculoFrete = $(".display-info-calculo-frete");
+                var stringTransporte = $("#stringTransporte").val();
                 
                 var jsonProduto = new Array();
                 
@@ -475,7 +477,8 @@
                     if(!calculandoFrete){
                         var urlFrete = "@calcular-transporte.php";
                         var cepDestino = inputFrete.val();
-                        var codigosServico = ["7777", "8888", "41106", "40010", "40215", "40290"];
+                        var codigosServico = stringTransporte.split("||");
+                        console.log(codigosServico)
                         if(cepDestino.length == 9){
                             
                             botaoCalculoFrete.html(iconLoading);
@@ -600,8 +603,14 @@
 			$cls_franquias = new Franquias();
 			$cls_promocoes = new Promocoes();
 			$cls_conta = new MinhaConta();
-				
+			
 			$session_id_franquia = $cls_franquias->id_franquia;
+
+            $strTransportes = null;
+            $queryTransportes = mysqli_query($conexao, "select codigo from $tabela_transporte_franquias where id_franquia = '$session_id_franquia' and status = 1");
+            while($infoTransporte = mysqli_fetch_array($queryTransportes)){
+                $strTransportes = $strTransportes == null ? $infoTransporte["codigo"] : $strTransportes."||".$infoTransporte["codigo"];
+            }
     
             $infoMinhaConta = $cls_conta->get_info_logado();
             $idCliente = isset($infoMinhaConta['id']) ? $infoMinhaConta['id'] : 0;
@@ -811,6 +820,7 @@
                     </div>
                     <div class="calculo-frete">
                         <h5 class="titulo-frete">CALCULAR FRETE</h5>
+                        <input type="hidden" id="stringTransporte" value="<?= $strTransportes; ?>">
                         <input type="text" class="input-frete" value="<?= $clientCep; ?>">
                         <button class="botao-calculo-frete"><i class="fas fa-truck"></i></button>
                         <div class='resultado-frete'></div>

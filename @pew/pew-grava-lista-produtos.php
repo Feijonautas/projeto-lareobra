@@ -7,7 +7,7 @@
 		
 		$cls_notificacoes = new Notificacoes();
 		
-		$tabela_requisicoes = "franquias_requisicoes";
+		$tabela_requisicoes = $pew_custom_db->tabela_franquias_solicitacoes;
 		
 		$dataAtual = date("Y-m-d H:i:s");
 		
@@ -26,11 +26,9 @@
 			}
 		}
 		
-		$idFranquia = $pew_session->id_franquia;
-		
 		mysqli_query($conexao, "insert into $tabela_requisicoes (id_franquia, info_produtos, estoque_adicionado, data_cadastro, data_controle, status) values ('$idFranquia', '$insert_string', 0, '$dataAtual', '$dataAtual', 1)");
 		
-		$cls_notificacoes->insert(0, "Requisição de produtos", "Uma Franquia fez uma requisição de produtos", "pew-gerenciamento-solicitacoes-produtos.php", "finances");
+		$cls_notificacoes->insert(0, "Requisição de produtos", "Uma Franquia fez uma requisição de produtos", "pew-gerenciamento-solicitacoes-produtos.php", "franquias");
 		
 		echo "<script>window.location.href='pew-gerenciamento-lista-produtos.php';</script>";
 		

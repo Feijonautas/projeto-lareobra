@@ -88,7 +88,7 @@
                         echo "<td>Nome</td>";
                         echo "<td>E-mail</td>";
                         echo "<td>Telefone</td>";
-                        echo "<td>CPF</td>";
+                        echo "<td>CPF/CNPJ</td>";
                         echo "<td>Total Orçamento</td>";
                         echo "<td>Status</td>";
                         echo "<td>Informações</td>";
@@ -101,6 +101,7 @@
                         $email = $orcamentos["email_cliente"];
                         $telefone = $orcamentos["telefone_cliente"];
                         $cpf = $pew_functions->mask($orcamentos["cpf_cliente"], "###.###.###-##");
+                        $cnpj = $pew_functions->mask($orcamentos["cnpj_cliente"], "##.###.###/####-##");
                         $totalOrcamento = $cls_orcamentos->get_total_orcamento($id);
                         $dataOrcamento = $orcamentos["data_controle"];
                         $dataOrcamento = $pew_functions->inverter_data(substr($dataOrcamento, 0, 10));
@@ -110,12 +111,14 @@
                             $strOrcamento = "R$ ". $pew_functions->custom_number_format($totalOrcamento);
                         }
                         $status = $cls_orcamentos->get_string_status($orcamentos["status_orcamento"]);
+
+                        $final_cpf_cnpj = $orcamentos['tipo_pessoa'] == "pf" ? $cpf : $cnpj;
                         
                         echo "<tr><td>$dataOrcamento</td>";
                         echo "<td>$nome</td>";
                         echo "<td>$email</td>";
                         echo "<td>$telefone</td>";
-                        echo "<td>$cpf</td>";
+                        echo "<td>$final_cpf_cnpj</td>";
                         echo "<td>$strOrcamento</td>";
                         echo "<td>$status</td>";
                         echo "<td align=center><a href='pew-edita-orcamento.php?id_orcamento=$id' class='btn-editar'><i class='fa fa-eye' aria-hidden='true'></i></a></td></tr>";

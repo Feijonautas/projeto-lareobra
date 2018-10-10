@@ -165,7 +165,7 @@
                     $body .= "</tr>";
                     $body .= "</table>";
                     $body .= "<div class='bottom' align=right>";
-                        $body .= "<a href='$baseSite/finalizar-compra.php?token_carrinho=$tokenCarrinho' style='color: #fff; background-color: #6abd45; display: inline-block; padding: 8px 15px 8px 15px; text-decoration: none;' target='_blank'>Finalizar compra</a>";
+                        $body .= "<a href='$baseSite/carrinho/orcamento/$tokenCarrinho' style='color: #fff; background-color: #6abd45; display: inline-block; padding: 8px 15px 8px 15px; text-decoration: none;' target='_blank'>Finalizar compra</a>";
                     $body .= "</div>";
                 $body .= "</div>";
             $body .= "</div>";

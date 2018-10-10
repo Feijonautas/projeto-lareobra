@@ -2,6 +2,7 @@
 	require_once "pew-system-config.php";
 	require_once "@classe-system-functions.php";
 	require_once "@classe-departamentos.php";
+	require_once __DIR__ . "/../@classe-produtos.php";
 
 	class Promocoes{
 		private $id;
@@ -124,13 +125,17 @@
 		}
 		
 		function get_produtos($idPromocao){
-			$select = $this->query("id = '$idPromocao'", "type, set_produtos, ctype_englobamento");
+			$cls_produtos = new Produtos();
+			$cls_departamentos = new Departamentos();
+
+			$select = $this->query("id = '$idPromocao'", "id_franquia, type, set_produtos, ctype_englobamento");
 			$infoP = $select[0];
+			$idFranquia = $infoP['id_franquia'];
 			$setProdutos = $infoP['set_produtos'];
 			$cTypeEnglobamento = $infoP['ctype_englobamento'];
 			//print_r($select);
 			$selected_produtos = array();
-			$cls_departamentos = new Departamentos();
+
 			switch($infoP['type']){
 				case 0:
 					$idDepartamento = $setProdutos;
@@ -181,8 +186,14 @@
 							break;
 					}
 					break;
-				default:
+				case 4:
 					$selected_produtos = $this->explode_produtos($setProdutos);
+					break;
+				default:
+					$queryProdutos = $cls_produtos->query_produtos_franquia($idFranquia);
+					foreach($queryProdutos as $idProduto){
+						array_push($selected_produtos, $idProduto);
+					}
 			}
 
 			return $selected_produtos;
@@ -190,7 +201,7 @@
 
 		function is_promo_available($idPromocao, $clientInfo = array()){
 			$expire_query = $this->build_expire_query();
-			$select = $this->query("id = '$idPromocao' and $expire_query", "grupo_clientes");
+			$select = $this->query("id = '$idPromocao' and $expire_query", "type, grupo_clientes");
 
 			$availability = false;
 
@@ -222,6 +233,17 @@
 						$availability = true;
 						break;
 				}
+
+				if($infoP['type'] == 3){
+					global $pew_custom_db, $pew_functions;
+					$tabela_cupons_utilizados = $pew_custom_db->tabela_cupons_utilizados;
+
+					$conditionUsedCupom = "id_promocao = '$idPromocao' and id_usuario = '{$clientInfo['id_usuario']}'";
+					
+					if($pew_functions->contar_resultados($tabela_cupons_utilizados, $conditionUsedCupom) > 0){
+						$availability = false;
+					}
+				}
 			}
 
 			return $availability;
@@ -235,7 +257,11 @@
 
 		function get_promo_rules($id_promocao){
 			$queryRules = $this->query("id = '$id_promocao'", "discount_type, discount_value");
-			$infoRules = $queryRules[0];
+
+			$infoRules = false;
+			if(count($queryRules) > 0){
+				$infoRules = $queryRules[0];
+			}
 
 			return $infoRules;
 		}
@@ -244,20 +270,20 @@
 			global $pew_functions;
 			$discountType = $rules['discount_type'];
 			$discountValue = $rules['discount_value'];
+			$maxPercent = 50;
+			$d_maxPercent = 0.5;
 			
 			$returnPrice = 0;
 			
 			if($discountType == 0){
+				$discount_value = $discountValue > $maxPercent ? $maxPercent : $discountValue;
 				$finalPercent = 1 - ($discountValue / 100);
 				$returnPrice = $preco_bruto * $finalPercent;
 			}else{
 				
-				$maxPercent = 70;
-				$alterPercent = 0.75; //25%
-				
 				$returnPrice = $preco_bruto - $discountValue;
 				if($discountValue >= $preco_bruto || $this->get_promo_percent($preco_bruto, $returnPrice) >= $maxPercent){
-					$returnPrice = $preco_bruto * $alterPercent;
+					$returnPrice = $preco_bruto * $d_maxPercent;
 				}
 			}
 			
@@ -288,8 +314,38 @@
 			return $idCupom;
 		}
 
-		function get_cupom_view($idCupom, $availability = null){
+		function add_cupom_use($id_cupom, $id_pedido, $id_usuario){
+			global $conexao, $pew_custom_db;
+			$tabela_cupons_utilizados = $pew_custom_db->tabela_cupons_utilizados;
+
+			$dataAtual = date("Y-m-d H:i:s");
+
+			$queryCode = $this->query("id = '$id_cupom'", "cupom_code");
+
+			$countCupom = count($queryCode);
+
+			if($countCupom > 0){
+				$cupom_code = addslashes($queryCode[0]['cupom_code']);
+				
+				mysqli_query($conexao, "insert into $tabela_cupons_utilizados (id_usuario, id_pedido, id_promocao, insert_code, data_controle) values ('$id_usuario', '$id_pedido', '$id_cupom', '$cupom_code', '$dataAtual')");
+			}
+
+			return true;
+		}
+
+		function is_cupom_used($id_cupom, $id_usuario){
+			global $conexao, $pew_custom_db, $pew_functions;
+			$tabela_cupons_utilizados = $pew_custom_db->tabela_cupons_utilizados;
+
+			$check_condition = "id_promocao = '$id_cupom' and id_usuario = '$id_usuario'";
+
+			return $pew_functions->contar_resultados($tabela_cupons_utilizados, $check_condition) > 0 ? true : false;
+		}
+
+		function get_cupom_view($idCupom, $availability = null, $id_usuario = false){
 			global $pew_functions;
+
+			$dataAtual = date("Y-m-d H:i:s");
 
 			$queryCupom = $this->query("id = '$idCupom'");
 			if(count($queryCupom) > 0){
@@ -302,7 +358,7 @@
 				echo "<div class='box-cupom'>";
 					echo "<h3 class='title'>$tituloCupom</h3>";
 					echo "<article class='article'>$descricaoCupom</article>";
-					if($infoCupom['status'] == 1){
+					if($infoCupom['status'] == 1 && $dataAtual < $infoCupom['data_final']){
 						echo "<span class='date'>Válido até <b>$data</b> ás <b>$horario</b></span>";
 					}else{
 						echo "<span class='date'><b>Cupom expirado</b></span>";
@@ -313,7 +369,11 @@
 							echo "<span class='true'><i class='fas fa-check'></i> Cupom adicionado</span>";
 							$final_action = "reload";
 						}else{
-							echo "<span class='error'><i class='fas fa-times'></i> Verifique as regras</span>";
+							if($id_usuario != false && $this->is_cupom_used($idCupom, $id_usuario)){
+								echo "<span class='error'><i class='fas fa-times'></i> Cupom já utilizado</span>";
+							}else{
+								echo "<span class='error'><i class='fas fa-times'></i> Verifique as regras</span>";
+							}
 						}
 						echo "</div>";
 					}
@@ -324,6 +384,20 @@
 			}else{
 				return false;
 			}
+		}
+
+		function get_info_cupom_utilizado($id_cupom){
+			global $conexao, $pew_custom_db, $pew_functions;
+			$tabela_cupons_utilizados = $pew_custom_db->tabela_cupons_utilizados;
+
+			$returnArray = array();
+
+			$queryUtilizados = mysqli_query($conexao, "select id, id_usuario, id_pedido, id_promocao, data_controle from $tabela_cupons_utilizados where id_promocao = '$id_cupom'");
+			while($info = mysqli_fetch_array($queryUtilizados)){
+				array_push($returnArray, $info);
+			}
+
+			return $returnArray;
 		}
 		
 		function get_promo_by_product($idFranquia, $idProduto){

@@ -924,6 +924,7 @@ $session_id_franquia = $cls_franquias->id_franquia;
                             echo "<a class='link-padrao botao-minha-conta'><i class='far fa-user'></i> Olá, $splitNome[0]</a>";
                             echo "<ul class='box-header-conta'>";
                                 echo "<li class='link-conta'><a href='minha-conta/'>Minha conta</a></li>";
+                                echo "<li class='link-conta'><a href='minha-conta/pedidos'>Meus pedidos</a></li>";
                                 echo "<li class='link-conta'><a href='ticket/'>Central de atendimento</a></li>";
                                 echo "<li class='link-conta'><a href='deslogar-conta.php'>Sair</a></li>";
                             echo "</ul>";

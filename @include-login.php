@@ -233,7 +233,7 @@
         <h3 class="titulo">ENTRE COM SUA CONTA</h3>
         <article class="descricao-cadastre">
             <p>
-                É um fato conhecido de todos que um leitor se distrairá com o conteúdo de texto legível de uma página quando estiver examinando sua diagramação.
+                Fazendo login você poderá utilizar a Central de Atendimento e ao Clube de Descontos, também terá acesso aos pedidos finalizados e dados da conta.
             </p>
         </article>
         <div class="display-confirmacao"></div>

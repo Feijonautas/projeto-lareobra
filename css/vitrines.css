@@ -58,7 +58,10 @@
 }
 .vitrine-standard .display-produtos .box-produto .image-head{
 	position: relative;
-	display: block;
+	display: flex;
+    align-items: center;
+    height: 250px;
+    overflow: hidden;
 }
 .vitrine-standard .display-produtos .box-produto img{
     width: 100%;
@@ -82,6 +85,7 @@
     font-size: .7em;
     color: #666;
     margin: 10px 0px 10px 0px;
+    height: 40px;
 }
 .vitrine-standard .display-produtos .box-produto .preco-produto span{
     white-space: nowrap;
@@ -194,7 +198,16 @@
             }
             @media screen and (max-width: 640px){
                 .vitrine-standard .display-produtos .box-produto{
-                    width: calc(50% - 32px);
+                    width: calc(50% - 17px);
+                    margin: 20px 2.5px;
+                    padding: 5px;
+                }
+                .vitrine-standard .display-produtos .box-produto:hover{
+                    margin: 20px 2.5px;
+                    padding: 5px;
+                }
+                .vitrine-standard .display-produtos .box-produto .preco-produto{
+                    font-size: 10px;
                 }
                 .vitrine-standard .display-produtos .box-produto .display-cores{
                     position: relative;
@@ -340,8 +353,9 @@
     opacity: .4;
 }
 .vitrine-carrossel .controller-carrossel .arrows:hover{
-    opacity: .6;
-    background-color: #eee;
+    opacity: 1;
+    background-color: #f6d53e;
+    color: #fff;
     outline: none;
 }
 .vitrine-carrossel .controller-carrossel .slick-hidden{
@@ -393,6 +407,13 @@
 /*.vitrine-carrossel .display-produtos .box-produto:hover{
     transform: scale(1.1);
 }*/
+.vitrine-carrossel .display-produtos .box-produto .image-head{
+    position: relative;
+	display: flex;
+    align-items: center;
+    height: 250px;
+    overflow: hidden;
+}
 .vitrine-carrossel .display-produtos .box-produto img{
     width: 100%;
 }
@@ -415,7 +436,7 @@
     font-size: .7em;
     color: #666;
     margin: 10px 0px 10px 0px;
-    height: 30px;
+    height: 40px;
 }
 .vitrine-carrossel .display-produtos .box-produto .preco-produto span{
     white-space: nowrap;

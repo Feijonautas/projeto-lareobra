@@ -97,6 +97,7 @@
 			$pew_functions = $this->pew_functions;
 
 			$clientInfo = array();
+			$clientInfo['id_usuario'] = $idMinhaConta;
 			$clientInfo['is_pf'] = true;
 			$clientInfo['is_pj'] = false;
 			$clientInfo['clube_descontos_cadastrado'] = false;
@@ -233,26 +234,67 @@
             $baseSite = $cls_paginas->base_path;
             $logo = $cls_paginas->logo;
             $nomeLoja = $cls_paginas->empresa;
+			$full_path = $cls_paginas->get_full_path();
             
             $dirImagens = "imagens/identidadeVisual";
             
             $codigo = md5(md5($email));
-            
-            $body = "";
-            
-            $body .= "<style type='text/css'>@import url('https://fonts.googleapis.com/css?family=Montserrat');</style>";
-            $body .= "<body style='background-color: #eee; font-family: Montserrat, sans-serif;'>";
-            $body .= "<div style='width: 380px; margin: 20px auto 20px auto; padding: 20px; background-color: #fff;'>";
-                $body .= "<div style='width: 100%; height: 100px; line-height: 80px;'>";
-                    $body .= "<img src='$baseSite/$dirImagens/$logo' style='width: 150px; margin-top: 20px; float: left;'>";
-                    $body .= "<h1 style='margin: 0px 0px 0px 180px; font-size: 18px; width: 200px; white-space: nowrap; text-align: right;'>Confirme sua conta</h1>";
-                $body .= "</div>";
-                $body .= "<div class='body'>";
-                    $body .= "<article>Olá {$nome}. Você se cadastrou na loja $nomeLoja.<br><br>Seu login é: <b>$email</b>.<br><br>Clique no botão para confirmar sua conta</article>";
-                    $body .= "<a href='$baseSite/@envia-link-confirmacao.php?confirm=$codigo' style='background-color: limegreen; color: #fff; padding: 5px 15px 5px 15px; display: inline-block; text-decoration: none; margin-top: 15px; font-size: 14px;' target='_blank'>CONFIRMAR CONTA</a>";
-                $body .= "</div>";
-            $body .= "</div>";
-            $body .= "</body>";
+		
+			$body = "
+			<!DOCTYPE html>
+			<html lang='pt-br'>
+				<head>
+					<meta charset='utf-8'>
+					<style>
+						@font-face{
+							font-family: 'Montserrat', sans-serif;
+							src: url('https://fonts.googleapis.com/css?family=Montserrat');
+						}
+						.f-montserrat{
+							font-family: 'Montserrat', sans-serif;
+						}
+					</style>
+				</head>
+				<body class='f-montserrat'>
+					<section class='main-container' style='width: 450px; margin: auto; background-color: #fefefe; border-radius: 5px; color: #333; border: 1px solid #ccc;'>
+						<div class='container' style='padding: 30px 0 0 0;'>
+							<img style='display: block; margin: auto; width: 50%;' src='$full_path/imagens/identidadeVisual/logo-lareobra.png'>
+						</div>
+						<div class='main-body' style='padding: 20px;'>
+							<div class='container' style='margin: 15px 0;'>
+								<h2 style='color: #dd2a2a; margin: 0; font-size: 32px;'>Bem vindo a $nomeLoja</h2>
+							</div>
+							<div class='container'>
+								<p style='text-align: justify; line-height: 24px;'>
+									Você acabou de se cadastrar na loja online $nomeLoja. Agora você poderá:<br>
+									<ul>
+										<li>Finalizar compras na loja</li>
+										<li>Acompanhar pedidos finalizados</li>
+										<li>Participar das promoções exclusivas</li>
+										<li>Fazer parte do Clube de Descontos</li>
+									</ul>
+									<br><br>
+									Não esqueça de confirmar sua conta clicando aqui: <a href='$full_path/@envia-link-confirmacao.php?confirm=$codigo'>Confirmar conta</a>
+								</p>
+							</div>
+							<div class='container'>
+								<p style='text-align: justify; margin: 0; font-size: 12px; line-height: 16px;'>
+									Todas as informações e regras da loja estão disponíveis no nosso site: <a href='$full_path'>www.lareobra.com.br</a><br><br>
+									Caso ainda esteja com dúvidas entre em contato pelo telefone <a href='tel:+5504130851500' style='text-decoration: none; color: #666; white-space: nowrap;'>(41) 3085-1500</a> ou pelo e-mail contato@lareobra.com.br
+								</p>
+							</div>
+						</div>
+						<div class='container' style='display: block; background: #eee; margin: 0; width: 100%; text-align: center; padding: 20px 0;'>
+							<a href='https://twitter.com/intent/tweet?text=$invite_message' style='text-decoration: none; margin: 10px'>
+								<img src='https://www.lareobra.com.br/email-marketing/clube-de-descontos/imagem/twitter.png' style='width: 40px;'>
+							</a>
+							<a href='https://api.whatsapp.com/send?text=$invite_message' style='text-decoration: none; margin: 10px;'>
+								<img src='https://www.lareobra.com.br/email-marketing/clube-de-descontos/imagem/whatsapp.png' style='width: 40px;'>
+							</a>
+						</div>
+					</section>
+				</body>
+			</html>";
             
             return $body;
         }
@@ -626,7 +668,7 @@
 
 					$referencia = $infoPedido["referencia"];
 					$token = $infoPedido["token_carrinho"];
-					$totalPedido = $pew_functions->custom_number_format($infoPedido["valor_total"]);
+					$totalPedido = number_format($infoPedido["valor_total"], 2, ",", ".");
 					$codigoPagamento = $infoPedido["codigo_pagamento"];
 					$status = $infoPedido["status"];
 					$strStatus = $cls_pedidos->get_status_string($status);
@@ -669,7 +711,7 @@
 										$quantidade = $infoProduto["quantidade"];
 										$preco = $infoProduto["preco"];
 										$subtotal = $preco * $quantidade;
-										$subtotal = $pew_functions->custom_number_format($subtotal);
+										$subtotal = number_format($subtotal, 2, ",", ".");
 										echo "<tr>";
 											echo "<td style='padding: 5px;'>$quantidade x</td>";
 											echo "<td>$nome</td>";
@@ -710,7 +752,7 @@
 										$tracking_string = "Status:";
 								}
 								$transport_name = $cls_pedidos->get_transporte_string();
-								$vlr_frete = $infoPedido['valor_frete'];
+								$vlr_frete = number_format($infoPedido['valor_frete'], 2, ",", ".");
 								echo "<table class='table-list'>";
 									echo "<tr><td>$transport_name: </td><td><b>R$ $vlr_frete</b></td></tr>";
 									echo "<tr><td>$tracking_string</td><td><b>$strStatusTransporte</b></td></tr>";
@@ -738,7 +780,7 @@
 									}
 								}else{
 									echo "<tr>";
-										echo "<td>Nenhum observação foi enviada</td>";
+										echo "<td>Nenhuma observação foi enviada</td>";
 									echo "</tr>";
 								}
 								echo "</table>";

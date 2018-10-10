@@ -76,6 +76,9 @@
 					$ctrl++;
 				}
 				break;
+			case 5:
+				$setProdutos = "all";
+				break;
 		}
 
 		mysqli_query($conexao, "update $tabela_promocoes set titulo_vitrine = '$tituloVitrine', descricao_vitrine = '$descricaoVitrine', type = '$type', discount_type = '$discountType', discount_value = '$discountValue', set_produtos = '$setProdutos', cupom_code = '$cupomCode', ctype_englobamento = '$cTypeEnglobamento', grupo_clientes = '$grupoClientes', data_inicio = '$dataInicioF', data_final = '$dataFinalF', status = '$status' where id = '$idPromocao'");

@@ -53,8 +53,9 @@
 		$empresa = $cls_session->empresa;
 
         /*SET TABLES*/
-        $tabela_franquias = "franquias_lojas";
-		$tabela_produtos_franquias = "franquias_produtos";
+        $tabela_franquias = $pew_custom_db->tabela_franquias;
+        $tabela_produtos_franquias = $pew_custom_db->tabela_produtos_franquias;
+        $tabela_transporte_franquias = $pew_custom_db->tabela_transporte_franquias;
         $tabela_usuarios = $pew_db->tabela_usuarios_administrativos;
         /*END SET TABLES*/
 
@@ -100,6 +101,18 @@
 			
 			mysqli_query($conexao, "insert into $tabela_produtos_franquias (id_franquia, id_produto, preco_bruto, preco_promocao, promocao_ativa, estoque, status) values ('$idFranquia', '$idProduto', '$padrao_preco', '$padrao_preco_promocao', '$padrao_promocao_ativa', 0, 0)");
 		}
+
+        $opcoesFrete = array();
+        array_push($opcoesFrete, array("titulo" => "PAC - Correios", "codigo" => 41106, "id_franquia" => $idFranquia, "status" => 1));
+        array_push($opcoesFrete, array("titulo" => "SEDEX - Correios", "codigo" => 40010, "id_franquia" => $idFranquia, "status" => 1));
+        array_push($opcoesFrete, array("titulo" => "SEDEX 10 - Correios", "codigo" => 40215, "id_franquia" => $idFranquia, "status" => 1));
+        array_push($opcoesFrete, array("titulo" => "SEDEX HOJE - Correios", "codigo" => 40290, "id_franquia" => $idFranquia, "status" => 1));
+        array_push($opcoesFrete, array("titulo" => "Retirada na loja", "codigo" => 7777, "id_franquia" => $idFranquia, "status" => 1));
+        array_push($opcoesFrete, array("titulo" => "Motoboy", "codigo" => 8888, "id_franquia" => $idFranquia, "status" => 1));
+
+        foreach($opcoesFrete as $infoFrete){
+            mysqli_query($conexao, "insert into $tabela_transporte_franquias (id_franquia, titulo, codigo, status) values ('{$infoFrete['id_franquia']}', '{$infoFrete['titulo']}', '{$infoFrete['codigo']}', '{$infoFrete['status']}')");
+        }
 		
 		echo "<script>window.location.href = 'pew-franquias.php?msg=Franquia cadastrada&msgType=success';</script>";
         

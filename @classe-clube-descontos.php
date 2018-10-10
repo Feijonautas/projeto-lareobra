@@ -20,17 +20,17 @@ require_once "@pew/@classe-notificacoes.php";
 
 class ClubeDescontos
 {
-	private $activation_invites = 5;
-	private $activation_sales = 1;
-	private $brl_per_point = 0.5;
-	private $sale_percent_point = 5;
-	private $f_sale_percent_point = 2;
-	private $ref_bonus_points = 5;
-	private $welcome_bonus_points = 10;
-	private $base_route = "minha-conta/clube-de-descontos";
+	public $activation_invites = 5;
+	public $activation_sales = 1;
+	public $brl_per_point = 0.07;
+	public $sale_percent_point = 3;
+	public $f_sale_percent_point = 2;
+	public $ref_bonus_points = 5;
+	public $welcome_bonus_points = 10;
+	public $base_route = "minha-conta/clube-de-descontos";
 	public $full_path;
-	public $min_points_sale = 15;
-	public $max_percent_sale = 60;
+	public $min_points_sale = 10;
+	public $max_percent_sale = 50;
 
 	function __construct(){
 		global $cls_paginas;
@@ -113,7 +113,7 @@ class ClubeDescontos
 		return $hash;
 	}
 
-	function cadastrar($idUsuario, $refCode = null)
+	function cadastrar($idUsuario, $refCode = "C6df536d1D")
 	{
 		global $conexao, $pew_custom_db, $pew_functions;
 
@@ -138,23 +138,26 @@ class ClubeDescontos
 			$destinatarios[0]["email"] = $infoCliente["email"];
 
 			$welcomeEmail = $this->get_welcome_email($idUsuario);
-			$pew_functions->enviar_email("Bem vindo - Clube de Descontos", $welcomeEmail, $destinatarios);
+			$pew_functions->enviar_email("Bem-vindo - Clube de Descontos", $welcomeEmail, $destinatarios);
 
 			$cls_notificacoes->insert(0, "Novo cadastro Clube de Descontos", "{$infoCliente['usuario']} se cadastrou no Clube de Descontos", "pew-clube-descontos.php", "system");
 
 			if ($this->welcome_bonus_points > 0) {
-				$this->add_pontos_clube($idUsuario, 1, $this->welcome_bonus_points, "Bem vindo ao Clube de Descontos");
+				$this->add_pontos_clube($idUsuario, 1, $this->welcome_bonus_points, "Bem-vindo ao Clube de Descontos");
 			}
 
 			if ($refCode != null) {
+
 				$contagem = $pew_functions->contar_resultados($tabela_clube_descontos, "uniq_code = '$refCode'");
-				if ($contagem > 0) {
+				$isFirstIndication = $pew_functions->contar_resultados($tabela_clube_descontos, "ref_code = '$refCode'") == 1 ? true : false;
+
+				if ($contagem > 0 && $isFirstIndication) {
 					$queryIndicationID = $this->query("uniq_code = '$refCode'");
 					$infoIndicacao = $queryIndicationID[0];
 					$indication_user_id = $infoIndicacao['id_usuario'];
 
 					if ($this->ref_bonus_points > 0) {
-						$this->add_pontos_clube($indication_user_id, 1, $this->ref_bonus_points, "Um amigo se juntou ao Clube");
+						$this->add_pontos_clube($indication_user_id, 1, $this->ref_bonus_points, "Primeira indicação ao Clube de Descontos");
 					}
 				}
 			}
@@ -280,15 +283,19 @@ class ClubeDescontos
 				$queryConvidados = $this->query("ref_code = '$uniqCode'", "id_usuario");
 
 				$totalConvidados = count($queryConvidados);
-				if ($totalConvidados >= $this->activation_invites) {
-					foreach ($queryConvidados as $infoConvidado) {
-						$idConvidado = $infoConvidado['id_usuario'];
+				// if ($totalConvidados >= $this->activation_invites) {
+				// 	foreach ($queryConvidados as $infoConvidado) {
+				// 		$idConvidado = $infoConvidado['id_usuario'];
 
-						$totalCompras = $this->get_total_orders($idConvidado);
+				// 		$totalCompras = $this->get_total_orders($idConvidado);
 
-						$activated_account = $totalCompras < $this->activation_sales ? false : $activated_account;
-					}
-				} else {
+				// 		$activated_account = $totalCompras < $this->activation_sales ? false : $activated_account;
+				// 	}
+				// } else {
+				// 	$activated_account = false;
+				// }
+
+				if($totalConvidados < $this->activation_invites){
 					$activated_account = false;
 				}
 
@@ -358,11 +365,30 @@ class ClubeDescontos
 
 			mysqli_query($conexao, "update $tabela_clube_descontos set last_update = '$dataAtual' where id_usuario = '$id_usuario'");
 
+			$isFirstOrder = true;
+			// CLEAR PAID ORDERS = ONLY WHEN POINTS NOT ADDED
+			foreach($cartTokensPagos as $index => $token_carrinho){
+				$queryPonto = $this->query_pontos($id_usuario, "id", "id_usuario = '$id_usuario' and ref_token = '$token_carrinho'");
+				if(count($queryPonto) > 0){
+					$isFirstOrder = false;
+					unset($cartTokensPagos[$index]);
+				}
+			}
+
 			foreach ($cartTokensPagos as $token_carrinho) {
 				$queryPonto = $this->query_pontos($id_usuario, "id", "id_usuario = '$id_usuario' and ref_token = '$token_carrinho'");
 				if (count($queryPonto) == 0) {
 					$user_points = $this->get_sales_points(100, "normal");
-					$this->add_pontos_clube($id_usuario, 1, $user_points, "Você finalizou uma compra", $token_carrinho);
+
+					$tituloPonto = "Você finalizou uma compra";
+					if($isFirstOrder == true){
+						// DOBRO DE PONTOS NA PRIMEIRA COMPRA
+						$tituloPonto = "Você finalizou uma compra (Primeira compra)";
+						$user_points = $user_points * 2;
+						$isFirstOrder = false;
+					}
+
+					$this->add_pontos_clube($id_usuario, 1, $user_points, $tituloPonto, $token_carrinho);
 
 					$queryReferenceUser = $this->query("uniq_code = '$refCode'", "id_usuario");
 					if (count($queryReferenceUser) > 0) {
@@ -447,9 +473,9 @@ class ClubeDescontos
 			echo "Para ativar o Clube de Descontos você precisa:";
 			echo "<ul style='list-style: none; padding: 5px 10px 5px 10px;'>";
 			$str_compras = $this->activation_sales == 1 ? "1 compra" : $this->activation_sales . " compras";
-			echo "<li>$first_check Você precisa finalizar <b>$str_compras</b> no site</li>";
+			echo "<li>$first_check Finalizar <b>$str_compras</b> no site</li>";
 			echo "<li>$second_check Indicar <b>" . $this->activation_invites . " amigos</b> ao Clube</li>";
-			echo "<li>$third_check Cada um dos " . $this->activation_invites . " amigos também deve ter feito <b>$str_compras</b></li>";
+			// echo "<li>$third_check Cada um dos " . $this->activation_invites . " amigos também deve ter feito <b>$str_compras</b></li>";
 			echo "</ul>";
 			echo "</article>";
 		} else {

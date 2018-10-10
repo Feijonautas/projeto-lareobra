@@ -52,6 +52,60 @@
         private function conexao(){
             return $this->global_vars["conexao"];
         }
+
+        function query($query_table = null, $condicao = null, $select = null, $order = null, $limit = null, $exeptions = null){
+			$conexao = $this->conexao(); 
+            $pew_functions = $this->pew_functions;
+
+            $query_table = $query_table == null ? $this->global_vars["tabela_produtos"] : $query_table;
+			$condicao = $condicao != null ? str_replace("where", "", $condicao) : "true";
+			$array = array();
+			
+			if(is_array($exeptions) && count($exeptions) > 0){
+				foreach($exeptions as $idEx){
+					$condicao .= "  and id != '$idEx'";
+				}
+			}
+			
+			$total = $pew_functions->contar_resultados($query_table, $condicao);
+			if($total > 0){
+				$select = $select == null ? '*' : $select;
+				$order  = $order == null ? 'order by id desc' : $order;
+				$query = mysqli_query($conexao, "select $select from $query_table where $condicao $order");
+				while($info = mysqli_fetch_array($query)){
+					array_push($array, $info);
+				}
+			}
+			
+			return $array;
+		}
+
+        function query_produtos_franquia($idFranquia = 0, $only_actives = true){
+            $tabela_produtos = $this->global_vars['tabela_produtos'];
+            $tabela_franquias_produtos = $this->global_vars['tabela_franquias_produtos'];
+
+            $returArray = array();
+            
+            if($idFranquia == 0){
+                $condition = $only_actives ? "status = 1" : "true";
+                $queryProdutos = $this->query($tabela_produtos, $condition, "id");
+                if(count($queryProdutos > 0)){
+                    foreach($queryProdutos as $infoProduto){
+                        array_push($returArray, $infoProduto['id']);
+                    }
+                }
+            }else{
+                $condition = $only_actives ? "status = 1 and id_franquia = '$idFranquia'" : "true";
+                $queryProdutos = $this->query($tabela_franquias_produtos, $condition, "id_produto");
+                if(count($queryProdutos > 0)){
+                    foreach($queryProdutos as $infoProduto){
+                        array_push($returArray, $infoProduto['id_produto']);
+                    }
+                }
+            }
+
+            return $returArray;
+        }
 		
 		public function montar_produto($idProduto){
             $tabela_produtos = $this->global_vars["tabela_produtos"];
@@ -156,16 +210,16 @@
 		
 		function produto_franquia($idProduto, $idFranquia){
 			$tabela_produtos = $this->global_vars["tabela_produtos"];
-			$tabela_produtos_franquias = "franquias_produtos";
+			$tabela_franquias_produtos = $this->global_vars["tabela_franquias_produtos"];
 			
 			$mainCondition = "id_produto = '$idProduto' && id_franquia = '$idFranquia'";
 			$alterCondition = "id = '$idProduto'";
 			
 			$totalP = $this->pew_functions->contar_resultados($tabela_produtos, $alterCondition);
-			$totalF = $this->pew_functions->contar_resultados($tabela_produtos_franquias, $mainCondition);
+			$totalF = $this->pew_functions->contar_resultados($tabela_franquias_produtos, $mainCondition);
 			
 			if(!function_exists("set_array")){
-				function set_array($idP, $idF, $precoB, $precoP, $statusPromo, $estoque, $statusProduto){
+				function set_array($idP, $idF, $precoB, $precoP, $statusPromo, $estoque, $lastEstoque, $statusProduto){
 					
 					$precoB = $precoB <= 0 ? '0.00' : $precoB;
 					$precoP = $precoP <= 0 ? '0.00' : $precoP;
@@ -176,22 +230,23 @@
 					$array["preco_promocao"] = $precoP;
 					$array["promocao_ativa"] = $statusPromo;
 					$array["estoque"] = $estoque;
+					$array["last_estoque"] = $lastEstoque;
 					$array["status"] = $statusProduto;
 					return $array;
 				}
 			}
 			
 			if($totalF > 0){
-				$query = mysqli_query($this->conexao(), "select * from $tabela_produtos_franquias where $mainCondition");
+				$query = mysqli_query($this->conexao(), "select * from $tabela_franquias_produtos where $mainCondition");
 				$info = mysqli_fetch_array($query);
 				
-				return set_array($idProduto, $idFranquia, $info["preco_bruto"], $info["preco_promocao"], $info["promocao_ativa"], $info["estoque"], $info["status"]);
+				return set_array($idProduto, $idFranquia, $info["preco_bruto"], $info["preco_promocao"], $info["promocao_ativa"], $info["estoque"], $info["last_estoque"], $info["status"]);
 				
 			}else if($totalP > 0){
 				$query = mysqli_query($this->conexao(), "select * from $tabela_produtos where $alterCondition");
 				$info = mysqli_fetch_array($query);
 				
-				return set_array($idProduto, $idFranquia, $info["preco"], $info["preco_promocao"], 0, 0, 0);
+				return set_array($idProduto, $idFranquia, $info["preco"], $info["preco_promocao"], 0, 0, 0, 0);
 				
 			}else{
 				return false;
@@ -273,9 +328,9 @@
 		
 		function status_filter($array, $status = 1, $idFranquia = false){
 			$tabela_produtos = $this->global_vars["tabela_produtos"];
-			$tabela_produtos_franquias = "franquias_produtos";
+			$tabela_franquias_produtos = $this->global_vars["tabela_franquias_produtos"];
 			
-			$table = $idFranquia != false ? $tabela_produtos_franquias : $tabela_produtos;
+			$table = $idFranquia != false ? $tabela_franquias_produtos : $tabela_produtos;
 			
 			if(is_array($array)){
 				foreach($array as $index => $idProduto){

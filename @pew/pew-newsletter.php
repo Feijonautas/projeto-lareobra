@@ -28,6 +28,11 @@ error_reporting(E_ALL);
             require_once "@link-standard-scripts.php";
         ?>
     </head>
+	<style>
+		.multi-tables{
+			position: static;
+		}
+	</style>
     <script>
         $(document).ready(function(){
             $(".btn-excluir-newsletter").each(function(){
@@ -92,13 +97,13 @@ error_reporting(E_ALL);
             </div>
             <?php
                 $tabela_newsletter = $pew_custom_db->tabela_newsletter;
-				$tabela_franquias = "franquias_lojas";
+                $tabela_franquias = $pew_custom_db->tabela_franquias;
 				// Conditions
                 if(isset($_GET["busca"]) && $_GET["busca"] != ""){
                     $getSEARCH = addslashes($_GET["busca"]);
                     $searchCondition = "nome like '%".$getSEARCH."%' or email like '%".$getSEARCH."%' or celular like '%".$getSEARCH."%'";
                     $getSEARCH = $getSEARCH == "" ? "Todos" : $getSEARCH;
-                    echo "<br class='clear'><h3>Exibindo resultados para: $getSEARCH</h3>";
+                    echo "<br class='clear'><h5>Exibindo resultados para: $getSEARCH &nbsp;&nbsp; <a href='pew-newsletter.php' class='link-padrao'>Limpar</a></h5>";
                 }else{
                     $searchCondition = null;
                 }
@@ -137,9 +142,21 @@ error_reporting(E_ALL);
 					}
 					return $returnArray;
 				}
+
+				function get_string_franquia($idFranquia){
+					global $conexao, $tabela_franquias;
+
+					$queryFranquia = mysqli_query($conexao, "select cidade, estado from $tabela_franquias where id = '$idFranquia'");
+					$infoFranquia = mysqli_fetch_array($queryFranquia);
+					$cidade = $infoFranquia["cidade"];
+					$estado = $infoFranquia["estado"];
+					$strFranquia = $estado . " - " . $cidade;
+
+					return $strFranquia;
+				}
 				
 				function list_by_email($array){
-					global $conexao, $tabela_newsletter, $pew_functions;
+					global $conexao, $tabela_newsletter, $pew_functions, $pew_session;
 					$ctrl = 0;
 					$condition = "";
 					foreach($array as $idN){
@@ -152,8 +169,15 @@ error_reporting(E_ALL);
 						$data = $pew_functions->inverter_data($data);
 						$nome = $i['nome'] != null ? $i['nome'] : "Não especificado";
 						$email = $i['email'] != null ? $i['email'] : "Não especificado";
+						$idFranquia = $i['id_franquia'];
+
+						$strFranquia = get_string_franquia($idFranquia);
+
 						echo "<tr>";
 							echo "<td>$data</td>";
+							if($pew_session->nivel == 1){
+								echo "<td>$strFranquia</td>";
+							}
 							echo "<td>$nome</td>";
 							echo "<td>$email</td>";
 							echo "<td align=center><a data-id-newsletter='{$i['id']}' class='btn-editar btn-excluir-newsletter'><i class='fa fa-trash' aria-hidden='true'></i></a></td>";
@@ -162,7 +186,7 @@ error_reporting(E_ALL);
 				}
 			
 				function list_by_celular($array){
-					global $conexao, $tabela_newsletter, $pew_functions;
+					global $conexao, $tabela_newsletter, $pew_functions, $pew_session;
 					$ctrl = 0;
 					$condition = "";
 					foreach($array as $idN){
@@ -175,8 +199,15 @@ error_reporting(E_ALL);
 						$data = $pew_functions->inverter_data($data);
 						$nome = $i['nome'] != null ? $i['nome'] : "Não especificado";
 						$celular = $i['celular'] != null ? $i['celular'] : "Não especificado";
+						$idFranquia = $i['id_franquia'];
+
+						$strFranquia = get_string_franquia($idFranquia);
+
 						echo "<tr>";
 							echo "<td>$data</td>";
+							if($pew_session->nivel == 1){
+								echo "<td>$strFranquia</td>";
+							}
 							echo "<td>$nome</td>";
 							echo "<td>$celular</td>";
 							echo "<td align=center><a data-id-newsletter='{$i['id']}' class='btn-editar btn-excluir-newsletter'><i class='fa fa-trash' aria-hidden='true'></i></a></td>";
@@ -208,6 +239,9 @@ error_reporting(E_ALL);
 								echo "<table class='table-padrao' cellspacing=0>";
 									echo "<thead>";
 										echo "<td>Data</td>";
+										if($pew_session->nivel == 1){
+											echo "<td>Franquia</td>";
+										}
 										echo "<td>Nome</td>";
 										echo "<td>E-mail</td>";
 										echo "<td align=center>Remover</td>";
@@ -221,6 +255,9 @@ error_reporting(E_ALL);
 								echo "<table class='table-padrao' cellspacing=0>";
 									echo "<thead>";
 										echo "<td>Data</td>";
+										if($pew_session->nivel == 1){
+											echo "<td>Franquia</td>";
+										}
 										echo "<td>Nome</td>";
 										echo "<td>Celular</td>";
 										echo "<td align=center>Remover</td>";

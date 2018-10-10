@@ -139,7 +139,7 @@
                     echo "<td>Nome</td>";
                     echo "<td>E-mail</td>";
                     echo "<td>Telefone</td>";
-                    echo "<td>CPF</td>";
+                    echo "<td>CPF/CNPJ</td>";
                     echo "<td>Total Orçamento</td>";
                     echo "<td>Desconto</td>";
                     echo "<td>Status</td>";
@@ -152,6 +152,7 @@
                     $email = $orcamentos["email_cliente"];
                     $telefone = $orcamentos["telefone_cliente"];
                     $cpf = $pew_functions->mask($orcamentos["cpf_cliente"], "###.###.###-##");
+                    $cnpj = $pew_functions->mask($orcamentos["cnpj_cliente"], "##.###.###/####-##");
                     $totalDesconto = $orcamentos["porcentagem_desconto"];
                     $totalOrcamento = $cls_orcamentos->get_total_orcamento($idOrcamento);
                     $dataOrcamento = $orcamentos["data_controle"];
@@ -159,15 +160,17 @@
                     if($totalOrcamento == 0){
                         $strOrcamento = "ORÇAR";
                     }else{
-                        $strOrcamento = "R$ ". $pew_functions->custom_number_format($totalOrcamento);
+                        $strOrcamento = "R$ ". number_format($totalOrcamento, 2, ",", ".");
                     }
                     $status = $cls_orcamentos->get_string_status($orcamentos["status_orcamento"]);
+
+                    $final_cpf_cnpj = $orcamentos['tipo_pessoa'] == "pf" ? $cpf : $cnpj;
 
                     echo "<tr><td>$dataOrcamento</td>";
                     echo "<td>$nome</td>";
                     echo "<td>$email</td>";
                     echo "<td>$telefone</td>";
-                    echo "<td>$cpf</td>";
+                    echo "<td>$final_cpf_cnpj</td>";
                     echo "<td>$strOrcamento</td>";
                     echo "<td>$totalDesconto%</td>";
                     echo "<td>$status</td>";
@@ -199,7 +202,7 @@
                 while($infoCarrinho = mysqli_fetch_array($queryCarrinho)){
                     
                     $subtotal = $infoCarrinho["preco_produto"] * $infoCarrinho["quantidade_produto"];
-                    $subtotal = $pew_functions->custom_number_format($subtotal);
+                    $subtotal = number_format($subtotal, 2, ",", ".");
                     
                     $urlBase = "https://www.efectusdigital.com.br/reidasfechaduras/";
                     
@@ -208,7 +211,7 @@
                     echo "<tbody>";
                         echo "<td class='quantidade'>{$infoCarrinho["quantidade_produto"]}x</td>";
                         echo "<td class='titulo'><a href='$urlProduto' class='link-padrao' target='_blank'>{$infoCarrinho["nome_produto"]}</a></td>";
-                        echo "<td class='preco'>R$ {$infoCarrinho["preco_produto"]}</td>";
+                        echo "<td class='preco'>R$ ". number_format($infoCarrinho["preco_produto"], 2, ",", ".") ."</td>";
                         echo "<td class='total'>R$ $subtotal</td>";
                     echo "</tbody>";
                 }

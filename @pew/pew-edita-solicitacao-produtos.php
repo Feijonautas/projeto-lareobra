@@ -3,7 +3,7 @@
     
     $thisPageURL = substr($_SERVER["REQUEST_URI"], strpos($_SERVER["REQUEST_URI"], '@pew'));
     $_POST["next_page"] = str_replace("@pew/", "", $thisPageURL);
-    $_POST["invalid_levels"] = array(5, 1);
+    $_POST["invalid_levels"] = array(5);
     
     require_once "@link-important-functions.php";
     require_once "@valida-sessao.php";
@@ -178,6 +178,7 @@
 						viewNewEstoque.text(newEstoque);
 					});
 				}
+				update_total();
 
 				quantityInput.each(function(){
 					$(this).change(function(){
@@ -236,7 +237,7 @@
 					}
 					
 					if(total > 0){
-						mensagemConfirma("Tem certeza que deseja solicitar os produtos?<br><br>"+total+" selecionados", request);
+						mensagemConfirma("Tem certeza que deseja atualizar a solicitação?<br><br>"+total+" selecionados", request);
 					}else{
 						mensagemAlerta("Nenhum produto foi selecionado");
 					}
@@ -359,17 +360,18 @@
 			$selectedSubcategorias = $cls_departamentos->get_subcategorias();
         ?>
         <!--PAGE CONTENT-->
-        <h1 class="titulos"><?php echo $page_title; ?><a href="pew-produtos.php" class="btn-voltar"><i class="fa fa-arrow-left" aria-hidden="true"></i> Voltar</a></h1>
+        <h1 class="titulos"><?php echo $page_title; ?><a href="javascript:window.history.back()" class="btn-voltar"><i class="fa fa-arrow-left" aria-hidden="true"></i> Voltar</a></h1>
 		<section class="conteudo-painel">
-			<div class="group half jc-left">
-				<div class="full">
-					<h4 class="subtitulos" align=left>Mais funções</h4>
-				</div>
-				<div class="label full">
-					<a href="pew-gerenciamento-lista-produtos.php" class="btn-flat" title="Gerencie suas solicitações"><i class="fas fa-cogs"></i> Gerenciamento de solicitações</a>
-					<a class="btn-flat" title="Filtrar" id="buttonFilter"><i class="fas fa-sliders-h"></i> Filtro</a>
-				</div>
-			</div>
+            <div class="group clear">
+				<div class="label group jc-left">
+                    <div class="full">
+                        <h4 class="subtitulos" align=left>Mais funções</h4>
+                    </div>
+                    <div class="label full">
+						<a class="btn-flat" title="Filtrar" id="buttonFilter"><i class="fas fa-sliders-h"></i> Filtro</a>
+                    </div>
+                </div>
+            </div>
 			<br class="clear">
 			<div class="full">
 				<form class="filter-display" method="post" id="form_filtro_relatorios">
@@ -465,19 +467,82 @@
                 <?php
 					require_once "../@classe-produtos.php";
 					$cls_produtos = new Produtos();
-				
+
+                    // TABLES
+                    $tabela_requisicoes = $pew_custom_db->tabela_franquias_solicitacoes;
+    
+                    // GET PRODUTOS
 					$selected_products = $cls_produtos->full_search_string("all_products");
 					$totalProducts = count($selected_products);
 				
 					$active_products = $cls_produtos->status_filter($selected_products, 1, false);
 					$totalAtivos = count($active_products);
+
+                    // PAGE FUNCTIONS
+                    $idSolicitacao = isset($_GET['id_solicitacao']) ? (int) $_GET['id_solicitacao'] : 0;
+                    $acao = isset($_GET['acao']) ? $_GET['acao'] : null;
+                    $isValidSolicitacao = $pew_functions->contar_resultados($tabela_requisicoes, "id = '$idSolicitacao'") > 0 ? true : false;
+					$isValidFranquia = true;
+					if($pew_session->nivel != 1 && $pew_functions->contar_resultados($tabela_requisicoes, "id = '$idSolicitacao' and id_franquia = '{$pew_session->id_franquia}'") == 0){
+						$isValidFranquia = false;
+					}
+
+					$urlAcaoSolicitacao = null;
+
+                    function query_solicitacao($idSolicitacao){
+                        global $conexao, $tabela_requisicoes;
+
+                        $querySolicitacao = mysqli_query($conexao, "select * from $tabela_requisicoes where id = '$idSolicitacao'");
+                        $infoSolicitacoes = mysqli_fetch_array($querySolicitacao);
+
+                        $array = array();
+
+                        $array['id'] = $infoSolicitacoes['id'];
+                        $array['id_franquia'] = $infoSolicitacoes['id_franquia'];
+                        $array['info_produtos'] = $infoSolicitacoes['info_produtos'];
+                        $array['estoque_adicionado'] = $infoSolicitacoes['estoque_adicionado'];
+                        $array['data_cadastro'] = $infoSolicitacoes['data_cadastro'];
+                        $array['data_controle'] = $infoSolicitacoes['data_controle'];
+                        $array['status'] = $infoSolicitacoes['status'];
+
+						// BUILD ARRAY PRODUTOS
+						$arrayProdutos = array();
+
+                        $explodeProdutos = explode("|#|", $infoSolicitacoes['info_produtos']);
+                        foreach($explodeProdutos as $infoProduto){
+                            $explodeInfo = explode("||", $infoProduto);
+
+                            $idProduto = $explodeInfo[0];
+                            $quantidadeProduto = $explodeInfo[1];
+
+							$arrayProdutos[$idProduto] = $quantidadeProduto;
+                        }
+
+						$array['array_produtos'] = $arrayProdutos;
+
+                        return $array;
+                    }
+
+                    $check_products_info = array();
+
+                    if($acao == "clonar" && $isValidSolicitacao){
+                        $getInfo = query_solicitacao($idSolicitacao);
+
+						$check_products_info = $getInfo;
+						$urlAcaoSolicitacao = "pew-grava-lista-produtos.php";
+                    }
+
+					if($acao == "update" && $isValidFranquia){
+                        $getInfo = query_solicitacao($idSolicitacao);
+
+						$check_products_info = $getInfo;
+						$urlAcaoSolicitacao = "pew-update-lista-produtos.php"; 
+                    }
 				
 					arsort($active_products);
 				
 					function list_products($array){
-						global $cls_produtos, $cls_departamentos, $pew_functions, $pew_session;
-
-						
+						global $cls_produtos, $cls_departamentos, $pew_functions, $pew_session, $check_products_info;
 						$dir_imagens = '../imagens/produtos/';
 						
 						if(is_array($array)){
@@ -524,22 +589,28 @@
 								foreach($getSubcategoriasProduto as $infoSubcategoria){
 									$stringSubcategoria = $stringSubcategoria == null ? $infoSubcategoria['id_subcategoria'] : $stringSubcategoria."||".$infoSubcategoria['id_subcategoria'];
 								}
+
+								$isSelected = $check_products_info != null && array_key_exists($idProduto, $check_products_info['array_produtos']);
 								
+								$checkedProduto = $isSelected == true ? "checked" : null;
+								$qtdProduto = $isSelected == true  ? $check_products_info['array_produtos'][$idProduto] : 0;
+
 								echo "<tr class='js-list-product' string-departamento='$stringDepartamento' string-categoria='$stringCategoria' string-subcategoria='$stringSubcategoria'>";
-									echo "<td class='js-td-checkbox' align=center><label class='checkbox-label'><input type='checkbox' class='js-checkbox-list' name='produtos_lista[]' value='$idProduto' js-target-id='$idProduto' tabindex='-1'><span class='checkmark'></span></label></td>";
+									echo "<td class='js-td-checkbox' align=center><label class='checkbox-label'><input type='checkbox' class='js-checkbox-list' name='produtos_lista[]' $checkedProduto value='$idProduto' js-target-id='$idProduto' tabindex='-1'><span class='checkmark'></span></label></td>";
 									echo "<td>$idProduto</td>";
 									echo "<td><img src='$padrao_full_imagem' style='width: 60px;'></td>";
 									echo "<td>$padrao_nome</td>";
 									echo "<td align=center>$franquia_estoque</td>";
 									echo "<td class='prices'>R$ $final_price</td>";
-									echo "<td align=center class='js-td-quantidade'><input type='number' class='label-input js-quantidade-produto' js-target-id='$idProduto' id='quantityInput$idProduto' js-price='$final_price' name='quantidade$idProduto' style='width: 50px;' value=0></td>";
+									echo "<td align=center class='js-td-quantidade'><input type='number' class='label-input js-quantidade-produto' js-target-id='$idProduto' id='quantityInput$idProduto' js-price='$final_price' name='quantidade$idProduto' style='width: 50px;' value='$qtdProduto'></td>";
 									echo "<td class='prices'>R$ <span id='viewSubtotal$idProduto'>0.00</span></td>";
 									echo "<td align=center id='viewNewEstoque$idProduto' js-estoque='$franquia_estoque'>$franquia_estoque</td>";
 								echo "</tr>";
 							}
 						}
 					}
-					echo "<form class='js-request-form' action='pew-grava-lista-produtos.php' method='post'>";
+					echo "<form class='js-request-form' action='$urlAcaoSolicitacao' method='post'>";
+						echo "<input type='hidden' name='id_solicitacao' value='$idSolicitacao'>";
 						echo "<table class='table-padrao' cellspacing=0 style='padding: 0px;'>";
 							echo "<thead>";
 								echo "<td align=center>#</td>";
@@ -557,7 +628,9 @@
 							echo "</tbody>";
 						echo "</table>";
 						echo "<div class='total-request-div'>TOTAL: <b>R$ <span class='js-view-total-request'>0.00</span></b></div>";
-						echo "<input type='submit' value='Solicitar produtos' class='label-input btn-submit js-submit-request'>";
+
+						$strBotaoSubmit = $pew_session->nivel == 1 ? "Atualizar solicitação" : "Solicitar produtos";
+						echo "<input type='submit' value='$strBotaoSubmit' class='label-input btn-submit js-submit-request'>";
 					echo "</form>";
 				
                     if($totalProducts == 0){

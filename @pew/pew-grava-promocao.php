@@ -84,6 +84,9 @@
 				$selectedProdutos = isset($_POST['produtos_promocao']) ? $_POST['produtos_promocao'] : array();
 				$setProdutos = get_explode_string($selectedProdutos);
 				break;
+			case 5:
+				$setProdutos = "all";
+				break;
 		}
 
 		mysqli_query($conexao, "insert into $tabela_promocoes (id_franquia, titulo_vitrine, descricao_vitrine, type, discount_type, discount_value, set_produtos, cupom_code, ctype_englobamento, grupo_clientes, data_inicio, data_final, status) values ('$idFranquia', '$tituloVitrine', '$descricaoVitrine', '$type', '$discountType', '$discountValue', '$setProdutos', '$cupomCode', '$cTypeEnglobamento', '$grupoClientes', '$dataInicioF', '$dataFinalF', '$status')");

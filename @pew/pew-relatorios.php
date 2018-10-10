@@ -538,7 +538,7 @@ $page_title = "Relatório de vendas";
                             $infoProdutos = $cls_pedidos->get_produtos_pedido($infoPedido['array']['token_carrinho']);
                             $totalProdutos = count($infoProdutos);
                             $pagamento = $cls_pedidos->get_pagamento_string($infoArray["codigo_pagamento"]);
-                            $pago = $infoArray["status"] == 3 || $infoArray["status"] == 4 ? true : false;
+                            $pago = $cls_pedidos->is_order_paid($idPedido) ? true : false;
                             $cancelado = $infoArray["status"] == 5 || $infoArray["status"] == 6 || $infoArray["status"] == 7 ? true : false;
 
                             $tree = array();
@@ -620,17 +620,17 @@ $page_title = "Relatório de vendas";
                                 echo "<td>$data</td>";
                                 echo "<td>{$infoArray['nome_cliente']}</td>";
                                 echo "<td align=center>$totalProdutos</td>";
-                                echo "<td class='prices'>R$ $valorBruto</td>";
-                                echo "<td class='prices'>R$ {$pew_functions->custom_number_format($valorTotal)}</td>";
+                                echo "<td class='prices'>R$ " . number_format($valorBruto, 2, ",", ".") . "</td>";
+                                echo "<td class='prices'>R$ " . number_format($valorTotal, 2, ",", ".") . "</td>";
                                 if(!isset($_POST["somente_pagos"])){
                                     $valorPago = $pago == true ? $valorBruto : "0.00";
-                                    echo "<td class='prices'>R$ $valorPago</td>";
+                                    echo "<td class='prices'>R$ " . number_format($valorPago, 2, ",", ".") . "</td>";
                                     if($pago == true){
                                         $bottomTotal["valor_pago"] += $valorPago;
                                     }
                                 }
-                                echo "<td class='prices'>R$ $valorDesconto</td>";
-                                echo "<td class='prices'>R$ $valorFrete</td>";
+                                echo "<td class='prices'>R$ " . number_format($valorDesconto, 2, ",", ".") . "</td>";
+                                echo "<td class='prices'>R$ " . number_format($valorFrete, 2, ",", ".") . "</td>";
                                 echo "<td>$pagamento</td>";
 								if($pew_session->nivel == 1){
                                     if($idFranquia != 0){
@@ -640,7 +640,7 @@ $page_title = "Relatório de vendas";
                                         $cidade = $infoFranquia['cidade'];
                                         echo "<td>$estado - $cidade</td>";
                                     }else{
-                                        echo "<td>Principal</td>";
+                                        echo "<td>Franqueador</td>";
                                     }
 								}
                                 if(isset($_POST["mostrar_departamentos"])){
@@ -674,11 +674,12 @@ $page_title = "Relatório de vendas";
                             echo "<tr><td colspan=10>Nenhum resultado encontrado</td></tr>";
                         }
 
-                        $bottomTotal["total"] = $pew_functions->custom_number_format($bottomTotal["total"]);
-                        $bottomTotal["total_bruto"] = $pew_functions->custom_number_format($bottomTotal["total_bruto"]);
-                        $bottomTotal["total_pago"] = $pew_functions->custom_number_format($bottomTotal["total_pago"]);
-                        $bottomTotal["frete"] = $pew_functions->custom_number_format($bottomTotal["frete"]);
-                        $bottomTotal["descontos"] = $pew_functions->custom_number_format($bottomTotal["descontos"]);
+                        $bottomTotal["total"] = number_format($bottomTotal["total"], 2, ",", ".");
+                        $bottomTotal["total_bruto"] = number_format($bottomTotal["total_bruto"], 2, ",", ".");
+                        $bottomTotal["total_pago"] = number_format($bottomTotal["total_pago"], 2, ",", ".");
+                        $bottomTotal["frete"] = number_format($bottomTotal["frete"], 2, ",", ".");
+                        $bottomTotal["descontos"] = number_format($bottomTotal["descontos"], 2, ",", ".");
+
                         echo "<tfoot>";
                         echo "<td colspan=2 align=center>TOTAL</td>";
                         echo "<td align=center>{$bottomTotal['produtos']}</td>";

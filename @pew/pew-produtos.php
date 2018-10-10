@@ -214,7 +214,7 @@
 							echo "<a href='pew-marcas.php' class='btn-flat' title='Gerenciamento de marcas'><i class='fas fa-plus'></i> Marcas</a>";
 							echo "<a href='pew-cores.php' class='btn-flat' title='Gerenciamento de cores'><i class='fas fa-plus'></i> Cores</a>";
 						}else{
-							echo "<a href='pew-lista-produtos-franquia.php' class='btn-flat' title='Atualize sua lista de produtos'><i class='fas fa-tasks'></i> Atualizar lista de produtos</a>";
+							echo "<a href='pew-lista-produtos-franquia.php' class='btn-flat' title='Solicitar produtos'><i class='fas fa-tasks'></i> Solicitar produtos</a>";
 							echo "<a href='pew-gerenciamento-lista-produtos.php' class='btn-flat' title='Gerencie suas solicitações'><i class='fas fa-cogs'></i> Gerenciamento de solicitações</a>";
 						}
 						

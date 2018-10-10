@@ -28,6 +28,12 @@
     }
     .section-cadastra .descricao-cadastre{
         font-weight: normal;
+        font-size: 16px;
+    }
+    .section-cadastra .descricao-cadastre .link-padrao{
+        padding: 0;
+        margin: 0;
+        font-size: 16px;
     }
     .section-cadastra .descricao-cadastre .link-padrao{
         color: #5583fe;
@@ -328,10 +334,8 @@
         <h3 class="titulo">SE CADASTRE</h3>
         <h5 class="descricao-cadastre">
             <p>
-                É um fato conhecido de todos que um leitor se distrairá com o conteúdo de texto legível de uma página quando estiver examinando sua diagramação.
-            </p>
-            <p>
-                Existem muitas variações disponíveis de passagens de Lorem Ipsum, mas a maioria sofreu algum tipo de alteração.<br><br>
+                Criando um conta no site você poderá finalizar compras na loja, utilizar cupons e promoções imperdíveis, e por último e também mais importânte, você pode participar do <a href='clube-de-descontos/' class='link-padrao'>Clube de Descontos</a>.
+                <br><br>
                 Já tem conta? <a class="link-padrao" id="botaoAlternaLogin">Faça login aqui.</a>
             </p>
         </h5>

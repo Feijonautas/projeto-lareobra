@@ -33,6 +33,7 @@ RewriteRule ^minha-conta/([0-9a-zA-Z_-]+)/([0-9a-zA-Z_-]+)/?$ minha-conta.php?ro
 RewriteRule ^clube-de-descontos/([0-9a-zA-Z_-]+)/?$ cadastrar-clube-desconto.php?invite_code=$1 [NC]
 
 RewriteRule ^carrinho/([0-9a-zA-Z_-]+)/?$ finalizar-compra.php?clear=$1 [NC]
+RewriteRule ^carrinho/orcamento/([0-9a-zA-Z_-]+)/?$ finalizar-compra.php?token_carrinho=$1 [NC]
 RewriteRule ^pedido-finalizado/([0-9a-zA-Z_-]+)/?$ pedido-finalizado.php?referencia=$1 [NC]
 
 

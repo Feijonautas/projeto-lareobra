@@ -281,6 +281,10 @@
 						mensagemAlerta("O campo Valor desconto deve ser maior do que 0", objValorDesconto);
 						return false;
 					}
+                    if(objTipoDesconto.val() == 0 && objValorDesconto.val() > 50){
+                        mensagemAlerta("O campo Valor de desconto não pode ultrapassar 50%", objValorDesconto);
+						return false;
+                    }
 					switch(type){
 						case 1:
 							var idCategoria = objCategoria.val();
@@ -724,7 +728,7 @@
         <h1 class="titulos"><?php echo $page_title; ?><a href="pew-promocoes.php" class="btn-voltar"><i class="fa fa-arrow-left" aria-hidden="true"></i> Voltar</a></h1>
         <section class="conteudo-painel">
 			<article class="group mbottom">
-				Se o tipo de desconto for <b>Valor Fixo</b> e o preço dos produtos selecionados forem menor (ou próximos a 70%) do valor fixo cadastrado, então será adicionado <b>25%</b> de desconto sobre o preço do produto ao invés do valor fixo.
+				O valor do desconto limita-se a 50% do preço do produto
 			</article>
             <form method="post" action="pew-grava-promocao.php" class="formulario-cadastro-promocao clear" id="promoForm">
 				<h3 class='title-description'>Informações da promoção</h3>
@@ -737,6 +741,7 @@
 							<option value="2">Subcategoria</option>
 							<option value="3">Cupom</option>
 							<option value="4">Produtos</option>
+							<option value="5">Toda loja</option>
 						</select>
                     </label>
 					<label class="label xsmall">

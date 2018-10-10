@@ -94,6 +94,27 @@
                 return array();
             }
         }
+
+        function get_departamentos_produto($idProduto){
+            $tabela_departamentos_produtos = $this->tables["tabela_departamentos_produtos"];
+
+            $queryDepartamentos = $this->build_array("id_departamento", $tabela_departamentos_produtos, "id_produto = '$idProduto'");
+            return $queryDepartamentos;
+        }
+
+        function get_categorias_produto($idProduto){
+            $tabela_categorias_produtos = $this->tables["tabela_categorias_produtos"];
+
+            $queryCategorias = $this->build_array("id_categoria", $tabela_categorias_produtos, "id_produto = '$idProduto'");
+            return $queryCategorias;
+        }
+
+        function get_subcategorias_produto($idProduto){
+            $tabela_subcategorias_produtos = $this->tables["tabela_subcategorias_produtos"];
+
+            $querySubcategorias = $this->build_array("id_subcategoria", $tabela_subcategorias_produtos, "id_produto = '$idProduto'");
+            return $querySubcategorias;
+        }
         
     }
 

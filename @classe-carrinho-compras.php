@@ -307,10 +307,9 @@
 				
 			}else if(isset($_SESSION['carrinho']['cupom_desconto'])){
                 // Cupom de desconto
-                $get_cupom = $_SESSION['carrinho']['cupom_desconto'];
-                $id_cupom = $cls_promocoes->get_id_cupom($get_cupom);
-                $client_promo_rules = $cls_conta->get_promo_rules($this->id_cliente);
-                if($id_cupom != false && $cls_promocoes->is_promo_available($id_cupom, $client_promo_rules) == true){
+                $activeCupom = $this->get_active_cupom();
+                if($activeCupom != false){
+                    $id_cupom = $activeCupom["id_cupom"];
                     $promo_rules = $cls_promocoes->get_promo_rules($id_cupom);
                     $promo_products = $cls_promocoes->get_produtos($id_cupom);
 
@@ -493,6 +492,37 @@
             }
         }
 
+        function get_active_cupom($validate = true){
+            $cls_conta = new MinhaConta();
+            $cls_promocoes = new Promocoes();
+            
+            $this->verify_session();
+            
+            $session_cupom = isset($_SESSION['carrinho']['cupom_desconto']) ? addslashes($_SESSION['carrinho']['cupom_desconto']) : null;
+            $id_cupom = $cls_promocoes->get_id_cupom($session_cupom);
+
+            $returnInfo = false;
+            if($validate == true){
+
+                $client_promo_rules = $cls_conta->get_promo_rules($this->id_cliente);
+
+                if($id_cupom != false && $cls_promocoes->is_promo_available($id_cupom, $client_promo_rules)){
+                    $returnInfo = array();
+                    $returnInfo["id_cupom"] = $id_cupom;
+                    $returnInfo["codigo"] = $session_cupom;
+                }
+
+            }else if($id_cupom != false && $session_cupom != null){
+
+                $returnInfo = array();
+                $returnInfo["id_cupom"] = $id_cupom;
+                $returnInfo["codigo"] = $session_cupom;
+                
+            }
+
+            return $returnInfo;
+        }
+
         function reset_cupom(){
             $this->verify_session();
             
@@ -596,7 +626,7 @@
             
             if($id_cupom != false){
                 $is_cupom_available = $cls_carrinho->add_cupom($get_cupom) === true ? true : false;
-                echo $cls_promocoes->get_cupom_view($id_cupom, $is_cupom_available);
+                echo $cls_promocoes->get_cupom_view($id_cupom, $is_cupom_available, $cls_carrinho->id_cliente);
             }else{
                 echo "invalido";
             }

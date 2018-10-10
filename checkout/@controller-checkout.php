@@ -12,10 +12,13 @@ error_reporting(E_ALL);
 	require_once "../@classe-paginas.php";
 	require_once "../@classe-minha-conta.php";
 	require_once "../@classe-clube-descontos.php";
+	require_once "../@classe-carrinho-compras.php";
 	require_once "../@pew/@classe-system-functions.php";
 
 	$cls_conta = new MinhaConta();
 	$cls_clube = new ClubeDescontos();
+	$cls_carrinho = new Carrinho();
+	$cls_promocoes = new Promocoes();
 	$cls_paginas = new Paginas();
     $pew_functions = new systemFunctions();
 
@@ -181,6 +184,7 @@ error_reporting(E_ALL);
         //print_r($pagseguro); exit();
 		
 		$customResponse = "false";
+        // Pontos Clube Checkout
 		if(isset($sendDataForm['pontosClube']) && $sendDataForm['pontosClube'] > 0){
 			$selected_points_clube = $sendDataForm['pontosClube'];
 			
@@ -193,6 +197,17 @@ error_reporting(E_ALL);
 				$customResponse = "pontos_insuficientes";
 			}
 		}
+
+        // Cupom Promoções Checkout
+        $activeCupom = $cls_carrinho->get_active_cupom(false);
+        if($activeCupom != false){
+            $client_promo_rules = $cls_conta->get_promo_rules($idConta);
+
+            if($cls_promocoes->is_promo_available($activeCupom['id_cupom'], $client_promo_rules) == false){
+                $enviarDados = false;
+                $customResponse = "cupom_utilizado";
+            }
+        }
         
         if($enviarDados){
             $curl = curl_init();
@@ -227,9 +242,9 @@ error_reporting(E_ALL);
 
                 if(isset($xml->error)){
                     
-                    print_r($xml);
+                    //print_r($xml);
                     
-                    echo "false";
+                    echo "verificar_dados";
                     
                 }else{
 					$_POST['cancel_redirect'] = true;
@@ -310,7 +325,12 @@ error_reporting(E_ALL);
                     mysqli_query($conexao, "insert into $tabela_pedidos (id_franquia, codigo_confirmacao, codigo_transacao, codigo_transporte, vlr_frete, codigo_pagamento, codigo_rastreamento, payment_link, referencia, token_carrinho, id_cliente, nome_cliente, cpf_cliente, email_cliente, cep, rua, numero, complemento, bairro, cidade, estado, data_controle, status_transporte, status) values ('$session_id_franquia', '$codigoConfirmacao', '$codigoTransacao', '{$sendDataForm["shippingCode"]}', '{$pagseguro["shippingCost"]}', '$codigoPagamento', '', '$paymentLink', '$referencia', '$tokenCarrinho', '$idConta', '{$pagseguro["senderName"]}', '$final_cpf_cnpj', '{$pagseguro["senderEmail"]}', '{$pagseguro["billingAddressPostalCode"]}', '{$pagseguro["billingAddressStreet"]}', '{$pagseguro["billingAddressNumber"]}', '{$pagseguro["billingAddressComplement"]}', '{$pagseguro["billingAddressDistrict"]}', '{$pagseguro["billingAddressCity"]}', '{$pagseguro["billingAddressState"]}', '$dataAtual', '$statusTransporte', '$statusPagamento')");
 					
 					$idPedido = get_last_id();
-					$cls_notificacoes->insert($session_id_franquia, "Nova pedido", "Um cliente finalizou um pedido na loja", "pew-interna-pedido.php?id_pedido=$idPedido", "finances");
+
+					$cls_notificacoes->insert($session_id_franquia, "Novo pedido", "Um cliente finalizou um pedido na loja", "pew-interna-pedido.php?id_pedido=$idPedido", "finances");
+
+                    if($activeCupom != false){
+                        $cls_promocoes->add_cupom_use($activeCupom['id_cupom'], $idPedido, $idConta);
+                    }
 
                     $destinarios = array();
                     $destinarios[0] = array();
@@ -320,27 +340,6 @@ error_reporting(E_ALL);
                     $bodyEmailPedido = $cls_conta->get_body_email_pedido($idPedido);
 
                     $pew_functions->enviar_email("Novo pedido - {$cls_paginas->empresa}", $bodyEmailPedido, $destinarios);
-                    
-                    switch($statusPagamento){
-                        case 3:
-                            $resposta = "pago";
-                            break;
-                        case 4:
-                            $resposta = "pago";
-                            break;
-                        case 6:
-                            $resposta = "cancelado";
-                            break;
-                        case 7:
-                            $resposta = "cancelado";
-                            break;
-                        default:
-                            $resposta = "aguardando";
-                    }
-                    
-                    // if($paymentLink != null){
-                    //     $resposta = '{"paymentLink": "'.$paymentLink.'"}';
-                    // }
 
                     if($referenciaPedido != null){
                         $resposta = '{"referencia": "'.$referenciaPedido.'"}';
